@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Resource Planner \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-29 09:24+0100\n"
+"POT-Creation-Date: 2026-11-13 18:49+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -833,7 +833,7 @@ msgstr ""
 msgid "Wrong."
 msgstr ""
 
-#: templates/macros.html texts.py
+#: templates/macros.html templates/tasks/_list.html texts.py
 msgid "Maintained by the connected system."
 msgstr ""
 
@@ -2113,12 +2113,76 @@ msgstr ""
 msgid "A skill's key is matched against the labels of imported tasks."
 msgstr ""
 
+#: templates/tasks/_details.html
+msgid "Values from the source"
+msgstr ""
+
+#: templates/tasks/_details.html
+#, python-format
+msgid "From %(source)s, read only."
+msgstr ""
+
+#: templates/tasks/_details.html templates/tasks/_list.html
+#, python-format
+msgid "Open %(key)s in the source"
+msgstr ""
+
+#: templates/tasks/_details.html
+msgid "Due date"
+msgstr ""
+
+#: templates/tasks/_details.html
+msgid "Start date"
+msgstr ""
+
+#: templates/tasks/_details.html
+msgid "Original estimate"
+msgstr ""
+
+#: templates/tasks/_details.html
+#, python-format
+msgid "%(hours)s h"
+msgstr ""
+
+#: templates/tasks/_details.html templates/tasks/_list.html
+msgid "Story points"
+msgstr ""
+
+#: templates/tasks/_details.html templates/tasks/_list.html
+msgid "Priority"
+msgstr ""
+
+#: templates/tasks/_details.html templates/tasks/_list.html
+msgid "Assignee"
+msgstr ""
+
+#: templates/tasks/_details.html
+msgid "Reporter"
+msgstr ""
+
+#: templates/tasks/_details.html
+msgid "Changed in the source"
+msgstr ""
+
+#: templates/tasks/_list.html
+msgid "Due"
+msgstr ""
+
+#: templates/tasks/_list.html
+msgid "SP"
+msgstr ""
+
 #: templates/tasks/_list.html
 msgid "Effort"
 msgstr ""
 
 #: templates/tasks/_list.html
 msgid "Planned"
+msgstr ""
+
+#: templates/tasks/_list.html
+#, python-format
+msgid "Show the values of %(key)s from the source"
 msgstr ""
 
 #: templates/tasks/_list.html

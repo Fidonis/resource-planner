@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import uuid
-from collections.abc import Sequence
+from collections.abc import Collection, Sequence
 from typing import Any
 
 from sqlalchemy import func, select, update
@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from planner_api.errors import not_found
 from planner_api.models import Absence, IntegrationConfig, Member, Skill, SyncRun, Task, Team
+from planner_api.providers.base import TASK_ATTRIBUTES
 from planner_api.repositories.base import page_of
 
 OWNED: dict[str, Any] = {
@@ -27,6 +28,22 @@ async def get_integration(session: AsyncSession, integration_id: uuid.UUID) -> I
     if row is None:
         raise not_found("Integration", integration_id)
     return row
+
+
+async def integration_names(session: AsyncSession, sources: Collection[str]) -> dict[str, str]:
+    """Name of the integration behind each ``external_source`` that is the id of one."""
+    ids: set[uuid.UUID] = set()
+    for source in sources:
+        try:
+            ids.add(uuid.UUID(source))
+        except ValueError:
+            continue  # the source of the ingest API, a name already
+    if not ids:
+        return {}
+    rows = await session.execute(
+        select(IntegrationConfig.id, IntegrationConfig.name).where(IntegrationConfig.id.in_(ids))
+    )
+    return {str(integration_id): name for integration_id, name in rows.all()}
 
 
 async def list_integrations(
@@ -96,6 +113,8 @@ async def detach(session: AsyncSession, source: str) -> None:
         values: dict[str, Any] = {"external_source": None, "external_id": None}
         if kind == "tasks":
             values |= {"locked_fields": [], "external_url": None, "external_updated_at": None}
+            # Only a source writes the planning attributes; a manual task cannot edit them.
+            values |= dict.fromkeys(TASK_ATTRIBUTES)
         if kind == "members":
             values["external_snapshot"] = None
         await session.execute(update(model).where(model.external_source == source).values(**values))

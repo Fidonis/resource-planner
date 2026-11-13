@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import AsyncIterator
-from datetime import datetime
+from datetime import date, datetime
 from decimal import Decimal
 from pathlib import Path
 from typing import Any, ClassVar
@@ -24,6 +24,7 @@ INTEGRATIONS = "/api/v1/integrations"
 
 class FakeConfig(BaseModel):
     count: int = 2
+    attributes: bool = False  # hand over planning attributes, some of them awkward
 
 
 class FakeTaskSource(ProviderBase):
@@ -45,12 +46,24 @@ class FakeTaskSource(ProviderBase):
     ) -> AsyncIterator[ExternalTask | SourceProblem]:
         assert isinstance(config, FakeConfig)
         for number in range(config.count):
+            extra: dict[str, Any] = {}
+            if config.attributes:
+                extra = {
+                    "due_date": date(2026, 12, 18),
+                    "original_estimate_hours": Decimal(1) / Decimal(3),  # stored as 0.33
+                    "story_points": Decimal(10_000_000),  # does not fit the column
+                    "assignee": "A" * 200,  # longer than the column
+                    "description": "x" * 25_000,
+                    "unknown_attributes": frozenset({"priority"}) if number else frozenset(),
+                    "priority": "High",
+                }
             yield ExternalTask(
                 external_id=f"F-{number}",
                 key=f"FAKE-{number}",
                 title=f"Fake task {number}",
                 estimate=Decimal(4),
                 labels=("Backend",),
+                **extra,
             )
 
 

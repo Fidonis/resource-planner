@@ -112,6 +112,15 @@
     }
   }
 
+  // A button that shows or hides the element it controls (the detail row of an imported task).
+  function toggleDetails(button) {
+    var target = document.getElementById(button.getAttribute("aria-controls") || "");
+    if (!target) return;
+    var open = button.getAttribute("aria-expanded") !== "true";
+    button.setAttribute("aria-expanded", open ? "true" : "false");
+    target.hidden = !open;
+  }
+
   // A row of a repeating form (the role mapping) that the user does not want any more.
   function removeRow(button) {
     var row = button.closest("[data-row]");
@@ -142,6 +151,9 @@
         break;
       case "remove-row":
         removeRow(target);
+        break;
+      case "toggle-details":
+        toggleDetails(target);
         break;
       default:
         break;

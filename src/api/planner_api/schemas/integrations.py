@@ -8,7 +8,7 @@ from typing import Annotated, Any, Literal
 
 from pydantic import Field, StringConstraints
 
-from planner_api.schemas.common import ApiModel, PersonDays, Stamped
+from planner_api.schemas.common import Amount, ApiModel, PersonDays, Stamped
 from planner_api.schemas.org import Email, SkillKey, Versioned
 
 IntegrationType = Literal["task_source", "directory", "absence_source"]
@@ -134,6 +134,29 @@ class IngestTask(ApiModel):
     efforts: list[IngestEffort] | None = Field(
         default=None,
         description="Effort per skill. Left out, the efforts of the task stay as they are.",
+    )
+    due_date: date | None = Field(
+        default=None,
+        description="Due date. This and the other planning attributes below are shown with the "
+        "task and cannot be edited in the planner; one that is left out stays as it is, null "
+        "empties it.",
+        examples=["2026-12-18"],
+    )
+    start_date: date | None = Field(default=None, examples=["2026-12-01"])
+    original_estimate_hours: Amount | None = Field(
+        default=None, ge=0, le=999999.99, description="Time estimate in hours.", examples=[16]
+    )
+    story_points: Amount | None = Field(default=None, ge=0, le=999999.99, examples=[5])
+    priority: Annotated[str, StringConstraints(max_length=64)] | None = Field(
+        default=None, examples=["High"]
+    )
+    assignee: Annotated[str, StringConstraints(max_length=160)] | None = Field(
+        default=None, description="Name of the assigned person.", examples=["Alex Example"]
+    )
+    reporter: Annotated[str, StringConstraints(max_length=160)] | None = Field(
+        default=None,
+        description="Name of the person who created the task.",
+        examples=["Sam Example"],
     )
 
 

@@ -20,6 +20,15 @@ TASK_FILE = (
     "SHOP-3;Invoices;Open;Backend:2,5;;\r\n"
 )
 LABELS = {"effortStrategy": "LABEL_ENCODED"}
+PLANNING_ATTRIBUTES = (
+    "dueDate",
+    "startDate",
+    "originalEstimateHours",
+    "storyPoints",
+    "priority",
+    "assignee",
+    "reporter",
+)
 
 
 async def seeded(api: Api) -> Any:
@@ -444,6 +453,46 @@ async def test_a_provider_from_outside_the_package_runs_like_any_other(sync_api:
     assert (await tasks_by_key(admin))["FAKE-1"]["efforts"][0]["personDays"] == 4
 
 
+async def test_planning_attributes_of_a_source_are_cleaned_and_stable(sync_api: Api) -> None:
+    admin = await seeded(sync_api)
+    made = await admin.create(
+        INTEGRATIONS,
+        {
+            "name": "Tracker",
+            "type": "task_source",
+            "providerKey": "fake",
+            "config": {"count": 2, "attributes": True},
+            "mapping": {},
+        },
+    )
+    first = await sync(admin, made["id"])
+    assert counts(first)[0] == 2 and first["status"] == "success"
+    messages = " ".join(entry["message"] for entry in first["log"])
+    assert "story points was left empty" in messages
+    assert "shortened to 20000 characters" in messages
+
+    found = await tasks_by_key(admin)
+    task = found["FAKE-0"]
+    assert task["sourceName"] == "Tracker"
+    assert task["dueDate"] == "2026-12-18"
+    assert task["originalEstimateHours"] == 0.33
+    assert task["storyPoints"] is None
+    assert task["assignee"] == "A" * 160
+    assert len(task["description"]) == 20000
+    assert task["priority"] == "High"
+    assert task["efforts"] == []  # MANUAL by default: the effort is entered here
+
+    assert found["FAKE-1"]["priority"] is None  # the source could not read it
+
+    # an attribute the source cannot read is left as it is
+    async with sync_api.factory() as session:
+        await session.execute(text("UPDATE task SET priority = 'Kept' WHERE key = 'FAKE-1'"))
+        await session.commit()
+    again = await sync(admin, made["id"])
+    assert counts(again) == (0, 0, 2, 0)
+    assert (await tasks_by_key(admin))["FAKE-1"]["priority"] == "Kept"
+
+
 async def test_an_integration_with_data_is_deleted_only_when_detached(
     sync_api: Api, imports_dir: Path
 ) -> None:
@@ -466,6 +515,33 @@ async def test_an_integration_with_data_is_deleted_only_when_detached(
         {"version": kept["version"], "key": "SHOP-1", "title": "Mine now", "status": "open"},
     )
     assert editable.status_code == 200, editable.text
+
+
+async def test_a_detached_task_keeps_no_planning_attributes_of_its_source(sync_api: Api) -> None:
+    admin = await seeded(sync_api)
+    made = await admin.create(
+        INTEGRATIONS,
+        {
+            "name": "Tracker",
+            "type": "task_source",
+            "providerKey": "fake",
+            "config": {"count": 1, "attributes": True},
+            "mapping": {},
+        },
+    )
+    await sync(admin, made["id"])
+    imported = (await tasks_by_key(admin))["FAKE-0"]
+    assert imported["dueDate"] == "2026-12-18" and imported["priority"] == "High"
+
+    gone = await admin.delete(
+        f"{INTEGRATIONS}/{made['id']}", params={"version": made["version"], "detach": "true"}
+    )
+    assert gone.status_code == 204
+    kept = (await tasks_by_key(admin))["FAKE-0"]
+    assert kept["externalSource"] is None and kept["sourceName"] is None
+    # A manual task has no planning attributes: nothing stays behind that the planner cannot edit.
+    for name in PLANNING_ATTRIBUTES:
+        assert kept[name] is None, name
 
 
 async def test_the_audit_log_names_the_sync_as_the_actor(sync_api: Api, imports_dir: Path) -> None:

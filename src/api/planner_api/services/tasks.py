@@ -15,6 +15,8 @@ from planner_api.domain.planning import planned_percent
 from planner_api.errors import ErrorCode, ProblemError, blocked, validation
 from planner_api.models import Assignment, Task, TaskEffort
 from planner_api.models.base import touch
+from planner_api.providers.base import TASK_ATTRIBUTES
+from planner_api.repositories import integrations as integrations_repo
 from planner_api.repositories import org as org_repo
 from planner_api.repositories import planning as planning_repo
 from planner_api.repositories import work as repo
@@ -30,7 +32,7 @@ from planner_api.schemas.planning import (
 from planner_api.services.common import reject_locked, snapshot
 from planner_api.services.context import Ctx, Expected
 
-AUDITED = ("key", "title", "description", "owner_team_id", "status")
+AUDITED = ("key", "title", "description", "owner_team_id", "status", *TASK_ATTRIBUTES)
 DEFAULT_LOCKED = ("title", "status", "efforts")
 
 
@@ -50,6 +52,7 @@ def _to_out(
     assigned: Mapping[tuple[uuid.UUID, uuid.UUID], Decimal],
     skills: Mapping[uuid.UUID, tuple[str, str]],
     teams: Mapping[uuid.UUID, str],
+    sources: Mapping[str, str],
     ctx: Ctx,
 ) -> TaskOut:
     efforts: list[EffortOut] = []
@@ -90,6 +93,16 @@ def _to_out(
         status=task.status,
         external_url=task.external_url,
         external_updated_at=task.external_updated_at,
+        source_name=sources.get(task.external_source, task.external_source)
+        if task.external_source
+        else None,
+        due_date=task.due_date,
+        start_date=task.start_date,
+        original_estimate_hours=task.original_estimate_hours,
+        story_points=task.story_points,
+        priority=task.priority,
+        assignee=task.assignee,
+        reporter=task.reporter,
         locked_fields=list(task.locked_fields or []),
         efforts=efforts,
         total_effort=round2(total_effort),
@@ -112,7 +125,10 @@ async def outs(ctx: Ctx, tasks: Sequence[Task]) -> list[TaskOut]:
     teams = await org_repo.team_names(
         ctx.session, {t.owner_team_id for t in tasks if t.owner_team_id}
     )
-    return [_to_out(t, assigned, skills, teams, ctx) for t in tasks]
+    sources = await integrations_repo.integration_names(
+        ctx.session, {t.external_source for t in tasks if t.external_source}
+    )
+    return [_to_out(t, assigned, skills, teams, sources, ctx) for t in tasks]
 
 
 async def out(ctx: Ctx, task: Task) -> TaskOut:

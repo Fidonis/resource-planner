@@ -530,6 +530,87 @@ async def test_a_bad_effort_is_reported_next_to_the_field(api: Api, browser: Bro
     assert response.status_code == 422 and "person-days" in response.text
 
 
+async def imported_task(api: Api) -> dict[str, Any]:
+    """A task sent through the ingest API with all planning attributes of its source."""
+    push = await api.as_role(permissions=["ingest:write"])
+    sent = await push.post(
+        "/api/v1/ingest/tasks",
+        {
+            "source": "tracker",
+            "tasks": [
+                {
+                    "externalId": "100",
+                    "key": "WEB_1-7",
+                    "title": "Imported story",
+                    "url": "https://tracker.test/browse/WEB_1-7",
+                    "dueDate": "2026-12-18",
+                    "startDate": "2026-12-01",
+                    "originalEstimateHours": 12.5,
+                    "storyPoints": 5,
+                    "priority": "Highest",
+                    "assignee": "Alex Example",
+                    "reporter": "Sam Example",
+                }
+            ],
+        },
+    )
+    assert sent.status_code == 200 and sent.json()["created"] == 1, sent.text
+    admin = await api.admin()
+    found: dict[str, Any] = (await admin.get(TASKS, params={"q": "WEB_1-7"})).json()["items"][0]
+    return found
+
+
+async def test_the_values_of_the_source_are_listed_and_shown_read_only(
+    api: Api, browser: Browser
+) -> None:
+    w = await planner_world(api, browser)
+    imported = await imported_task(api)
+
+    page = await browser.page("/tasks")
+    assert page.status_code == 200, page.text
+    text = page.text
+    assert "Dec 18, 2026" in text and "Highest" in text and "Alex Example" in text
+    assert 'href="https://tracker.test/browse/WEB_1-7"' in text
+    assert f'aria-controls="task-details-{imported["id"]}"' in text
+    assert f'id="task-details-{imported["id"]}" hidden' in text
+    assert "From tracker, read only." in text and "Sam Example" in text and "12.5 h" in text
+    # the manual task has no values of a source and no detail row
+    assert f"task-details-{w['task']['id']}" not in text
+
+    dialog = await browser.fragment(f"/tasks/{imported['id']}/edit", target="modal-body")
+    assert "From tracker, read only." in dialog.text and "Dec 1, 2026" in dialog.text
+    manual = await browser.fragment(f"/tasks/{w['task']['id']}/edit", target="modal-body")
+    assert "read only." not in manual.text
+
+    # the key with an underscore can be saved from the dialog, efforts stay editable
+    saved = await browser.send(
+        "PUT",
+        f"/tasks/{imported['id']}",
+        {
+            "key": "WEB_1-7",
+            "title": "Imported story",
+            "status": "open",
+            f"effort-{w['backend']['id']}": "2",
+            "version": str(imported["version"]),
+        },
+    )
+    assert saved.status_code == 200, saved.text
+    assert "Backend 0/2" in saved.text
+
+
+async def test_a_viewer_sees_the_values_of_the_source(
+    api: Api, browser: Browser, make_browser: Any
+) -> None:
+    await planner_world(api, browser, role="viewer")
+    imported = await imported_task(api)
+    page = await browser.page("/tasks")
+    assert f'id="task-details-{imported["id"]}"' in page.text
+    assert f"/tasks/{imported['id']}/edit" not in page.text
+    german = make_browser("de-DE,de;q=0.9")
+    await german.sign_in("zoe")
+    assert "Fällig" in (await german.page("/tasks")).text
+
+
 # --- absences ----------------------------------------------------------------------------
 
 
