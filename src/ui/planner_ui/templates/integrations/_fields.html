@@ -1,7 +1,20 @@
 {# One input of a provider's settings, drawn from its schema (see planner_ui/schema_form.py). #}
+{% from "integrations/_choices.html" import choices %}
 {% macro schema_field(f) %}
-<div class="form-control">
-  {% if f.kind == "checkbox" %}
+<div class="form-control"{% if f.show_when %} data-show-when="{{ f.show_when[0] }}" data-show-value="{{ f.show_when[1] }}"{% endif %}>
+  {% if f.kind == "options" %}
+  <span id="{{ f.id }}-label" class="label-text mb-1 font-medium">{{ f.label }}</span>
+  <div role="group" aria-labelledby="{{ f.id }}-label"{% if f.help %} aria-describedby="{{ f.id }}-help"{% endif %} class="space-y-2">
+    <div id="{{ f.id }}-choices"{% if f.options_url and f.load_on_open %} hx-post="{{ f.options_url }}" hx-include="closest form" hx-trigger="load" hx-target="this" hx-swap="innerHTML"{% endif %}>
+      {{ choices(f.name, f.id, f.choices, f.value, loaded=false) }}
+    </div>
+    {% if f.options_url %}
+    <button type="button" class="btn btn-sm" hx-post="{{ f.options_url }}" hx-include="closest form" hx-target="#{{ f.id }}-choices" hx-swap="innerHTML">{{ icon("refresh") }} {{ _("Load the choices from the source") }}</button>
+    {% endif %}
+  </div>
+  {% if f.error %}<p id="{{ f.id }}-err" class="mt-1 text-xs text-error" role="alert">{{ f.error }}</p>{% endif %}
+  {% if f.help %}<p id="{{ f.id }}-help" class="mt-1 text-xs opacity-60">{{ f.help }}</p>{% endif %}
+  {% elif f.kind == "checkbox" %}
   <label class="label cursor-pointer justify-start gap-3" for="{{ f.id }}">
     <input type="checkbox" id="{{ f.id }}" name="{{ f.name }}" class="checkbox checkbox-sm"{% if f.value %} checked{% endif %}{% if f.help %} aria-describedby="{{ f.id }}-help"{% endif %}>
     <span class="label-text">{{ f.label }}</span>

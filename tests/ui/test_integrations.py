@@ -418,3 +418,100 @@ async def test_every_text_of_the_built_in_providers_is_listed_for_translation(
             for spec in schema["properties"].values():
                 wanted |= {spec[k] for k in ("title", "description") if spec.get(k)}
     assert wanted <= set(BUILT_IN_TEXTS), sorted(wanted - set(BUILT_IN_TEXTS))
+
+
+# --- schedule presets and choices from the source -------------------------------------------
+
+
+async def test_the_schedule_is_chosen_from_presets_or_written_as_cron(
+    sync_api: Api, sync_browser: Browser
+) -> None:
+    await sign_in_admin(sync_api, sync_browser)
+    form = await sync_browser.fragment("/integrations/new/task_source/csv", target="modal-body")
+    assert 'name="schedule_preset"' in form.text and '<option value="*/15 * * * *"' in form.text
+    assert 'data-show-when="schedule_preset" data-show-value="custom"' in form.text
+
+    ident = await make(sync_browser, schedule_preset="*/15 * * * *", schedule="ignored")
+    admin = await sync_api.admin()
+    stored = (await admin.get(f"{INTEGRATIONS}/{ident}")).json()
+    assert stored["schedule"] == "*/15 * * * *"
+    listing = await sync_browser.page("/integrations")
+    assert "Every 15 minutes" in listing.text
+    edit = await sync_browser.fragment(f"/integrations/{ident}/edit", target="modal-body")
+    assert '<option value="*/15 * * * *" selected>' in edit.text
+
+    custom = await make(sync_browser, name="Custom", schedule_preset="custom", schedule="7 3 * * 2")
+    stored = (await admin.get(f"{INTEGRATIONS}/{custom}")).json()
+    assert stored["schedule"] == "7 3 * * 2"
+    edit = await sync_browser.fragment(f"/integrations/{custom}/edit", target="modal-body")
+    assert '<option value="custom" selected>' in edit.text and 'value="7 3 * * 2"' in edit.text
+
+    await make(sync_browser, name="Manual", schedule_preset="", schedule="0 6 * * *")
+    by_name = {i["name"]: i for i in (await admin.get(INTEGRATIONS)).json()["items"]}
+    assert by_name["Manual"]["schedule"] is None
+
+    wrong = await sync_browser.send(
+        "POST",
+        "/integrations",
+        task_form(name="Wrong", schedule_preset="custom", schedule="soon"),
+    )
+    assert wrong.status_code == 422 and 'id="f-schedule-err"' in wrong.text
+    assert '<option value="custom" selected>' in wrong.text
+
+
+def fake_form(**extra: Any) -> dict[str, Any]:
+    return {
+        "type": "task_source",
+        "provider_key": "fake",
+        "name": "Fake",
+        "schedule_preset": "",
+        "config.count": "3",
+        "config.scope": "SOME",
+        "mapping.effortStrategy": "MANUAL",
+        **extra,
+    }
+
+
+async def test_choices_are_loaded_from_the_source_into_the_form(
+    sync_api: Api, sync_browser: Browser
+) -> None:
+    await sign_in_admin(sync_api, sync_browser)
+    form = await sync_browser.fragment("/integrations/new/task_source/fake", target="modal-body")
+    assert 'data-show-when="config.scope" data-show-value="SOME"' in form.text
+    assert 'hx-post="/integrations/options/task_source/fake/choices"' in form.text
+    assert 'hx-trigger="load"' not in form.text  # nothing stored to load with yet
+
+    loaded = await sync_browser.send(
+        "POST",
+        "/integrations/options/task_source/fake/choices",
+        fake_form(**{"config.choices": ["C1", "GONE"]}),
+    )
+    assert loaded.status_code == 200, loaded.text
+    assert 'value="C0"' in loaded.text and "Choice 2" in loaded.text
+    assert re.search(r'value="C1" class="[^"]*" checked', loaded.text)
+    assert not re.search(r'value="C0" class="[^"]*" checked', loaded.text)
+    assert "GONE" in loaded.text and "not found in the source" in loaded.text
+
+    down = await sync_browser.send(
+        "POST",
+        "/integrations/options/task_source/fake/choices",
+        fake_form(**{"config.address": "fake://down", "config.choices": ["C1"]}),
+    )
+    assert down.status_code == 200 and "The fake tracker is down." in down.text
+    assert re.search(r'value="C1" class="[^"]*" checked', down.text)
+
+    created = await sync_browser.send(
+        "POST", "/integrations", fake_form(**{"config.choices": ["C0", "C2"]})
+    )
+    assert created.status_code == 200, created.text
+    admin = await sync_api.admin()
+    stored = (await admin.get(INTEGRATIONS)).json()["items"][0]
+    assert stored["config"]["choices"] == ["C0", "C2"]
+
+    edit = await sync_browser.fragment(f"/integrations/{stored['id']}/edit", target="modal-body")
+    assert f"/integrations/options/task_source/fake/choices?integration={stored['id']}" in edit.text
+    assert 'hx-trigger="load"' in edit.text
+    assert re.search(r'value="C2" class="[^"]*" checked', edit.text)
+
+    refused = await sync_browser.send("POST", "/integrations", fake_form(name="Nothing"))
+    assert refused.status_code == 422

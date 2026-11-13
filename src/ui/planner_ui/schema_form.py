@@ -5,6 +5,10 @@ for a provider it has never seen. Every input is a plain text, a number, a choic
 value per line or ``key=value`` per line. A secret (``writeOnly``) is never shown: leaving its
 input empty keeps the stored value.
 
+Two markers of the schema add behaviour: ``x-remoteOptions`` on a list of strings draws check
+boxes whose choices are loaded from the source, and ``x-showWhen`` (``{"field": ..., "equals":
+...}``) shows a setting only while another one has that value.
+
 The texts of a schema come from the provider and are shown as given. The interface translates the
 ones of the providers that ship with it; any other text appears as the provider wrote it.
 """
@@ -21,8 +25,19 @@ from starlette.datastructures import FormData
 from planner_ui.i18n import N_, gettext_
 
 Kind = Literal[
-    "text", "secret", "integer", "decimal", "checkbox", "select", "lines", "pairs", "json"
+    "text",
+    "secret",
+    "integer",
+    "decimal",
+    "checkbox",
+    "select",
+    "lines",
+    "pairs",
+    "json",
+    "options",
 ]
+REMOTE_OPTIONS = "x-remoteOptions"
+SHOW_WHEN = "x-showWhen"
 
 NOT_A_WHOLE_NUMBER = N_("Not a whole number.")
 NOT_A_NUMBER = N_("Not a number.")
@@ -47,6 +62,12 @@ class SchemaField:
     maxlength: int | None = None
     secret_set: bool = False
     error: str | None = None
+    # (name of the controlling input, value) while which the field is shown
+    show_when: tuple[str, str] | None = None
+    # Choices of an "options" field: (value, label); before loading, the selected values only.
+    choices: list[tuple[str, str]] = field(default_factory=list)
+    options_url: str | None = None  # where the interface loads the choices from the source
+    load_on_open: bool = False  # load them as soon as the form opens
 
     @property
     def id(self) -> str:
@@ -80,6 +101,8 @@ def kind_of(plain: Mapping[str, Any]) -> Kind:
     if "enum" in plain:
         return "select"
     kind = plain.get("type")
+    if kind == "array" and plain.get(REMOTE_OPTIONS):
+        return "options"
     if kind == "boolean":
         return "checkbox"
     if kind == "integer":
@@ -109,6 +132,8 @@ def _show(kind: Kind, value: Any) -> Any:
         return bool(value)
     if value is None or kind == "secret":
         return ""
+    if kind == "options":
+        return [str(item) for item in value]
     if kind == "lines":
         return "\n".join(str(item) for item in value)
     if kind == "pairs":
@@ -135,7 +160,12 @@ def shown_from_form(schema: Mapping[str, Any], form: FormData, prefix: str) -> d
     for key, spec in schema.get("properties", {}).items():
         kind = kind_of(_plain(spec, defs))
         name = f"{prefix}.{key}"
-        shown[key] = (name in form) if kind == "checkbox" else str(form.get(name) or "")
+        if kind == "checkbox":
+            shown[key] = name in form
+        elif kind == "options":
+            shown[key] = [str(item) for item in form.getlist(name) if str(item)]
+        else:
+            shown[key] = str(form.get(name) or "")
     return shown
 
 
@@ -157,15 +187,25 @@ def build_fields(
         name = f"{prefix}.{key}"
         title = str(plain.get("title") or key)
         help_text = plain.get("description")
+        when = plain.get(SHOW_WHEN)
+        show_when = (
+            (f"{prefix}.{when['field']}", str(when.get("equals", "")))
+            if isinstance(when, Mapping) and when.get("field")
+            else None
+        )
+        value = shown.get(key, False if kind == "checkbox" else [] if kind == "options" else "")
         found.append(
             SchemaField(
                 key=key,
                 name=name,
                 label=gettext_(title),
                 kind=kind,
-                required=key in required,
+                # A field that may be hidden must not keep the browser from sending the form.
+                required=key in required and show_when is None,
                 help=gettext_(str(help_text)) if help_text else None,
-                value=shown.get(key, False if kind == "checkbox" else ""),
+                value=value,
+                show_when=show_when,
+                choices=[(str(v), str(v)) for v in value] if kind == "options" else [],
                 options=[str(v) for v in plain.get("enum", [])],
                 minimum=plain.get("minimum"),
                 maximum=plain.get("maximum"),
@@ -194,6 +234,9 @@ def parse(
         name = f"{prefix}.{key}"
         if kind == "checkbox":
             values[key] = bool(raw)
+            continue
+        if kind == "options":
+            values[key] = [str(item) for item in raw or [] if str(item)]
             continue
         text = str(raw)
         if kind == "secret":

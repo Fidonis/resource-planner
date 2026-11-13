@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Resource Planner \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-13 18:49+0100\n"
+"POT-Creation-Date: 2026-11-13 19:00+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Resource Planner contributors\n"
 "Language: de\n"
@@ -1076,6 +1076,34 @@ msgid "Running"
 msgstr "Läuft"
 
 #: routes/integrations.py
+msgid "Only when started by hand"
+msgstr "Nur beim Start von Hand"
+
+#: routes/integrations.py
+msgid "Every 15 minutes"
+msgstr "Alle 15 Minuten"
+
+#: routes/integrations.py
+msgid "Every 30 minutes"
+msgstr "Alle 30 Minuten"
+
+#: routes/integrations.py
+msgid "Every hour"
+msgstr "Stündlich"
+
+#: routes/integrations.py
+msgid "Every 4 hours"
+msgstr "Alle 4 Stunden"
+
+#: routes/integrations.py
+msgid "Every day at 05:00 UTC"
+msgstr "Täglich um 05:00 UTC"
+
+#: routes/integrations.py
+msgid "Workdays at 05:00 UTC"
+msgstr "Werktags um 05:00 UTC"
+
+#: routes/integrations.py
 msgid "teams"
 msgstr "Teams"
 
@@ -1086,6 +1114,10 @@ msgstr "Anbindung bearbeiten"
 #: routes/integrations.py templates/integrations/_choose.html templates/integrations/index.html
 msgid "New integration"
 msgstr "Neue Anbindung"
+
+#: routes/integrations.py
+msgid "The choices cannot be loaded for this setting."
+msgstr "Für diese Einstellung lassen sich keine Auswahlmöglichkeiten laden."
 
 #: routes/planning.py
 #, python-format
@@ -1704,6 +1736,26 @@ msgstr "Problem"
 msgid "Copy"
 msgstr "Kopieren"
 
+#: templates/integrations/_choices.html
+msgid "Filter"
+msgstr "Filtern"
+
+#: templates/integrations/_choices.html
+msgid "Filter the choices"
+msgstr "Auswahl filtern"
+
+#: templates/integrations/_choices.html
+msgid "not found in the source"
+msgstr "in der Quelle nicht gefunden"
+
+#: templates/integrations/_choices.html
+msgid "The source has no choices for this setting."
+msgstr "Die Quelle bietet für diese Einstellung nichts zur Auswahl."
+
+#: templates/integrations/_choices.html
+msgid "Nothing selected yet. Load the choices from the source."
+msgstr "Noch nichts ausgewählt. Laden Sie die Auswahl aus der Quelle."
+
 #: templates/integrations/_choose.html
 msgid "What do you want to bring in, and from where?"
 msgstr "Was möchten Sie übernehmen, und woher?"
@@ -1739,6 +1791,10 @@ msgstr ""
 "bearbeiten."
 
 #: templates/integrations/_fields.html
+msgid "Load the choices from the source"
+msgstr "Auswahl aus der Quelle laden"
+
+#: templates/integrations/_fields.html
 msgid "Set. Leave empty to keep it."
 msgstr "Gesetzt. Leer lassen, um den Wert zu behalten."
 
@@ -1749,6 +1805,14 @@ msgstr "Ein Eintrag pro Zeile."
 #: templates/integrations/_form.html templates/integrations/_list.html
 msgid "Schedule"
 msgstr "Zeitplan"
+
+#: templates/integrations/_form.html
+msgid "Custom cron line"
+msgstr "Eigene Cron-Zeile"
+
+#: templates/integrations/_form.html
+msgid "Cron line"
+msgstr "Cron-Zeile"
 
 #: templates/integrations/_form.html
 msgid ""
