@@ -444,6 +444,46 @@ async def test_a_provider_from_outside_the_package_runs_like_any_other(sync_api:
     assert (await tasks_by_key(admin))["FAKE-1"]["efforts"][0]["personDays"] == 4
 
 
+async def test_planning_attributes_of_a_source_are_cleaned_and_stable(sync_api: Api) -> None:
+    admin = await seeded(sync_api)
+    made = await admin.create(
+        INTEGRATIONS,
+        {
+            "name": "Tracker",
+            "type": "task_source",
+            "providerKey": "fake",
+            "config": {"count": 2, "attributes": True},
+            "mapping": {},
+        },
+    )
+    first = await sync(admin, made["id"])
+    assert counts(first)[0] == 2 and first["status"] == "success"
+    messages = " ".join(entry["message"] for entry in first["log"])
+    assert "story points was left empty" in messages
+    assert "shortened to 20000 characters" in messages
+
+    found = await tasks_by_key(admin)
+    task = found["FAKE-0"]
+    assert task["sourceName"] == "Tracker"
+    assert task["dueDate"] == "2026-12-18"
+    assert task["originalEstimateHours"] == 0.33
+    assert task["storyPoints"] is None
+    assert task["assignee"] == "A" * 160
+    assert len(task["description"]) == 20000
+    assert task["priority"] == "High"
+    assert task["efforts"] == []  # MANUAL by default: the effort is entered here
+
+    assert found["FAKE-1"]["priority"] is None  # the source could not read it
+
+    # an attribute the source cannot read is left as it is
+    async with sync_api.factory() as session:
+        await session.execute(text("UPDATE task SET priority = 'Kept' WHERE key = 'FAKE-1'"))
+        await session.commit()
+    again = await sync(admin, made["id"])
+    assert counts(again) == (0, 0, 2, 0)
+    assert (await tasks_by_key(admin))["FAKE-1"]["priority"] == "Kept"
+
+
 async def test_an_integration_with_data_is_deleted_only_when_detached(
     sync_api: Api, imports_dir: Path
 ) -> None:

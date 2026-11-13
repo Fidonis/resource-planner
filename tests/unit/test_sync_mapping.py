@@ -119,6 +119,46 @@ def test_states_have_defaults_and_can_be_overridden() -> None:
         TaskMapping(status_map={"a": "finished"})
 
 
+def test_an_unknown_state_falls_back_on_its_category() -> None:
+    mapping = TaskMapping(status_map={"Abgelehnt": "cancelled"})
+    assert map_status("Fertig", mapping, "done") == "done"
+    assert map_status("In Arbeit", mapping, "in_progress") == "open"
+    assert map_status("Zu erledigen", mapping, "todo") == "open"
+    # the name wins over the category, the mapping over the usual names
+    assert map_status("Won't do", mapping, "done") == "cancelled"
+    assert map_status("Abgelehnt", mapping, "done") == "cancelled"
+    assert map_status("Fertig", mapping, None) == "open"
+
+
+def test_the_planning_attributes_are_passed_on() -> None:
+    record = map_task(
+        task(
+            status="Fertig",
+            status_category="done",
+            due_date=date(2026, 12, 18),
+            start_date=date(2026, 12, 1),
+            original_estimate_hours=Decimal("16"),
+            story_points=Decimal("5"),
+            priority="High",
+            assignee="Alex Example",
+            reporter="Sam Example",
+            unknown_attributes=frozenset({"start_date"}),
+        ),
+        TaskMapping(),
+        known,
+    )
+    assert record.status == "done"
+    assert (record.due_date, record.start_date) == (date(2026, 12, 18), date(2026, 12, 1))
+    assert (record.original_estimate_hours, record.story_points) == (Decimal(16), Decimal(5))
+    assert (record.priority, record.assignee, record.reporter) == (
+        "High",
+        "Alex Example",
+        "Sam Example",
+    )
+    assert record.unknown_attributes == frozenset({"start_date"})
+    assert record.owned == ("title", "status")  # MANUAL: the efforts stay in the planner
+
+
 def test_the_team_hint_picks_the_owner_team_and_the_source_keeps_its_fields() -> None:
     mapping = TaskMapping(team_map={"web": "Team Web"}, effort_strategy="LABEL_ENCODED")
     record = map_task(task(team_hint="WEB", labels=("Backend:1",)), mapping, known)

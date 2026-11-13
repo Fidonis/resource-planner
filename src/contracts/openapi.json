@@ -2578,6 +2578,22 @@
       },
       "IngestTask": {
         "properties": {
+          "assignee": {
+            "anyOf": [
+              {
+                "maxLength": 160,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Name of the assigned person.",
+            "examples": [
+              "Alex Example"
+            ],
+            "title": "Assignee"
+          },
           "description": {
             "anyOf": [
               {
@@ -2588,6 +2604,22 @@
               }
             ],
             "title": "Description"
+          },
+          "dueDate": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Due date. This and the other planning attributes below are shown with the task and cannot be edited in the planner; one that is left out stays as it is, null empties it.",
+            "examples": [
+              "2026-12-18"
+            ],
+            "title": "Duedate"
           },
           "efforts": {
             "anyOf": [
@@ -2616,6 +2648,67 @@
             "title": "Key",
             "type": "string"
           },
+          "originalEstimateHours": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Time estimate in hours.",
+            "examples": [
+              16
+            ],
+            "title": "Originalestimatehours"
+          },
+          "priority": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "examples": [
+              "High"
+            ],
+            "title": "Priority"
+          },
+          "reporter": {
+            "anyOf": [
+              {
+                "maxLength": 160,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Name of the person who created the task.",
+            "examples": [
+              "Sam Example"
+            ],
+            "title": "Reporter"
+          },
+          "startDate": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "examples": [
+              "2026-12-01"
+            ],
+            "title": "Startdate"
+          },
           "status": {
             "default": "open",
             "enum": [
@@ -2625,6 +2718,20 @@
             ],
             "title": "Status",
             "type": "string"
+          },
+          "storyPoints": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "examples": [
+              5
+            ],
+            "title": "Storypoints"
           },
           "team": {
             "anyOf": [
@@ -5471,7 +5578,7 @@
             "examples": [
               "SHOP-101"
             ],
-            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/#-]{0,63}$",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/#_-]{0,63}$",
             "title": "Key",
             "type": "string"
           },
@@ -5517,6 +5624,21 @@
       },
       "TaskOut": {
         "properties": {
+          "assignee": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Name of the person the source has assigned the task to.",
+            "examples": [
+              "Alex Example"
+            ],
+            "title": "Assignee"
+          },
           "createdAt": {
             "format": "date-time",
             "title": "Createdat",
@@ -5532,6 +5654,22 @@
               }
             ],
             "title": "Description"
+          },
+          "dueDate": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Due date in the source system. Like the other planning attributes below it is written by the source only and empty for manual tasks.",
+            "examples": [
+              "2026-12-18"
+            ],
+            "title": "Duedate"
           },
           "efforts": {
             "items": {
@@ -5573,6 +5711,7 @@
                 "type": "null"
               }
             ],
+            "description": "When the source system last changed the task.",
             "title": "Externalupdatedat"
           },
           "externalUrl": {
@@ -5584,6 +5723,7 @@
                 "type": "null"
               }
             ],
+            "description": "Where the task is in its source system.",
             "title": "Externalurl"
           },
           "id": {
@@ -5609,6 +5749,21 @@
             },
             "title": "Managedfields",
             "type": "array"
+          },
+          "originalEstimateHours": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Original time estimate of the source system, in hours.",
+            "examples": [
+              16
+            ],
+            "title": "Originalestimatehours"
           },
           "overplanned": {
             "title": "Overplanned",
@@ -5642,6 +5797,67 @@
             "title": "Plannedpercent",
             "type": "number"
           },
+          "priority": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Priority as the source names it.",
+            "examples": [
+              "High"
+            ],
+            "title": "Priority"
+          },
+          "reporter": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Name of the person who created the task in the source.",
+            "examples": [
+              "Sam Example"
+            ],
+            "title": "Reporter"
+          },
+          "sourceName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Name of the integration that imported the task, or the source that sent it through the ingest API.",
+            "examples": [
+              "Jira"
+            ],
+            "title": "Sourcename"
+          },
+          "startDate": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Planned start in the source system.",
+            "examples": [
+              "2026-12-01"
+            ],
+            "title": "Startdate"
+          },
           "status": {
             "enum": [
               "open",
@@ -5650,6 +5866,21 @@
             ],
             "title": "Status",
             "type": "string"
+          },
+          "storyPoints": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Story points of the source.",
+            "examples": [
+              5
+            ],
+            "title": "Storypoints"
           },
           "title": {
             "title": "Title",
@@ -5711,6 +5942,14 @@
           "status",
           "externalUrl",
           "externalUpdatedAt",
+          "sourceName",
+          "dueDate",
+          "startDate",
+          "originalEstimateHours",
+          "storyPoints",
+          "priority",
+          "assignee",
+          "reporter",
           "lockedFields",
           "efforts",
           "totalEffort",
@@ -5809,7 +6048,7 @@
             "examples": [
               "SHOP-101"
             ],
-            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/#-]{0,63}$",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/#_-]{0,63}$",
             "title": "Key",
             "type": "string"
           },

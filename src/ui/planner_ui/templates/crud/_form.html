@@ -12,6 +12,11 @@
   </div>
   {% endif %}
 
+  {% if details_template is defined and details_template %}
+  {% import details_template as source %}
+  {{ source.details(row) }}
+  {% endif %}
+
   <input type="hidden" name="version" value="{{ version }}">
   {% for f in fields %}
   {{ form_field(f) }}

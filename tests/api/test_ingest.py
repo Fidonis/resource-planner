@@ -186,3 +186,82 @@ async def test_absences_are_pushed_by_member_and_type_key(api: Api) -> None:
     again = (await push.post(f"{INGEST}/absences", body)).json()
     assert (again["created"], again["skipped"]) == (0, 1)
     assert (await admin.get(ABSENCES)).json()["total"] == 1
+
+
+PLANNING = {
+    "dueDate": "2026-12-18",
+    "startDate": "2026-12-01",
+    "originalEstimateHours": 16.5,
+    "storyPoints": 5,
+    "priority": "High",
+    "assignee": "Alex Example",
+    "reporter": "Sam Example",
+}
+
+
+async def test_planning_attributes_are_kept_and_shown_read_only(api: Api) -> None:
+    admin = await api.admin()
+    await skill(admin, "Backend")
+    push = await pusher(api)
+    body = tasks()
+    body["tasks"][0].update(PLANNING)
+
+    assert (await push.post(f"{INGEST}/tasks", body)).json()["created"] == 2
+    found = await stored_tasks(admin)
+    for name, value in PLANNING.items():
+        assert found["WEB-1"][name] == value, name
+    assert found["WEB-2"]["dueDate"] is None and found["WEB-2"]["storyPoints"] is None
+    assert found["WEB-1"]["sourceName"] == "jira-eu"
+
+    # the same values again change nothing, not even with the hours compared as decimals
+    again = (await push.post(f"{INGEST}/tasks", body)).json()
+    assert (again["created"], again["updated"], again["skipped"]) == (0, 0, 2)
+
+    # what is left out stays, an explicit null empties
+    body["tasks"][0] = {k: v for k, v in body["tasks"][0].items() if k not in PLANNING}
+    body["tasks"][0]["priority"] = None
+    changed = (await push.post(f"{INGEST}/tasks", body)).json()
+    assert changed["updated"] == 1
+    task = (await stored_tasks(admin))["WEB-1"]
+    assert task["priority"] is None
+    assert task["storyPoints"] == 5 and task["assignee"] == "Alex Example"
+
+    # the attributes are not part of the task the planner edits
+    update = await admin.put(
+        f"{TASKS}/{task['id']}",
+        {"version": task["version"], "key": "WEB-1", "title": "Checkout", "dueDate": "2027-01-01"},
+    )
+    assert update.status_code == 200, update.text
+    assert update.json()["dueDate"] == "2026-12-18"
+
+
+async def test_changes_of_planning_attributes_are_audited(api: Api) -> None:
+    admin = await api.admin()
+    await skill(admin, "Backend")
+    push = await pusher(api)
+    body = tasks()
+    await push.post(f"{INGEST}/tasks", body)
+    body["tasks"][0]["storyPoints"] = 8
+    await push.post(f"{INGEST}/tasks", body)
+    entries = (
+        await admin.get("/api/v1/audit-log", params={"entityType": "task", "pageSize": 50})
+    ).json()["items"]
+    changed = [e for e in entries if e["action"] == "update"]
+    assert changed and changed[0]["after"]["story_points"] == 8
+    assert changed[0]["before"]["story_points"] is None
+
+
+async def test_bad_planning_attributes_are_refused_by_the_schema(api: Api) -> None:
+    push = await pusher(api)
+    body = tasks()
+    body["tasks"][0]["storyPoints"] = -1
+    assert (await push.post(f"{INGEST}/tasks", body)).status_code == 422
+    body = tasks()
+    body["tasks"][0]["priority"] = "x" * 65
+    assert (await push.post(f"{INGEST}/tasks", body)).status_code == 422
+
+
+async def test_keys_may_contain_an_underscore(api: Api) -> None:
+    admin = await api.admin()
+    created = await admin.post(TASKS, {"key": "MY_PROJ-1", "title": "Underscore"})
+    assert created.status_code == 201, created.text

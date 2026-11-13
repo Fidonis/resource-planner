@@ -53,6 +53,23 @@ class SourceProblem:
     message: str
 
 
+# The categories a source may sort its states into; the mapping falls back on them for a state
+# whose name it does not know (a tracker in another language, a workflow of its own).
+STATUS_CATEGORIES = ("todo", "in_progress", "done")
+
+# Planning information a source may know about a task besides its effort. They are shown with the
+# task and never edited in the planner.
+TASK_ATTRIBUTES = (
+    "due_date",
+    "start_date",
+    "original_estimate_hours",
+    "story_points",
+    "priority",
+    "assignee",
+    "reporter",
+)
+
+
 @dataclass(frozen=True, slots=True)
 class ExternalTask:
     external_id: str
@@ -67,6 +84,17 @@ class ExternalTask:
     estimate_unit: str | None = None
     custom_fields: Mapping[str, Any] = field(default_factory=dict)
     team_hint: str | None = None
+    status_category: str | None = None  # one of STATUS_CATEGORIES
+    due_date: date | None = None
+    start_date: date | None = None
+    original_estimate_hours: Decimal | None = None
+    story_points: Decimal | None = None
+    priority: str | None = None
+    assignee: str | None = None  # a display name
+    reporter: str | None = None
+    # Attributes of TASK_ATTRIBUTES the source could not read this time: they are left as they are,
+    # instead of being emptied.
+    unknown_attributes: frozenset[str] = frozenset()
 
 
 @dataclass(frozen=True, slots=True)

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import uuid
-from collections.abc import Sequence
+from collections.abc import Collection, Sequence
 from typing import Any
 
 from sqlalchemy import func, select, update
@@ -27,6 +27,22 @@ async def get_integration(session: AsyncSession, integration_id: uuid.UUID) -> I
     if row is None:
         raise not_found("Integration", integration_id)
     return row
+
+
+async def integration_names(session: AsyncSession, sources: Collection[str]) -> dict[str, str]:
+    """Name of the integration behind each ``external_source`` that is the id of one."""
+    ids: set[uuid.UUID] = set()
+    for source in sources:
+        try:
+            ids.add(uuid.UUID(source))
+        except ValueError:
+            continue  # the source of the ingest API, a name already
+    if not ids:
+        return {}
+    rows = await session.execute(
+        select(IntegrationConfig.id, IntegrationConfig.name).where(IntegrationConfig.id.in_(ids))
+    )
+    return {str(integration_id): name for integration_id, name in rows.all()}
 
 
 async def list_integrations(

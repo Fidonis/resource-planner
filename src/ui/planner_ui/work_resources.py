@@ -31,6 +31,7 @@ class Tasks(Resource):
     edit_title = N_("Edit task")
     delete_title = N_("Delete task")
     filter_names = ("team", "skill", "status")
+    details_template = "tasks/_details.html"
     specs: ClassVar[tuple[Spec, ...]] = (
         Spec("key", N_("Key"), required=True, maxlength=64),
         Spec("title", N_("Title"), required=True, maxlength=300),

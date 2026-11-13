@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Resource Planner \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-29 09:24+0100\n"
+"POT-Creation-Date: 2026-11-13 18:49+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Resource Planner contributors\n"
 "Language: de\n"
@@ -871,7 +871,7 @@ msgstr "Pflichtfeld."
 msgid "Wrong."
 msgstr "Falsch."
 
-#: templates/macros.html texts.py
+#: templates/macros.html templates/tasks/_list.html texts.py
 msgid "Maintained by the connected system."
 msgstr "Wird vom angebundenen System gepflegt."
 
@@ -2002,7 +2002,9 @@ msgstr "Aufgaben zum Planen"
 
 #: templates/planning/_board.html
 msgid "Drag a skill onto a member's week, or use its Assign… button."
-msgstr "Ziehen Sie eine Fähigkeit auf die Woche einer Person oder nutzen Sie die Schaltfläche „Zuweisen …“."
+msgstr ""
+"Ziehen Sie eine Fähigkeit auf die Woche einer Person oder nutzen Sie die Schaltfläche „Zuweisen "
+"…“."
 
 #: templates/planning/_board.html
 msgid "Planned of needed person-days"
@@ -2171,6 +2173,65 @@ msgstr "Noch keine Fähigkeiten."
 msgid "A skill's key is matched against the labels of imported tasks."
 msgstr "Der Schlüssel einer Fähigkeit wird mit den Labels importierter Aufgaben verglichen."
 
+#: templates/tasks/_details.html
+msgid "Values from the source"
+msgstr "Werte aus der Quelle"
+
+#: templates/tasks/_details.html
+#, python-format
+msgid "From %(source)s, read only."
+msgstr "Aus %(source)s, schreibgeschützt."
+
+#: templates/tasks/_details.html templates/tasks/_list.html
+#, python-format
+msgid "Open %(key)s in the source"
+msgstr "%(key)s in der Quelle öffnen"
+
+#: templates/tasks/_details.html
+msgid "Due date"
+msgstr "Fälligkeitsdatum"
+
+#: templates/tasks/_details.html
+msgid "Start date"
+msgstr "Startdatum"
+
+#: templates/tasks/_details.html
+msgid "Original estimate"
+msgstr "Ursprüngliche Schätzung"
+
+#: templates/tasks/_details.html
+#, python-format
+msgid "%(hours)s h"
+msgstr "%(hours)s Std."
+
+#: templates/tasks/_details.html templates/tasks/_list.html
+msgid "Story points"
+msgstr "Story Points"
+
+#: templates/tasks/_details.html templates/tasks/_list.html
+msgid "Priority"
+msgstr "Priorität"
+
+#: templates/tasks/_details.html templates/tasks/_list.html
+msgid "Assignee"
+msgstr "Bearbeiter"
+
+#: templates/tasks/_details.html
+msgid "Reporter"
+msgstr "Autor"
+
+#: templates/tasks/_details.html
+msgid "Changed in the source"
+msgstr "Geändert in der Quelle"
+
+#: templates/tasks/_list.html
+msgid "Due"
+msgstr "Fällig"
+
+#: templates/tasks/_list.html
+msgid "SP"
+msgstr "SP"
+
 #: templates/tasks/_list.html
 msgid "Effort"
 msgstr "Aufwand"
@@ -2178,6 +2239,11 @@ msgstr "Aufwand"
 #: templates/tasks/_list.html
 msgid "Planned"
 msgstr "Geplant"
+
+#: templates/tasks/_list.html
+#, python-format
+msgid "Show the values of %(key)s from the source"
+msgstr "Werte von %(key)s aus der Quelle zeigen"
 
 #: templates/tasks/_list.html
 #, python-format
@@ -2256,5 +2322,4 @@ msgstr "Alle Quellen"
 #: templates/users/index.html
 msgid "Local accounts"
 msgstr "Lokale Konten"
-
 
