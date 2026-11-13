@@ -2,7 +2,7 @@
 # Build from the repository root:  docker build -f docker/ui.Dockerfile .
 
 # ---- assets: compile the stylesheet and copy the vendored browser files (Node only at build time) ----
-FROM node:22-slim AS assets
+FROM node:25-slim AS assets
 
 WORKDIR /build
 COPY src/ui/package.json src/ui/package-lock.json ./
