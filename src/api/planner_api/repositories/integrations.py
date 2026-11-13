@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from planner_api.errors import not_found
 from planner_api.models import Absence, IntegrationConfig, Member, Skill, SyncRun, Task, Team
+from planner_api.providers.base import TASK_ATTRIBUTES
 from planner_api.repositories.base import page_of
 
 OWNED: dict[str, Any] = {
@@ -112,6 +113,8 @@ async def detach(session: AsyncSession, source: str) -> None:
         values: dict[str, Any] = {"external_source": None, "external_id": None}
         if kind == "tasks":
             values |= {"locked_fields": [], "external_url": None, "external_updated_at": None}
+            # Only a source writes the planning attributes; a manual task cannot edit them.
+            values |= dict.fromkeys(TASK_ATTRIBUTES)
         if kind == "members":
             values["external_snapshot"] = None
         await session.execute(update(model).where(model.external_source == source).values(**values))
