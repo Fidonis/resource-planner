@@ -1,0 +1,31 @@
+{% from "integrations/_status.html" import run_body %}
+{% if run %}
+<div class="space-y-4" aria-labelledby="modal-title">
+  <h2 id="modal-title" class="font-brand text-lg font-bold">{{ _("Result: %(name)s", name=row.name) }}</h2>
+  {{ run_body(run, status_names) }}
+  <div class="modal-action">
+    <a class="btn btn-ghost" href="/integrations/{{ row.id }}/runs">{{ icon("history") }} {{ _("All runs") }}</a>
+    <button type="button" class="btn btn-primary" data-action="close-modal">{{ _("Done") }}</button>
+  </div>
+</div>
+{% else %}
+<form hx-post="/integrations/{{ row.id }}/sync" hx-target="#modal-body" hx-swap="innerHTML" hx-disable-elt="find button" class="space-y-4" aria-labelledby="modal-title">
+  <h2 id="modal-title" class="font-brand text-lg font-bold">{{ _("Sync now: %(name)s", name=row.name) }}</h2>
+  {% if error %}
+  <div role="alert" class="alert alert-warning text-sm">{{ icon("alert-triangle") }}<span>{{ error }}</span></div>
+  {% endif %}
+  <p class="text-sm">{{ _("A preview reads the source and shows what would change, without saving anything.") }}</p>
+  <div class="form-control">
+    <label class="label cursor-pointer justify-start gap-3" for="f-full">
+      <input type="checkbox" id="f-full" name="full" class="checkbox checkbox-sm" aria-describedby="f-full-help">
+      <span class="label-text">{{ _("Read everything again") }}</span>
+    </label>
+    <p id="f-full-help" class="px-1 text-xs opacity-60">{{ _("Otherwise only what changed since the last sync is read, if the source can tell.") }}</p>
+  </div>
+  <div class="modal-action">
+    <button type="button" class="btn btn-ghost" data-action="close-modal">{{ _("Cancel") }}</button>
+    <button type="submit" name="mode" value="dry" class="btn">{{ _("Preview") }}</button>
+    <button type="submit" name="mode" value="run" class="btn btn-primary">{{ icon("player-play") }} {{ _("Sync now") }}</button>
+  </div>
+</form>
+{% endif %}

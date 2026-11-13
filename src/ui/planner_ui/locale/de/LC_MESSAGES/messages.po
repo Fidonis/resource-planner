@@ -1,0 +1,2260 @@
+# German translations of the Resource Planner.
+# Distributed under the licence of the project.
+msgid ""
+msgstr ""
+"Project-Id-Version: Resource Planner \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-29 09:24+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Resource Planner contributors\n"
+"Language: de\n"
+"Language-Team: \n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: admin_resources.py nav.py templates/users/index.html
+msgid "Users"
+msgstr "Benutzer"
+
+#: admin_resources.py templates/users/index.html
+msgid "New user"
+msgstr "Neuer Benutzer"
+
+#: admin_resources.py
+msgid "Edit user"
+msgstr "Benutzer bearbeiten"
+
+#: admin_resources.py
+msgid "Delete user"
+msgstr "Benutzer löschen"
+
+#: admin_resources.py templates/account.html templates/login.html
+msgid "User name"
+msgstr "Benutzername"
+
+#: admin_resources.py
+msgid "Letters, digits and . _ @ + -. It cannot be changed later."
+msgstr "Buchstaben, Ziffern und . _ @ + -. Lässt sich später nicht mehr ändern."
+
+#: admin_resources.py resources.py templates/account.html templates/api_tokens/_list.html
+#: templates/integrations/_form.html templates/integrations/_list.html templates/members/_list.html
+#: templates/skills/_list.html templates/teams/_list.html templates/users/_list.html
+msgid "Name"
+msgstr "Name"
+
+#: admin_resources.py resources.py templates/account.html
+msgid "E-mail"
+msgstr "E-Mail"
+
+#: admin_resources.py
+msgid "First password"
+msgstr "Erstes Passwort"
+
+#: admin_resources.py
+msgid ""
+"Leave empty to generate one. It is shown once, and the user chooses a new one at the first sign-"
+"in."
+msgstr ""
+"Leer lassen, um eines zu erzeugen. Es wird einmal angezeigt, und der Benutzer wählt bei der "
+"ersten Anmeldung ein neues."
+
+#: admin_resources.py templates/absences/_list.html templates/absences/calendar.html
+#: templates/absences/index.html templates/planning/_assign.html templates/planning/_board.html
+#: templates/planning/_edit.html templates/users/_list.html work_resources.py
+msgid "Member"
+msgstr "Mitglied"
+
+#: admin_resources.py
+msgid "The member this account stands for; needed to keep the own absences."
+msgstr "Das Mitglied, für das dieses Konto steht; nötig, um die eigenen Abwesenheiten zu pflegen."
+
+#: admin_resources.py nav.py templates/roles/index.html templates/users/_list.html
+msgid "Roles"
+msgstr "Rollen"
+
+#: admin_resources.py
+msgid ""
+"Accounts that sign in with single sign-on get their roles from the role mapping; roles given here"
+" only count if the server merges them."
+msgstr ""
+"Konten, die sich per Single Sign-on anmelden, erhalten ihre Rollen aus der Rollenzuordnung; hier "
+"vergebene Rollen zählen nur, wenn der Server sie dazu mischt."
+
+#: admin_resources.py resources.py templates/absence_types/_list.html templates/api_tokens/_list.html
+#: templates/members/_list.html templates/users/_list.html
+msgid "Active"
+msgstr "Aktiv"
+
+#: admin_resources.py
+msgid "User created"
+msgstr "Benutzer angelegt"
+
+#: admin_resources.py
+msgid ""
+"Give this temporary password to the user. It is shown only now, and the user chooses a new one at"
+" the first sign-in."
+msgstr ""
+"Geben Sie dieses vorläufige Passwort an den Benutzer weiter. Es wird nur jetzt angezeigt, und der"
+" Benutzer wählt bei der ersten Anmeldung ein neues."
+
+#: admin_resources.py routes/admin.py templates/users/_reset_password.html
+msgid "Temporary password"
+msgstr "Vorläufiges Passwort"
+
+#: admin_resources.py templates/roles/index.html
+msgid "New role"
+msgstr "Neue Rolle"
+
+#: admin_resources.py
+msgid "Edit role"
+msgstr "Rolle bearbeiten"
+
+#: admin_resources.py
+msgid "Delete role"
+msgstr "Rolle löschen"
+
+#: admin_resources.py resources.py templates/absence_types/_list.html templates/skills/_list.html
+#: templates/tasks/_list.html work_resources.py
+msgid "Key"
+msgstr "Schlüssel"
+
+#: admin_resources.py
+msgid "Lower-case letters, digits, hyphen and underscore. It cannot be changed later."
+msgstr "Kleinbuchstaben, Ziffern, Bindestrich und Unterstrich. Lässt sich später nicht mehr ändern."
+
+#: admin_resources.py work_resources.py
+msgid "Description"
+msgstr "Beschreibung"
+
+#: admin_resources.py templates/api_tokens/_list.html templates/roles/_list.html
+msgid "Permissions"
+msgstr "Berechtigungen"
+
+#: admin_resources.py nav.py templates/api_tokens/index.html
+msgid "API tokens"
+msgstr "API-Token"
+
+#: admin_resources.py templates/api_tokens/index.html
+msgid "New API token"
+msgstr "Neues API-Token"
+
+#: admin_resources.py
+msgid "API token"
+msgstr "API-Token"
+
+#: admin_resources.py
+msgid "Revoke API token"
+msgstr "API-Token widerrufen"
+
+#: admin_resources.py
+msgid "Revoke"
+msgstr "Widerrufen"
+
+#: admin_resources.py
+msgid "Revoked."
+msgstr "Widerrufen."
+
+#: admin_resources.py templates/api_tokens/_list.html templates/base.html
+msgid "Account"
+msgstr "Konto"
+
+#: admin_resources.py
+msgid "The token acts as this account and can never do more than the account may."
+msgstr "Das Token handelt als dieses Konto und kann nie mehr als das Konto."
+
+#: admin_resources.py
+msgid "Give a token only what it needs, for example ingest:write for an import."
+msgstr "Geben Sie einem Token nur, was es braucht, zum Beispiel ingest:write für einen Import."
+
+#: admin_resources.py
+msgid "Expires on"
+msgstr "Läuft ab am"
+
+#: admin_resources.py
+msgid "Leave empty for a token that does not expire."
+msgstr "Leer lassen für ein Token, das nicht abläuft."
+
+#: admin_resources.py
+msgid "API token created"
+msgstr "API-Token erstellt"
+
+#: admin_resources.py
+msgid "Copy the token now. It is shown only once and cannot be read again."
+msgstr "Kopieren Sie das Token jetzt. Es wird nur einmal angezeigt und lässt sich nicht erneut auslesen."
+
+#: admin_resources.py templates/api_tokens/_list.html
+msgid "Token"
+msgstr "Token"
+
+#: admin_resources.py
+msgid "Not a valid date."
+msgstr "Kein gültiges Datum."
+
+#: crud.py
+msgid "members"
+msgstr "Mitglieder"
+
+#: crud.py
+msgid "assignments"
+msgstr "Zuweisungen"
+
+#: crud.py
+msgid "absences"
+msgstr "Abwesenheiten"
+
+#: crud.py
+msgid "skills"
+msgstr "Fähigkeiten"
+
+#: crud.py
+msgid "tasks"
+msgstr "Aufgaben"
+
+#: crud.py
+msgid "accounts"
+msgstr "Konten"
+
+#: crud.py
+msgid "role mappings"
+msgstr "Rollenzuordnungen"
+
+#: crud.py templates/integrations/_delete.html templates/integrations/_list.html
+msgid "Delete"
+msgstr "Löschen"
+
+#: crud.py routes/integrations.py
+msgid "Deleted."
+msgstr "Gelöscht."
+
+#: crud.py routes/integrations.py templates/planning/_edit.html templates/roles/_mappings.html
+#: templates/settings/_form.html
+msgid "Save"
+msgstr "Speichern"
+
+#: crud.py routes/integrations.py
+msgid "Create"
+msgstr "Anlegen"
+
+#: crud.py routes/integrations.py
+msgid "Somebody else changed this entry in the meantime. Load the current values to continue."
+msgstr ""
+"Jemand anderes hat diesen Eintrag inzwischen geändert. Laden Sie die aktuellen Werte, um "
+"fortzufahren."
+
+#: crud.py routes/admin.py routes/integrations.py routes/planning.py
+msgid "Saved."
+msgstr "Gespeichert."
+
+#: crud.py routes/integrations.py
+msgid "Created."
+msgstr "Angelegt."
+
+#: crud.py
+#, python-format
+msgid "It is still used by: %(items)s. Deactivate it instead, or remove what refers to it first."
+msgstr ""
+"Er wird noch verwendet von: %(items)s. Deaktivieren Sie ihn stattdessen oder entfernen Sie "
+"zuerst, was darauf verweist."
+
+#: nav.py
+msgid "Planning"
+msgstr "Planung"
+
+#: nav.py
+msgid "Master data"
+msgstr "Stammdaten"
+
+#: nav.py
+msgid "Administration"
+msgstr "Verwaltung"
+
+#: nav.py templates/planning/index.html
+msgid "Planning board"
+msgstr "Planungstafel"
+
+#: nav.py templates/overview.html
+msgid "Overview"
+msgstr "Übersicht"
+
+#: nav.py routes/integrations.py templates/tasks/index.html work_resources.py
+msgid "Tasks"
+msgstr "Aufgaben"
+
+#: nav.py routes/integrations.py templates/absence_types/_list.html templates/absences/index.html
+#: work_resources.py
+msgid "Absences"
+msgstr "Abwesenheiten"
+
+#: nav.py resources.py templates/overview.html templates/teams/index.html
+msgid "Teams"
+msgstr "Teams"
+
+#: nav.py resources.py templates/members/index.html templates/overview.html templates/skills/_list.html
+#: templates/teams/_list.html
+msgid "Members"
+msgstr "Mitglieder"
+
+#: nav.py resources.py templates/members/_list.html templates/overview.html templates/skills/index.html
+msgid "Skills"
+msgstr "Fähigkeiten"
+
+#: nav.py resources.py templates/absence_types/index.html
+msgid "Absence types"
+msgstr "Abwesenheitsarten"
+
+#: nav.py templates/integrations/index.html templates/integrations/runs.html
+msgid "Integrations"
+msgstr "Anbindungen"
+
+#: nav.py templates/audit/index.html
+msgid "Audit log"
+msgstr "Änderungsprotokoll"
+
+#: nav.py templates/settings/index.html
+msgid "Settings"
+msgstr "Einstellungen"
+
+#: provider_texts.py
+msgid "CSV file (absences)"
+msgstr "CSV-Datei (Abwesenheiten)"
+
+#: provider_texts.py
+msgid "File"
+msgstr "Datei"
+
+#: provider_texts.py
+msgid "Path of the CSV file below the import directory, for example absences.csv."
+msgstr "Pfad der CSV-Datei unterhalb des Importverzeichnisses, zum Beispiel absences.csv."
+
+#: provider_texts.py
+msgid "CSV file (people)"
+msgstr "CSV-Datei (Personen)"
+
+#: provider_texts.py
+msgid "Path of the CSV file below the import directory, for example people.csv."
+msgstr "Pfad der CSV-Datei unterhalb des Importverzeichnisses, zum Beispiel people.csv."
+
+#: provider_texts.py
+msgid "Keycloak"
+msgstr "Keycloak"
+
+#: provider_texts.py
+msgid "Keycloak URL"
+msgstr "Keycloak-Adresse"
+
+#: provider_texts.py
+msgid "Address of Keycloak as the API reaches it, for example http://keycloak:8080 (without /realms/...)."
+msgstr ""
+"Adresse von Keycloak, wie die API sie erreicht, zum Beispiel http://keycloak:8080 (ohne "
+"/realms/...)."
+
+#: provider_texts.py
+msgid "Realm"
+msgstr "Realm"
+
+#: provider_texts.py
+msgid "Client ID"
+msgstr "Client-ID"
+
+#: provider_texts.py
+msgid "Client with a service account that may view users and query groups."
+msgstr "Client mit einem Service-Konto, das Benutzer ansehen und Gruppen abfragen darf."
+
+#: provider_texts.py
+msgid "Client secret"
+msgstr "Client-Geheimnis"
+
+#: provider_texts.py
+msgid "Verify the certificate"
+msgstr "Zertifikat prüfen"
+
+#: provider_texts.py
+msgid "Switch off only for tests."
+msgstr "Nur für Tests ausschalten."
+
+#: provider_texts.py
+msgid "Realm roles to read"
+msgstr "Zu lesende Realm-Rollen"
+
+#: provider_texts.py
+msgid ""
+"One per line. Only the holders of these roles are told apart by role, for the mapping's 'include "
+"roles'. Needs the right view-realm."
+msgstr ""
+"Eine pro Zeile. Nur die Inhaber dieser Rollen werden für „Rollen einbeziehen“ der Zuordnung nach "
+"Rolle unterschieden. Braucht das Recht view-realm."
+
+#: provider_texts.py
+msgid "Page size"
+msgstr "Seitengröße"
+
+#: provider_texts.py
+msgid "CSV file (tasks)"
+msgstr "CSV-Datei (Aufgaben)"
+
+#: provider_texts.py
+msgid "Path of the CSV file below the import directory, for example tasks.csv."
+msgstr "Pfad der CSV-Datei unterhalb des Importverzeichnisses, zum Beispiel tasks.csv."
+
+#: provider_texts.py
+msgid "Effort strategy"
+msgstr "Aufwandsstrategie"
+
+#: provider_texts.py
+msgid ""
+"EVEN_SPLIT shares the estimate over the labels that name a skill; LABEL_ENCODED reads the effort "
+"from labels such as be-3; CUSTOM_FIELDS reads one field per skill; MANUAL imports no effort."
+msgstr ""
+"EVEN_SPLIT verteilt die Schätzung gleichmäßig auf die Labels, die eine Fähigkeit nennen; "
+"LABEL_ENCODED liest den Aufwand aus Labels wie be-3; CUSTOM_FIELDS liest ein Feld je Fähigkeit; "
+"MANUAL übernimmt keinen Aufwand."
+
+#: provider_texts.py
+msgid "Unit factor"
+msgstr "Umrechnungsfaktor"
+
+#: provider_texts.py
+msgid "Person-days per unit of the estimate (story points x factor, hours / 8 is 0.125)."
+msgstr "Personentage je Einheit der Schätzung (Story Points x Faktor; Stunden / 8 ergibt 0,125)."
+
+#: provider_texts.py
+msgid "Label pattern"
+msgstr "Label-Muster"
+
+#: provider_texts.py
+msgid "LABEL_ENCODED: a regular expression with the groups 'skill' and 'effort'."
+msgstr "LABEL_ENCODED: ein regulärer Ausdruck mit den Gruppen „skill“ und „effort“."
+
+#: provider_texts.py
+msgid "Label skills"
+msgstr "Label-Fähigkeiten"
+
+#: provider_texts.py
+msgid "Label to skill key, when they differ. Matching ignores case."
+msgstr "Label auf Fähigkeitsschlüssel, wenn sie sich unterscheiden. Groß- und Kleinschreibung zählt nicht."
+
+#: provider_texts.py
+msgid "Unknown labels"
+msgstr "Unbekannte Labels"
+
+#: provider_texts.py
+msgid "What to do with a label that names no skill."
+msgstr "Was mit einem Label geschieht, das keine Fähigkeit nennt."
+
+#: provider_texts.py
+msgid "Custom field skills"
+msgstr "Fähigkeiten der Zusatzfelder"
+
+#: provider_texts.py
+msgid "CUSTOM_FIELDS: skill key to the name of its field."
+msgstr "CUSTOM_FIELDS: Fähigkeitsschlüssel auf den Namen seines Feldes."
+
+#: provider_texts.py
+msgid "Status map"
+msgstr "Statuszuordnung"
+
+#: provider_texts.py
+msgid "State of the source to open, done or cancelled. The usual names are known already."
+msgstr "Zustand der Quelle auf open, done oder cancelled. Die üblichen Namen sind schon bekannt."
+
+#: provider_texts.py
+msgid "Team map"
+msgstr "Teamzuordnung"
+
+#: provider_texts.py
+msgid "Team hint of the source (project, component) to team."
+msgstr "Team-Hinweis der Quelle (Projekt, Komponente) auf Team."
+
+#: provider_texts.py
+msgid "Missing"
+msgstr "Fehlende Einträge"
+
+#: provider_texts.py
+msgid ""
+"CLOSE cancels open tasks that the source no longer returns; KEEP leaves them. Only a complete "
+"read of the source can tell."
+msgstr ""
+"CLOSE storniert offene Aufgaben, die die Quelle nicht mehr liefert; KEEP lässt sie unverändert. "
+"Das lässt sich nur nach einem vollständigen Lesen der Quelle sagen."
+
+#: provider_texts.py
+msgid "Include groups"
+msgstr "Gruppen einbeziehen"
+
+#: provider_texts.py
+msgid "Import only people in one of these groups. Empty: everybody."
+msgstr "Nur Personen aus einer dieser Gruppen übernehmen. Leer: alle."
+
+#: provider_texts.py
+msgid "Include roles"
+msgstr "Rollen einbeziehen"
+
+#: provider_texts.py
+msgid "Import also people with one of these roles. Empty: no filter by role."
+msgstr "Auch Personen mit einer dieser Rollen übernehmen. Leer: kein Filter nach Rolle."
+
+#: provider_texts.py
+msgid "Group teams"
+msgstr "Gruppen und Teams"
+
+#: provider_texts.py
+msgid ""
+"Group=Team, one per line, the most important first. A person gets the team of the first of their "
+"groups that is listed. Without '=' the team has the group's name."
+msgstr ""
+"Gruppe=Team, eine pro Zeile, die wichtigste zuerst. Eine Person erhält das Team der ersten ihrer "
+"Gruppen, die aufgeführt ist. Ohne „=“ heißt das Team wie die Gruppe."
+
+#: provider_texts.py
+msgid "Create teams"
+msgstr "Teams anlegen"
+
+#: provider_texts.py
+msgid "Create a team that a listed group names but that is missing."
+msgstr "Ein Team anlegen, das eine aufgeführte Gruppe nennt und das noch fehlt."
+
+#: provider_texts.py
+msgid "Default team"
+msgstr "Standardteam"
+
+#: provider_texts.py
+msgid ""
+"Team of the people without a listed group. It must exist already. Without it these people are "
+"reported and not imported."
+msgstr ""
+"Team der Personen ohne aufgeführte Gruppe. Es muss schon existieren. Ohne Angabe werden diese "
+"Personen gemeldet und nicht übernommen."
+
+#: provider_texts.py
+msgid "Group skills"
+msgstr "Gruppen und Fähigkeiten"
+
+#: provider_texts.py
+msgid ""
+"Group=Skill, one per line. People in the group get the skill added; the import never takes a "
+"skill away."
+msgstr ""
+"Gruppe=Fähigkeit, eine pro Zeile. Personen der Gruppe erhalten die Fähigkeit dazu; der Import "
+"nimmt nie eine Fähigkeit weg."
+
+#: provider_texts.py
+msgid "Default allocation percent"
+msgstr "Standardverfügbarkeit in Prozent"
+
+#: provider_texts.py
+msgid "Share for new members. Default: the setting."
+msgstr "Anteil für neue Mitglieder. Standard: die Einstellung."
+
+#: provider_texts.py
+msgid "CLOSE deactivates members that the directory no longer returns; KEEP leaves them."
+msgstr "CLOSE deaktiviert Mitglieder, die das Verzeichnis nicht mehr liefert; KEEP lässt sie unverändert."
+
+#: provider_texts.py
+msgid "Type map"
+msgstr "Typzuordnung"
+
+#: provider_texts.py
+msgid "Type code of the source to the key of an absence type."
+msgstr "Typ-Code der Quelle auf den Schlüssel einer Abwesenheitsart."
+
+#: provider_texts.py
+msgid "Lookback days"
+msgstr "Tage zurück"
+
+#: provider_texts.py
+msgid "Days before today to read."
+msgstr "Wie viele Tage vor heute gelesen werden."
+
+#: provider_texts.py
+msgid "Lookahead days"
+msgstr "Tage voraus"
+
+#: provider_texts.py
+msgid "Days after today."
+msgstr "Wie viele Tage nach heute."
+
+#: provider_texts.py
+msgid ""
+"CLOSE removes absences of this integration that the source no longer reports within the days "
+"read; KEEP leaves them."
+msgstr ""
+"CLOSE entfernt Abwesenheiten dieser Anbindung, die die Quelle innerhalb der gelesenen Tage nicht "
+"mehr meldet; KEEP lässt sie unverändert."
+
+#: resources.py templates/teams/index.html
+msgid "New team"
+msgstr "Neues Team"
+
+#: resources.py
+msgid "Edit team"
+msgstr "Team bearbeiten"
+
+#: resources.py
+msgid "Delete team"
+msgstr "Team löschen"
+
+#: resources.py
+msgid "Colour"
+msgstr "Farbe"
+
+#: resources.py templates/skills/index.html
+msgid "New skill"
+msgstr "Neue Fähigkeit"
+
+#: resources.py
+msgid "Edit skill"
+msgstr "Fähigkeit bearbeiten"
+
+#: resources.py
+msgid "Delete skill"
+msgstr "Fähigkeit löschen"
+
+#: resources.py
+msgid "Matches the label in the task source, regardless of capitalisation."
+msgstr "Entspricht dem Label in der Aufgabenquelle, unabhängig von Groß- und Kleinschreibung."
+
+#: resources.py templates/members/index.html
+msgid "New member"
+msgstr "Neues Mitglied"
+
+#: resources.py
+msgid "Edit member"
+msgstr "Mitglied bearbeiten"
+
+#: resources.py
+msgid "Delete member"
+msgstr "Mitglied löschen"
+
+#: resources.py templates/absences/calendar.html templates/members/_list.html
+#: templates/members/index.html templates/overview.html templates/planning/_board.html
+#: templates/tasks/_list.html templates/tasks/index.html work_resources.py
+msgid "Team"
+msgstr "Team"
+
+#: resources.py
+msgid "Availability for planned work (%)"
+msgstr "Verfügbarkeit für geplante Arbeit (%)"
+
+#: resources.py
+msgid "The share of working time that can be planned; the rest is left for other work."
+msgstr "Der Anteil der Arbeitszeit, der verplant werden kann; der Rest bleibt für andere Arbeit."
+
+#: resources.py templates/absences/_list.html work_resources.py
+msgid "Note"
+msgstr "Notiz"
+
+#: resources.py
+#, python-format
+msgid ""
+"Saved. %(count)s assignments still use a skill the member no longer has; they were kept and are "
+"marked in the plan."
+msgstr ""
+"Gespeichert. %(count)s Zuweisungen verwenden noch eine Fähigkeit, die das Mitglied nicht mehr "
+"hat; sie wurden behalten und sind in der Planung markiert."
+
+#: resources.py templates/absence_types/index.html
+msgid "New absence type"
+msgstr "Neue Abwesenheitsart"
+
+#: resources.py
+msgid "Edit absence type"
+msgstr "Abwesenheitsart bearbeiten"
+
+#: resources.py
+msgid "Delete absence type"
+msgstr "Abwesenheitsart löschen"
+
+#: resources.py
+msgid "Lower-case letters, digits, hyphen and underscore. Used by imports."
+msgstr "Kleinbuchstaben, Ziffern, Bindestrich und Unterstrich. Wird von Importen verwendet."
+
+#: resources.py
+msgid "Letter"
+msgstr "Buchstabe"
+
+#: resources.py
+msgid "Shown next to the colour, so the type never relies on colour alone."
+msgstr "Wird neben der Farbe angezeigt, damit die Art nie allein an der Farbe hängt."
+
+#: resources.py
+msgid "Sort order"
+msgstr "Reihenfolge"
+
+#: resources.py templates/absence_types/_list.html
+msgid "Reduces capacity"
+msgstr "Mindert die Kapazität"
+
+#: resources.py
+msgid "Off for entries that only inform, such as an on-call duty."
+msgstr "Aus für Einträge, die nur informieren, etwa eine Rufbereitschaft."
+
+#: schema_form.py texts.py
+msgid "Not a whole number."
+msgstr "Keine ganze Zahl."
+
+#: schema_form.py
+msgid "Not a number."
+msgstr "Keine Zahl."
+
+#: schema_form.py templates/integrations/_fields.html
+msgid "One entry per line, written as name=value."
+msgstr "Ein Eintrag pro Zeile, geschrieben als Name=Wert."
+
+#: schema_form.py
+msgid "Not valid JSON."
+msgstr "Kein gültiges JSON."
+
+#: texts.py
+msgid "Please sign in."
+msgstr "Bitte melden Sie sich an."
+
+#: texts.py
+msgid "The user name or the password is wrong."
+msgstr "Der Benutzername oder das Passwort ist falsch."
+
+#: texts.py
+msgid "The account is locked for a while after too many failed attempts."
+msgstr "Das Konto ist nach zu vielen Fehlversuchen für eine Weile gesperrt."
+
+#: texts.py
+msgid "The account is disabled."
+msgstr "Das Konto ist deaktiviert."
+
+#: texts.py
+msgid "You do not have the permission for this."
+msgstr "Dafür fehlt Ihnen die Berechtigung."
+
+#: texts.py
+msgid "The page is out of date. Reload it and try again."
+msgstr "Die Seite ist veraltet. Laden Sie sie neu und versuchen Sie es erneut."
+
+#: texts.py
+msgid "A new password is required before you can continue."
+msgstr "Bevor Sie fortfahren können, ist ein neues Passwort nötig."
+
+#: texts.py
+msgid "The new password does not meet the requirements."
+msgstr "Das neue Passwort erfüllt die Anforderungen nicht."
+
+#: texts.py
+msgid "This way of signing in is switched off."
+msgstr "Diese Art der Anmeldung ist ausgeschaltet."
+
+#: texts.py
+msgid "This entry does not exist any more."
+msgstr "Dieser Eintrag existiert nicht mehr."
+
+#: texts.py
+msgid "Please check the highlighted fields."
+msgstr "Bitte prüfen Sie die markierten Felder."
+
+#: texts.py
+msgid "Somebody else changed this entry in the meantime."
+msgstr "Jemand anderes hat diesen Eintrag inzwischen geändert."
+
+#: texts.py
+msgid "The version of the entry is missing. Reload the page."
+msgstr "Die Version des Eintrags fehlt. Laden Sie die Seite neu."
+
+#: texts.py
+msgid "An entry with this name or key already exists."
+msgstr "Ein Eintrag mit diesem Namen oder Schlüssel existiert bereits."
+
+#: texts.py
+msgid "This entry is still in use and cannot be deleted."
+msgstr "Dieser Eintrag wird noch verwendet und kann nicht gelöscht werden."
+
+#: texts.py
+msgid "The member does not have the skill of this assignment."
+msgstr "Das Mitglied hat die Fähigkeit dieser Zuweisung nicht."
+
+#: texts.py
+msgid "The task does not need this skill."
+msgstr "Die Aufgabe braucht diese Fähigkeit nicht."
+
+#: texts.py
+msgid "Inactive members cannot be planned."
+msgstr "Inaktive Mitglieder können nicht verplant werden."
+
+#: texts.py
+msgid "The task is closed. Reopen it to plan more work."
+msgstr "Die Aufgabe ist geschlossen. Öffnen Sie sie wieder, um weitere Arbeit zu planen."
+
+#: texts.py
+msgid "The effort is lower than the work already planned."
+msgstr "Der Aufwand ist kleiner als die bereits geplante Arbeit."
+
+#: texts.py
+msgid ""
+"This would leave no active local account that can manage users. Give the right to another account"
+" first."
+msgstr ""
+"Danach gäbe es kein aktives lokales Konto mehr, das Benutzer verwalten kann. Geben Sie das Recht "
+"zuerst einem anderen Konto."
+
+#: texts.py
+msgid "You cannot delete the account you are signed in with."
+msgstr "Sie können das Konto, mit dem Sie angemeldet sind, nicht löschen."
+
+#: texts.py
+msgid "A built-in role cannot be changed or deleted. Create a custom role instead."
+msgstr ""
+"Eine eingebaute Rolle lässt sich weder ändern noch löschen. Legen Sie stattdessen eine eigene "
+"Rolle an."
+
+#: texts.py
+msgid "This field is maintained by the connected system."
+msgstr "Dieses Feld wird vom angebundenen System gepflegt."
+
+#: texts.py
+msgid "This entry is maintained by the connected system."
+msgstr "Dieser Eintrag wird vom angebundenen System gepflegt."
+
+#: texts.py
+msgid "A week starts on a Monday."
+msgstr "Eine Woche beginnt an einem Montag."
+
+#: texts.py
+msgid "The import failed."
+msgstr "Der Import ist fehlgeschlagen."
+
+#: texts.py
+msgid "The connected system reported an error."
+msgstr "Das angebundene System hat einen Fehler gemeldet."
+
+#: texts.py
+msgid "This integration type is not installed."
+msgstr "Diese Art der Anbindung ist nicht installiert."
+
+#: texts.py
+msgid "A synchronisation is already running."
+msgstr "Ein Abgleich läuft bereits."
+
+#: texts.py
+msgid "Demo data is switched off on this installation."
+msgstr "Demodaten sind in dieser Installation ausgeschaltet."
+
+#: texts.py
+msgid "Demo data can only be loaded into an empty installation."
+msgstr "Demodaten können nur in eine leere Installation geladen werden."
+
+#: texts.py
+msgid "Something went wrong on the server. Please try again."
+msgstr "Auf dem Server ist etwas schiefgegangen. Bitte versuchen Sie es erneut."
+
+#: texts.py
+msgid "The service cannot be reached right now. Please try again in a moment."
+msgstr "Der Dienst ist gerade nicht erreichbar. Bitte versuchen Sie es gleich noch einmal."
+
+#: texts.py
+msgid "Single sign-on did not work. Try again, or ask the administrator."
+msgstr ""
+"Die Anmeldung per Single Sign-on hat nicht geklappt. Versuchen Sie es erneut oder fragen Sie die "
+"Administration."
+
+#: texts.py
+msgid "Single sign-on is not available right now. Try again in a moment."
+msgstr "Single Sign-on ist gerade nicht erreichbar. Versuchen Sie es gleich noch einmal."
+
+#: texts.py
+msgid "Already in use."
+msgstr "Bereits vergeben."
+
+#: texts.py
+msgid "Required."
+msgstr "Pflichtfeld."
+
+#: texts.py
+msgid "Wrong."
+msgstr "Falsch."
+
+#: templates/macros.html texts.py
+msgid "Maintained by the connected system."
+msgstr "Wird vom angebundenen System gepflegt."
+
+#: texts.py
+msgid "Too short."
+msgstr "Zu kurz."
+
+#: texts.py
+msgid "Too long."
+msgstr "Zu lang."
+
+#: texts.py
+msgid "Not in the expected format."
+msgstr "Nicht im erwarteten Format."
+
+#: texts.py
+msgid "Too small."
+msgstr "Zu klein."
+
+#: texts.py
+msgid "Too large."
+msgstr "Zu groß."
+
+#: texts.py
+msgid "The password must not contain the user name."
+msgstr "Das Passwort darf den Benutzernamen nicht enthalten."
+
+#: texts.py
+msgid "The password must not consist of digits only."
+msgstr "Das Passwort darf nicht nur aus Ziffern bestehen."
+
+#: texts.py
+#, python-format
+msgid "The password needs at least %(count)s characters."
+msgstr "Das Passwort braucht mindestens %(count)s Zeichen."
+
+#: templates/macros.html templates/overview.html work_resources.py
+msgid "Open"
+msgstr "Offen"
+
+#: templates/crud/_secret.html templates/integrations/_sync.html templates/macros.html
+#: work_resources.py
+msgid "Done"
+msgstr "Erledigt"
+
+#: templates/macros.html work_resources.py
+msgid "Cancelled"
+msgstr "Abgebrochen"
+
+#: templates/tasks/index.html work_resources.py
+msgid "New task"
+msgstr "Neue Aufgabe"
+
+#: work_resources.py
+msgid "Edit task"
+msgstr "Aufgabe bearbeiten"
+
+#: work_resources.py
+msgid "Delete task"
+msgstr "Aufgabe löschen"
+
+#: templates/tasks/_list.html work_resources.py
+msgid "Title"
+msgstr "Titel"
+
+#: templates/absence_types/_list.html templates/absence_types/index.html
+#: templates/api_tokens/_list.html templates/api_tokens/index.html templates/integrations/_list.html
+#: templates/members/_list.html templates/members/index.html templates/overview.html
+#: templates/tasks/_list.html templates/tasks/index.html templates/users/_list.html
+#: templates/users/index.html work_resources.py
+msgid "Status"
+msgstr "Status"
+
+#: work_resources.py
+msgid "Effort in person-days per skill"
+msgstr "Aufwand in Personentagen je Fähigkeit"
+
+#: work_resources.py
+msgid "Leave a skill empty when the task does not need it."
+msgstr "Lassen Sie eine Fähigkeit leer, wenn die Aufgabe sie nicht braucht."
+
+#: work_resources.py
+msgid "Cut the assignments down to a lower effort"
+msgstr "Zuweisungen auf einen niedrigeren Aufwand kürzen"
+
+#: work_resources.py
+msgid "Otherwise an effort below the planned work is refused."
+msgstr "Sonst wird ein Aufwand unterhalb der geplanten Arbeit abgelehnt."
+
+#: work_resources.py
+msgid "Enter the effort as a number of person-days, e.g. 2.5."
+msgstr "Geben Sie den Aufwand als Zahl in Personentagen ein, z. B. 2,5."
+
+#: templates/absences/index.html work_resources.py
+msgid "New absence"
+msgstr "Neue Abwesenheit"
+
+#: work_resources.py
+msgid "Edit absence"
+msgstr "Abwesenheit bearbeiten"
+
+#: work_resources.py
+msgid "Delete absence"
+msgstr "Abwesenheit löschen"
+
+#: work_resources.py
+msgid "Leave empty for a day off for everybody, such as a public holiday."
+msgstr "Leer lassen für einen freien Tag für alle, etwa einen Feiertag."
+
+#: templates/absence_types/_list.html templates/absences/_list.html templates/absences/index.html
+#: templates/roles/_list.html work_resources.py
+msgid "Type"
+msgstr "Art"
+
+#: templates/audit/index.html work_resources.py
+msgid "From"
+msgstr "Von"
+
+#: work_resources.py
+msgid "First day"
+msgstr "Erster Tag"
+
+#: work_resources.py
+msgid "To (inclusive)"
+msgstr "Bis (einschließlich)"
+
+#: work_resources.py
+msgid "Last day"
+msgstr "Letzter Tag"
+
+#: work_resources.py
+msgid "Whole day"
+msgstr "Ganzer Tag"
+
+#: work_resources.py
+msgid "Morning only"
+msgstr "Nur vormittags"
+
+#: work_resources.py
+msgid "Afternoon only"
+msgstr "Nur nachmittags"
+
+#: work_resources.py
+#, python-format
+msgid "Saved. %(count)s member-weeks are overbooked now; see the planning board."
+msgstr "Gespeichert. %(count)s Mitglied-Wochen sind jetzt überbucht; siehe Planungstafel."
+
+#: routes/admin.py
+msgid "Password reset"
+msgstr "Passwort zurückgesetzt"
+
+#: routes/admin.py
+msgid ""
+"Give this temporary password to the user. It is shown only now, and the user chooses a new one at"
+" the next sign-in."
+msgstr ""
+"Geben Sie dieses vorläufige Passwort an den Benutzer weiter. Es wird nur jetzt angezeigt, und der"
+" Benutzer wählt bei der nächsten Anmeldung ein neues."
+
+#: routes/admin.py
+msgid "Password reset."
+msgstr "Passwort zurückgesetzt."
+
+#: routes/admin.py
+msgid "Availability proposed for a new member (%)"
+msgstr "Für neue Mitglieder vorgeschlagene Verfügbarkeit (%)"
+
+#: routes/admin.py
+msgid "Weeks shown on the planning board"
+msgstr "Auf der Planungstafel gezeigte Wochen"
+
+#: routes/admin.py
+msgid "Language of accounts without a preference"
+msgstr "Sprache für Konten ohne eigene Einstellung"
+
+#: routes/auth.py
+msgid "The two passwords are not the same."
+msgstr "Die beiden Passwörter stimmen nicht überein."
+
+#: routes/integrations.py
+msgid "People"
+msgstr "Personen"
+
+#: routes/integrations.py
+msgid "Succeeded"
+msgstr "Erfolgreich"
+
+#: routes/integrations.py
+msgid "With errors"
+msgstr "Mit Fehlern"
+
+#: routes/integrations.py
+msgid "Failed"
+msgstr "Fehlgeschlagen"
+
+#: routes/integrations.py
+msgid "Aborted"
+msgstr "Abgebrochen"
+
+#: routes/integrations.py
+msgid "Running"
+msgstr "Läuft"
+
+#: routes/integrations.py
+msgid "teams"
+msgstr "Teams"
+
+#: routes/integrations.py
+msgid "Edit integration"
+msgstr "Anbindung bearbeiten"
+
+#: routes/integrations.py templates/integrations/_choose.html templates/integrations/index.html
+msgid "New integration"
+msgstr "Neue Anbindung"
+
+#: routes/planning.py
+#, python-format
+msgid "%(name)s is overbooked in week %(week)s."
+msgstr "%(name)s ist in Woche %(week)s überbucht."
+
+#: routes/planning.py
+msgid "More is planned for this skill than the task needs."
+msgstr "Für diese Fähigkeit ist mehr geplant, als die Aufgabe braucht."
+
+#: routes/planning.py
+msgid "Enter the person-days as a number above 0, for example 1.5."
+msgstr "Geben Sie die Personentage als Zahl über 0 ein, zum Beispiel 1,5."
+
+#: routes/planning.py
+msgid "The plan was changed by somebody else. The board shows the current state."
+msgstr "Der Plan wurde zwischenzeitlich von jemand anderem geändert. Die Tafel zeigt den aktuellen Stand."
+
+#: routes/planning.py
+msgid "Removed."
+msgstr "Entfernt."
+
+#: routes/transfer.py
+msgid "Import tasks"
+msgstr "Aufgaben importieren"
+
+#: routes/transfer.py
+msgid "Import absences"
+msgstr "Abwesenheiten importieren"
+
+#: routes/transfer.py
+msgid "Choose a CSV file first."
+msgstr "Wählen Sie zuerst eine CSV-Datei."
+
+#: routes/transfer.py
+msgid "The file is not UTF-8 text. Save it as UTF-8."
+msgstr "Die Datei ist kein UTF-8-Text. Speichern Sie sie als UTF-8."
+
+#: templates/account.html templates/base.html
+msgid "Your account"
+msgstr "Ihr Konto"
+
+#: templates/account.html
+msgid "Sign-in"
+msgstr "Anmeldung"
+
+#: templates/account.html
+msgid "Local account"
+msgstr "Lokales Konto"
+
+#: templates/account.html templates/users/_list.html templates/users/index.html
+msgid "Single sign-on"
+msgstr "Single Sign-on"
+
+#: templates/account.html
+msgid "What you may do"
+msgstr "Was Sie tun dürfen"
+
+#: templates/account.html
+msgid "Your account has no rights yet. Ask the administrator."
+msgstr "Ihr Konto hat noch keine Rechte. Fragen Sie die Administration."
+
+#: templates/bare.html templates/base.html
+msgid "Resource Planner"
+msgstr "Resource Planner"
+
+#: templates/base.html
+msgid "Main navigation"
+msgstr "Hauptnavigation"
+
+#: templates/base.html
+msgid "Toggle sidebar"
+msgstr "Seitenleiste umschalten"
+
+#: templates/base.html
+msgid "Collapse"
+msgstr "Einklappen"
+
+#: templates/base.html
+#, python-format
+msgid "Account menu for %(name)s"
+msgstr "Kontomenü für %(name)s"
+
+#: templates/base.html
+msgid "Language"
+msgstr "Sprache"
+
+#: templates/base.html templates/change_password.html
+msgid "Change password"
+msgstr "Passwort ändern"
+
+#: templates/base.html
+msgid "Sign out"
+msgstr "Abmelden"
+
+#: templates/base.html templates/crud/_import.html templates/integrations/_run.html
+#: templates/planning/_assign.html
+msgid "Close"
+msgstr "Schließen"
+
+#: templates/change_password.html
+msgid "Choose a new password"
+msgstr "Neues Passwort wählen"
+
+#: templates/change_password.html
+msgid "Your account was set up with a temporary password. Choose your own before you continue."
+msgstr ""
+"Ihr Konto wurde mit einem vorläufigen Passwort eingerichtet. Wählen Sie ein eigenes, bevor Sie "
+"fortfahren."
+
+#: templates/change_password.html
+msgid "Current password"
+msgstr "Aktuelles Passwort"
+
+#: templates/change_password.html
+msgid "New password"
+msgstr "Neues Passwort"
+
+#: templates/change_password.html
+#, python-format
+msgid "At least %(count)s characters."
+msgstr "Mindestens %(count)s Zeichen."
+
+#: templates/change_password.html
+msgid "Repeat the new password"
+msgstr "Neues Passwort wiederholen"
+
+#: templates/change_password.html
+msgid "Save password"
+msgstr "Passwort speichern"
+
+#: templates/change_password.html
+msgid "Back"
+msgstr "Zurück"
+
+#: templates/error.html
+msgid "Something went wrong"
+msgstr "Etwas ist schiefgegangen"
+
+#: templates/error.html
+msgid "Back to the start"
+msgstr "Zurück zum Start"
+
+#: templates/layout.html
+msgid "The server cannot be reached. Please try again in a moment."
+msgstr "Der Server ist nicht erreichbar. Bitte versuchen Sie es gleich noch einmal."
+
+#: templates/layout.html
+msgid "Copied."
+msgstr "Kopiert."
+
+#: templates/login.html
+msgid "Sign in"
+msgstr "Anmelden"
+
+#: templates/login.html
+msgid "Sign in with single sign-on"
+msgstr "Mit Single Sign-on anmelden"
+
+#: templates/login.html
+msgid "or with a local account"
+msgstr "oder mit einem lokalen Konto"
+
+#: templates/login.html
+msgid "Password"
+msgstr "Passwort"
+
+#: templates/login.html
+msgid "No way to sign in is switched on. Ask the administrator."
+msgstr "Keine Anmeldeart ist eingeschaltet. Fragen Sie die Administration."
+
+#: templates/macros.html
+msgid "Dark mode"
+msgstr "Dunkles Design"
+
+#: templates/macros.html
+msgid "Light mode"
+msgstr "Helles Design"
+
+#: templates/macros.html
+msgid "Nothing to choose from yet."
+msgstr "Noch nichts zur Auswahl."
+
+#: templates/macros.html
+msgid "Limit to teams (none selected: every team)"
+msgstr "Auf Teams beschränken (keines gewählt: jedes Team)"
+
+#: templates/macros.html
+#, python-format
+msgid "%(first)s–%(last)s of %(total)s"
+msgstr "%(first)s–%(last)s von %(total)s"
+
+#: templates/macros.html
+msgid "Previous page"
+msgstr "Vorherige Seite"
+
+#: templates/macros.html
+msgid "Next page"
+msgstr "Nächste Seite"
+
+#: templates/integrations/_list.html templates/macros.html templates/roles/_list.html
+#: templates/users/_list.html
+#, python-format
+msgid "Edit %(name)s"
+msgstr "%(name)s bearbeiten"
+
+#: templates/integrations/_list.html templates/macros.html templates/roles/_list.html
+#: templates/users/_list.html
+#, python-format
+msgid "Delete %(name)s"
+msgstr "%(name)s löschen"
+
+#: templates/macros.html
+msgid "Search"
+msgstr "Suchen"
+
+#: templates/overview.html
+msgid "Skills as CSV"
+msgstr "Fähigkeiten als CSV"
+
+#: templates/overview.html
+msgid "Teams as CSV"
+msgstr "Teams als CSV"
+
+#: templates/absences/calendar.html templates/overview.html templates/planning/_board.html
+msgid "Earlier weeks"
+msgstr "Frühere Wochen"
+
+#: templates/absences/calendar.html templates/overview.html templates/planning/_board.html
+msgid "Today"
+msgstr "Heute"
+
+#: templates/absences/calendar.html templates/overview.html templates/planning/_board.html
+msgid "Later weeks"
+msgstr "Spätere Wochen"
+
+#: templates/absences/calendar.html templates/overview.html templates/planning/_assign.html
+#: templates/planning/_board.html templates/planning/_edit.html
+#, python-format
+msgid "W%(week)s"
+msgstr "KW%(week)s"
+
+#: templates/absences/calendar.html templates/overview.html templates/planning/_board.html
+msgid "Weeks"
+msgstr "Wochen"
+
+#: templates/audit/_list.html templates/overview.html
+msgid "Show"
+msgstr "Anzeigen"
+
+#: templates/overview.html
+msgid "Demand"
+msgstr "Bedarf"
+
+#: templates/overview.html
+msgid "person-days of open tasks"
+msgstr "Personentage offener Aufgaben"
+
+#: templates/overview.html
+msgid "Assigned"
+msgstr "Zugewiesen"
+
+#: templates/overview.html
+msgid "still to plan"
+msgstr "noch zu planen"
+
+#: templates/overview.html
+msgid "Overbooked member-weeks"
+msgstr "Überbuchte Mitglied-Wochen"
+
+#: templates/overview.html
+msgid "in the weeks shown"
+msgstr "in den gezeigten Wochen"
+
+#: templates/members/index.html templates/overview.html templates/planning/_assign.html
+#: templates/tasks/index.html
+msgid "Skill"
+msgstr "Fähigkeit"
+
+#: templates/overview.html
+msgid "Capacity of members with the skill"
+msgstr "Kapazität der Mitglieder mit der Fähigkeit"
+
+#: templates/overview.html
+msgid "Free"
+msgstr "Frei"
+
+#: templates/overview.html
+msgid "Bottleneck"
+msgstr "Engpass"
+
+#: templates/overview.html
+msgid "Tight"
+msgstr "Knapp"
+
+#: templates/overview.html
+msgid "OK"
+msgstr "In Ordnung"
+
+#: templates/overview.html
+msgid "No open tasks with an effort."
+msgstr "Keine offenen Aufgaben mit Aufwand."
+
+#: templates/absence_types/_list.html templates/overview.html
+msgid "Capacity"
+msgstr "Kapazität"
+
+#: templates/overview.html
+msgid "Booked"
+msgstr "Gebucht"
+
+#: templates/overview.html
+msgid "Utilisation"
+msgstr "Auslastung"
+
+#: templates/absence_types/_list.html templates/absences/_list.html templates/api_tokens/_list.html
+#: templates/integrations/_list.html templates/integrations/_runs.html templates/members/_list.html
+#: templates/roles/_list.html templates/skills/_list.html templates/tasks/_list.html
+#: templates/teams/_list.html templates/users/_list.html
+msgid "Actions"
+msgstr "Aktionen"
+
+#: templates/absence_types/_list.html
+msgid "Information only"
+msgstr "Nur zur Information"
+
+#: templates/absence_types/_list.html templates/members/_list.html templates/planning/_board.html
+#: templates/users/_list.html
+msgid "Inactive"
+msgstr "Inaktiv"
+
+#: templates/absence_types/_list.html
+msgid "No absence types found."
+msgstr "Keine Abwesenheitsarten gefunden."
+
+#: templates/absence_types/index.html templates/members/index.html templates/users/index.html
+msgid "Active and inactive"
+msgstr "Aktiv und inaktiv"
+
+#: templates/absence_types/index.html templates/members/index.html templates/users/index.html
+msgid "Active only"
+msgstr "Nur aktive"
+
+#: templates/absence_types/index.html templates/members/index.html templates/users/index.html
+msgid "Inactive only"
+msgstr "Nur inaktive"
+
+#: templates/absences/_list.html
+msgid "Period"
+msgstr "Zeitraum"
+
+#: templates/absences/_list.html
+msgid "Working days"
+msgstr "Arbeitstage"
+
+#: templates/absences/_list.html templates/members/_list.html templates/skills/_list.html
+#: templates/tasks/_list.html templates/teams/_list.html templates/users/_list.html
+#: templates/users/index.html
+msgid "Source"
+msgstr "Quelle"
+
+#: templates/absences/_list.html
+msgid "Everybody"
+msgstr "Alle"
+
+#: templates/absences/_list.html templates/absences/calendar.html
+msgid "morning"
+msgstr "vormittags"
+
+#: templates/absences/_list.html templates/absences/calendar.html
+msgid "afternoon"
+msgstr "nachmittags"
+
+#: templates/absences/_list.html
+msgid "No absences found."
+msgstr "Keine Abwesenheiten gefunden."
+
+#: templates/absences/_list.html
+msgid "Change the filters, or add an absence."
+msgstr "Ändern Sie die Filter oder legen Sie eine Abwesenheit an."
+
+#: templates/absences/calendar.html
+msgid "Absence calendar"
+msgstr "Abwesenheitskalender"
+
+#: templates/absences/calendar.html
+msgid "List"
+msgstr "Liste"
+
+#: templates/absences/calendar.html templates/members/index.html templates/planning/_board.html
+#: templates/tasks/index.html
+msgid "All teams"
+msgstr "Alle Teams"
+
+#: templates/absences/calendar.html
+msgid ""
+"Left half: morning, right half: afternoon. A faded letter marks an entry that does not reduce "
+"capacity."
+msgstr ""
+"Linke Hälfte: vormittags, rechte Hälfte: nachmittags. Ein blasser Buchstabe kennzeichnet einen "
+"Eintrag, der die Kapazität nicht mindert."
+
+#: templates/absences/calendar.html
+msgid "No members to show."
+msgstr "Keine Mitglieder vorhanden."
+
+#: templates/absences/index.html
+msgid "Calendar"
+msgstr "Kalender"
+
+#: templates/absences/index.html templates/planning/index.html templates/tasks/index.html
+msgid "Export CSV"
+msgstr "CSV exportieren"
+
+#: templates/absences/index.html templates/tasks/index.html
+msgid "Import CSV"
+msgstr "CSV importieren"
+
+#: templates/absences/index.html
+msgid "All members"
+msgstr "Alle Mitglieder"
+
+#: templates/absences/index.html
+msgid "All types"
+msgstr "Alle Typen"
+
+#: templates/absences/index.html
+msgid "Ends on or after"
+msgstr "Endet am oder nach dem"
+
+#: templates/absences/index.html
+msgid "Starts on or before"
+msgstr "Beginnt am oder vor dem"
+
+#: templates/api_tokens/_list.html
+msgid "Last used"
+msgstr "Zuletzt genutzt"
+
+#: templates/api_tokens/_list.html
+msgid "Expires"
+msgstr "Läuft ab"
+
+#: templates/api_tokens/_list.html templates/roles/_list.html
+#, python-format
+msgid "%(count)s permissions"
+msgstr "%(count)s Berechtigungen"
+
+#: templates/api_tokens/_list.html templates/integrations/_list.html
+msgid "never"
+msgstr "nie"
+
+#: templates/api_tokens/_list.html
+msgid "Expired"
+msgstr "Abgelaufen"
+
+#: templates/api_tokens/_list.html
+msgid "Revoked"
+msgstr "Widerrufen"
+
+#: templates/api_tokens/_list.html
+#, python-format
+msgid "Revoke %(name)s"
+msgstr "%(name)s widerrufen"
+
+#: templates/api_tokens/_list.html
+msgid "No API tokens found."
+msgstr "Keine API-Token gefunden."
+
+#: templates/api_tokens/_list.html
+msgid "A token lets a script or another system call the API without a password."
+msgstr "Mit einem Token ruft ein Skript oder ein anderes System die API ohne Passwort auf."
+
+#: templates/api_tokens/index.html
+msgid "Without revoked tokens"
+msgstr "Ohne widerrufene Token"
+
+#: templates/api_tokens/index.html
+msgid "With revoked tokens"
+msgstr "Mit widerrufenen Token"
+
+#: templates/audit/_list.html
+msgid "When"
+msgstr "Wann"
+
+#: templates/audit/_list.html
+msgid "Who"
+msgstr "Wer"
+
+#: templates/audit/_list.html templates/audit/index.html
+msgid "Through"
+msgstr "Über"
+
+#: templates/audit/_list.html templates/audit/index.html
+msgid "Action"
+msgstr "Aktion"
+
+#: templates/audit/_list.html templates/audit/index.html
+msgid "Entity"
+msgstr "Objekt"
+
+#: templates/audit/_list.html templates/integrations/_runs.html
+msgid "Details"
+msgstr "Details"
+
+#: templates/audit/_list.html
+msgid "Before"
+msgstr "Vorher"
+
+#: templates/audit/_list.html
+msgid "After"
+msgstr "Nachher"
+
+#: templates/audit/_list.html
+msgid "No entries found."
+msgstr "Keine Einträge gefunden."
+
+#: templates/audit/_list.html
+msgid "Change the filters."
+msgstr "Ändern Sie die Filter."
+
+#: templates/audit/index.html
+msgid "Any"
+msgstr "Beliebig"
+
+#: templates/audit/index.html
+msgid "Client"
+msgstr "Client"
+
+#: templates/audit/index.html
+msgid "Until"
+msgstr "Bis"
+
+#: templates/crud/_confirm_delete.html
+msgid "This cannot be undone."
+msgstr "Das lässt sich nicht rückgängig machen."
+
+#: templates/crud/_confirm_delete.html templates/crud/_form.html templates/integrations/_choose.html
+#: templates/integrations/_delete.html templates/integrations/_form.html
+#: templates/integrations/_sync.html templates/planning/_assign.html templates/planning/_edit.html
+#: templates/roles/_mappings.html templates/users/_reset_password.html
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#: templates/crud/_form.html templates/integrations/_form.html
+msgid "Load current values"
+msgstr "Aktuelle Werte laden"
+
+#: templates/crud/_import.html
+msgid "CSV file"
+msgstr "CSV-Datei"
+
+#: templates/crud/_import.html
+msgid "UTF-8, with a header line. The delimiter is a semicolon, comma or tab."
+msgstr "UTF-8, mit Kopfzeile. Als Trennzeichen sind Semikolon, Komma oder Tabulator möglich."
+
+#: templates/crud/_import.html
+msgid "Create skills the file names and the planner does not know"
+msgstr "Fähigkeiten anlegen, die in der Datei stehen und dem Planer unbekannt sind"
+
+#: templates/crud/_import.html
+msgid "Check file"
+msgstr "Datei prüfen"
+
+#: templates/crud/_import.html
+msgid "Import"
+msgstr "Importieren"
+
+#: templates/crud/_import_result.html
+msgid "Checked, nothing was saved yet."
+msgstr "Geprüft, es wurde noch nichts gespeichert."
+
+#: templates/crud/_import_result.html
+msgid "Imported."
+msgstr "Importiert."
+
+#: templates/crud/_import_result.html
+msgid "Show the list"
+msgstr "Liste anzeigen"
+
+#: templates/crud/_import_result.html templates/integrations/_runs.html
+#: templates/integrations/_status.html
+msgid "Created"
+msgstr "Angelegt"
+
+#: templates/crud/_import_result.html templates/integrations/_runs.html
+#: templates/integrations/_status.html
+msgid "Updated"
+msgstr "Aktualisiert"
+
+#: templates/crud/_import_result.html templates/integrations/_runs.html
+#: templates/integrations/_status.html
+msgid "Unchanged"
+msgstr "Unverändert"
+
+#: templates/crud/_import_result.html
+msgid "Skills created:"
+msgstr "Angelegte Fähigkeiten:"
+
+#: templates/crud/_import_result.html
+msgid "Unknown skills (rows skipped):"
+msgstr "Unbekannte Fähigkeiten (Zeilen übersprungen):"
+
+#: templates/crud/_import_result.html
+msgid "Line"
+msgstr "Zeile"
+
+#: templates/crud/_import_result.html
+msgid "Field"
+msgstr "Feld"
+
+#: templates/crud/_import_result.html
+msgid "Problem"
+msgstr "Problem"
+
+#: templates/crud/_secret.html
+msgid "Copy"
+msgstr "Kopieren"
+
+#: templates/integrations/_choose.html
+msgid "What do you want to bring in, and from where?"
+msgstr "Was möchten Sie übernehmen, und woher?"
+
+#: templates/integrations/_choose.html
+msgid "No provider is installed."
+msgstr "Es ist kein Anbieter installiert."
+
+#: templates/integrations/_delete.html
+msgid "Delete integration"
+msgstr "Anbindung löschen"
+
+#: templates/integrations/_delete.html
+#, python-format
+msgid "This integration has written %(items)s. Keep them as manual data, or remove them first."
+msgstr ""
+"Diese Anbindung hat %(items)s angelegt. Behalten Sie sie als manuelle Daten oder entfernen Sie "
+"sie zuerst."
+
+#: templates/integrations/_delete.html
+#, python-format
+msgid "Delete %(name)s? The synchronisation stops. This cannot be undone."
+msgstr "%(name)s löschen? Der Abgleich endet. Das lässt sich nicht rückgängig machen."
+
+#: templates/integrations/_delete.html
+msgid "Keep what it brought in as manual data"
+msgstr "Übernommene Daten als manuelle Daten behalten"
+
+#: templates/integrations/_delete.html
+msgid "The tasks, people and absences stay and can be edited by hand from then on."
+msgstr ""
+"Die Aufgaben, Personen und Abwesenheiten bleiben erhalten und lassen sich danach von Hand "
+"bearbeiten."
+
+#: templates/integrations/_fields.html
+msgid "Set. Leave empty to keep it."
+msgstr "Gesetzt. Leer lassen, um den Wert zu behalten."
+
+#: templates/integrations/_fields.html
+msgid "One entry per line."
+msgstr "Ein Eintrag pro Zeile."
+
+#: templates/integrations/_form.html templates/integrations/_list.html
+msgid "Schedule"
+msgstr "Zeitplan"
+
+#: templates/integrations/_form.html
+msgid ""
+"A cron line of five fields in UTC, for example 0 6 * * 1-5 for weekdays at 6:00. Empty: only when"
+" you start it."
+msgstr ""
+"Eine Cron-Zeile mit fünf Feldern in UTC, zum Beispiel 0 6 * * 1-5 für werktags um 6:00 Uhr. Leer:"
+" nur, wenn Sie den Abgleich starten."
+
+#: templates/integrations/_form.html templates/integrations/_list.html
+msgid "Enabled"
+msgstr "Aktiv"
+
+#: templates/integrations/_form.html
+msgid "Only an enabled integration runs on its schedule. You can always start it by hand."
+msgstr "Nur eine aktive Anbindung läuft nach ihrem Zeitplan. Von Hand starten können Sie sie immer."
+
+#: templates/integrations/_form.html
+msgid "Connection"
+msgstr "Verbindung"
+
+#: templates/integrations/_form.html
+msgid "Mapping"
+msgstr "Zuordnung"
+
+#: templates/integrations/_list.html
+msgid "Brings in"
+msgstr "Übernimmt"
+
+#: templates/integrations/_list.html
+msgid "Last sync"
+msgstr "Letzter Abgleich"
+
+#: templates/integrations/_list.html
+msgid "not installed"
+msgstr "nicht installiert"
+
+#: templates/integrations/_list.html templates/settings/_form.html
+msgid "Off"
+msgstr "Aus"
+
+#: templates/integrations/_list.html
+msgid "manual"
+msgstr "von Hand"
+
+#: templates/integrations/_list.html
+#, python-format
+msgid "Test the connection of %(name)s"
+msgstr "Verbindung von %(name)s testen"
+
+#: templates/integrations/_list.html
+msgid "Test the connection"
+msgstr "Verbindung testen"
+
+#: templates/integrations/_list.html
+#, python-format
+msgid "Sync %(name)s now"
+msgstr "%(name)s jetzt abgleichen"
+
+#: templates/integrations/_list.html templates/integrations/_sync.html templates/integrations/runs.html
+msgid "Sync now"
+msgstr "Jetzt abgleichen"
+
+#: templates/integrations/_list.html templates/integrations/runs.html
+#, python-format
+msgid "Runs of %(name)s"
+msgstr "Läufe von %(name)s"
+
+#: templates/integrations/_list.html
+msgid "Runs"
+msgstr "Läufe"
+
+#: templates/integrations/_list.html
+msgid "Edit"
+msgstr "Bearbeiten"
+
+#: templates/integrations/_list.html
+msgid "No integrations yet."
+msgstr "Noch keine Anbindungen."
+
+#: templates/integrations/_list.html
+msgid "An integration reads tasks, people or absences from another system and keeps them up to date."
+msgstr ""
+"Eine Anbindung liest Aufgaben, Personen oder Abwesenheiten aus einem anderen System und hält sie "
+"aktuell."
+
+#: templates/integrations/_run.html
+#, python-format
+msgid "Run of %(name)s"
+msgstr "Lauf von %(name)s"
+
+#: templates/integrations/_runs.html
+msgid "Started"
+msgstr "Gestartet"
+
+#: templates/integrations/_runs.html
+msgid "Result"
+msgstr "Ergebnis"
+
+#: templates/integrations/_runs.html templates/integrations/_status.html
+msgid "Errors"
+msgstr "Fehler"
+
+#: templates/integrations/_runs.html
+msgid "Started by"
+msgstr "Gestartet von"
+
+#: templates/integrations/_runs.html templates/integrations/_status.html
+#: templates/integrations/_sync.html
+msgid "Preview"
+msgstr "Vorschau"
+
+#: templates/integrations/_runs.html templates/integrations/_status.html
+msgid "Full read"
+msgstr "Vollständig gelesen"
+
+#: templates/integrations/_runs.html
+#, python-format
+msgid "Details of the run of %(when)s"
+msgstr "Einzelheiten des Laufs vom %(when)s"
+
+#: templates/integrations/_runs.html
+msgid "No runs yet."
+msgstr "Noch keine Läufe."
+
+#: templates/integrations/_runs.html
+msgid "Every sync, preview and scheduled run is listed here with its log."
+msgstr "Jeder Abgleich, jede Vorschau und jeder geplante Lauf steht hier mit seinem Protokoll."
+
+#: templates/integrations/_status.html
+msgid "This was a preview. Nothing was saved."
+msgstr "Das war eine Vorschau. Es wurde nichts gespeichert."
+
+#: templates/integrations/_status.html
+msgid "Log"
+msgstr "Protokoll"
+
+#: templates/integrations/_status.html
+msgid "Nothing was reported."
+msgstr "Es wurde nichts gemeldet."
+
+#: templates/integrations/_sync.html
+#, python-format
+msgid "Result: %(name)s"
+msgstr "Ergebnis: %(name)s"
+
+#: templates/integrations/_sync.html
+msgid "All runs"
+msgstr "Alle Läufe"
+
+#: templates/integrations/_sync.html
+#, python-format
+msgid "Sync now: %(name)s"
+msgstr "Jetzt abgleichen: %(name)s"
+
+#: templates/integrations/_sync.html
+msgid "A preview reads the source and shows what would change, without saving anything."
+msgstr "Eine Vorschau liest die Quelle und zeigt, was sich ändern würde, ohne etwas zu speichern."
+
+#: templates/integrations/_sync.html
+msgid "Read everything again"
+msgstr "Alles neu lesen"
+
+#: templates/integrations/_sync.html
+msgid "Otherwise only what changed since the last sync is read, if the source can tell."
+msgstr ""
+"Sonst wird nur gelesen, was sich seit dem letzten Abgleich geändert hat, sofern die Quelle das "
+"angeben kann."
+
+#: templates/integrations/index.html
+msgid "Connections that bring tasks, people and absences in from other systems."
+msgstr "Verbindungen, die Aufgaben, Personen und Abwesenheiten aus anderen Systemen übernehmen."
+
+#: templates/members/_list.html
+msgid "Availability"
+msgstr "Verfügbarkeit"
+
+#: templates/members/_list.html
+msgid "No members found."
+msgstr "Keine Mitglieder gefunden."
+
+#: templates/members/_list.html
+msgid "Change the filters, or add the first member."
+msgstr "Ändern Sie die Filter oder legen Sie das erste Mitglied an."
+
+#: templates/members/index.html templates/tasks/index.html
+msgid "All skills"
+msgstr "Alle Fähigkeiten"
+
+#: templates/planning/_assign.html
+msgid "Assign work"
+msgstr "Arbeit zuweisen"
+
+#: templates/planning/_assign.html
+msgid "Nothing left to plan. Add a task with an effort first."
+msgstr "Nichts mehr zu planen. Legen Sie zuerst eine Aufgabe mit Aufwand an."
+
+#: templates/planning/_assign.html
+msgid "Task"
+msgstr "Aufgabe"
+
+#: templates/planning/_assign.html
+#, python-format
+msgid "%(open)s of %(effort)s person-days open"
+msgstr "%(open)s von %(effort)s Personentagen offen"
+
+#: templates/planning/_assign.html templates/planning/_edit.html
+msgid "Week"
+msgstr "Woche"
+
+#: templates/planning/_assign.html
+#, python-format
+msgid "%(free)s free"
+msgstr "%(free)s frei"
+
+#: templates/planning/_assign.html templates/planning/_edit.html
+msgid "Person-days"
+msgstr "Personentage"
+
+#: templates/planning/_assign.html templates/planning/_edit.html
+msgid ""
+"This is more than the free capacity of that week. It can be saved; the week will be shown as "
+"overbooked."
+msgstr ""
+"Das ist mehr als die freie Kapazität dieser Woche. Es lässt sich speichern; die Woche wird dann "
+"als überbucht angezeigt."
+
+#: templates/planning/_assign.html
+msgid "Nobody has this skill yet. Add it to a member first."
+msgstr "Niemand hat diese Fähigkeit bisher. Ordnen Sie sie zuerst einem Mitglied zu."
+
+#: templates/planning/_assign.html
+msgid "Assign"
+msgstr "Zuweisen"
+
+#: templates/planning/_board.html
+msgid "Board settings"
+msgstr "Einstellungen der Tafel"
+
+#: templates/planning/_board.html
+msgid "Tasks needing"
+msgstr "Aufgaben mit Bedarf an"
+
+#: templates/planning/_board.html
+msgid "Any skill"
+msgstr "Jede Fähigkeit"
+
+#: templates/planning/_board.html
+msgid "Tasks to plan"
+msgstr "Aufgaben zum Planen"
+
+#: templates/planning/_board.html
+msgid "Drag a skill onto a member's week, or use its Assign… button."
+msgstr "Ziehen Sie eine Fähigkeit auf die Woche einer Person oder nutzen Sie die Schaltfläche „Zuweisen …“."
+
+#: templates/planning/_board.html
+msgid "Planned of needed person-days"
+msgstr "Geplante von benötigten Personentagen"
+
+#: templates/planning/_board.html
+msgid "Fully planned"
+msgstr "Vollständig geplant"
+
+#: templates/planning/_board.html
+#, python-format
+msgid "Assign %(skill)s work of %(task)s"
+msgstr "%(skill)s-Arbeit von %(task)s zuweisen"
+
+#: templates/planning/_board.html
+msgid "Assign…"
+msgstr "Zuweisen …"
+
+#: templates/planning/_board.html
+msgid "No effort entered yet."
+msgstr "Noch kein Aufwand erfasst."
+
+#: templates/planning/_board.html
+msgid "Nothing left to plan."
+msgstr "Nichts mehr zu planen."
+
+#: templates/planning/_board.html
+msgid "Capacity and assignments per member and week"
+msgstr "Kapazität und Zuweisungen je Mitglied und Woche"
+
+#: templates/planning/_board.html
+#, python-format
+msgid "%(booked)s of %(capacity)s person-days booked"
+msgstr "%(booked)s von %(capacity)s Personentagen gebucht"
+
+#: templates/planning/_board.html
+msgid "Booked of available person-days"
+msgstr "Gebuchte von verfügbaren Personentagen"
+
+#: templates/planning/_board.html
+msgid "Overbooked"
+msgstr "Überbucht"
+
+#: templates/planning/_board.html
+msgid "Full"
+msgstr "Voll"
+
+#: templates/planning/_board.html
+#, python-format
+msgid "%(days)s off"
+msgstr "%(days)s frei"
+
+#: templates/planning/_board.html
+#, python-format
+msgid "Change %(task)s %(skill)s, %(days)s person-days"
+msgstr "%(task)s %(skill)s ändern, %(days)s Personentage"
+
+#: templates/planning/_board.html
+#, python-format
+msgid "Assign work to %(name)s in week %(week)s"
+msgstr "%(name)s in Woche %(week)s Arbeit zuweisen"
+
+#: templates/planning/_board.html
+msgid "No members to plan."
+msgstr "Keine Mitglieder zum Planen."
+
+#: templates/planning/_board.html
+msgid "Add teams and members first."
+msgstr "Legen Sie zuerst Teams und Mitglieder an."
+
+#: templates/planning/_edit.html
+msgid "Change assignment"
+msgstr "Zuweisung ändern"
+
+#: templates/planning/_edit.html
+#, python-format
+msgid "%(free)s person-days free in that week."
+msgstr "%(free)s Personentage in dieser Woche frei."
+
+#: templates/planning/_edit.html
+msgid "Remove"
+msgstr "Entfernen"
+
+#: templates/roles/_list.html
+msgid "Role"
+msgstr "Rolle"
+
+#: templates/roles/_list.html
+msgid "Accounts"
+msgstr "Konten"
+
+#: templates/roles/_list.html
+msgid "Mapped roles"
+msgstr "Zugeordnete Rollen"
+
+#: templates/roles/_list.html
+msgid "Built-in"
+msgstr "Eingebaut"
+
+#: templates/roles/_list.html
+msgid "Custom"
+msgstr "Eigene"
+
+#: templates/roles/_list.html
+msgid "No roles found."
+msgstr "Keine Rollen gefunden."
+
+#: templates/roles/_mapping_row.html templates/users/_list.html
+msgid "Role of the identity provider"
+msgstr "Rolle des Identitätsanbieters"
+
+#: templates/roles/_mapping_row.html
+msgid "Role here"
+msgstr "Rolle hier"
+
+#: templates/roles/_mapping_row.html
+msgid "Remove mapping"
+msgstr "Zuordnung entfernen"
+
+#: templates/roles/_mappings.html templates/roles/index.html
+msgid "Role mapping"
+msgstr "Rollenzuordnung"
+
+#: templates/roles/_mappings.html
+#, python-format
+msgid ""
+"Which role of the identity provider (%(provider)s) gives which role here. A change applies to the"
+" next request of every account that is signed in."
+msgstr ""
+"Welche Rolle des Identitätsanbieters (%(provider)s) welche Rolle hier ergibt. Eine Änderung gilt "
+"ab der nächsten Anfrage jedes angemeldeten Kontos."
+
+#: templates/roles/_mappings.html
+msgid "Add mapping"
+msgstr "Zuordnung hinzufügen"
+
+#: templates/settings/_form.html
+msgid "Set by the installation"
+msgstr "Von der Installation festgelegt"
+
+#: templates/settings/_form.html
+msgid "These are environment variables of the server and cannot be changed here."
+msgstr "Das sind Umgebungsvariablen des Servers und lassen sich hier nicht ändern."
+
+#: templates/settings/_form.html
+msgid "Sign-in with a local account"
+msgstr "Anmeldung mit lokalem Konto"
+
+#: templates/settings/_form.html
+msgid "On"
+msgstr "An"
+
+#: templates/settings/_form.html
+msgid "Sign-in with single sign-on"
+msgstr "Anmeldung per Single Sign-on"
+
+#: templates/settings/_form.html
+msgid "Demo data can be loaded"
+msgstr "Demodaten können geladen werden"
+
+#: templates/skills/_list.html
+msgid "No skills yet."
+msgstr "Noch keine Fähigkeiten."
+
+#: templates/skills/_list.html
+msgid "A skill's key is matched against the labels of imported tasks."
+msgstr "Der Schlüssel einer Fähigkeit wird mit den Labels importierter Aufgaben verglichen."
+
+#: templates/tasks/_list.html
+msgid "Effort"
+msgstr "Aufwand"
+
+#: templates/tasks/_list.html
+msgid "Planned"
+msgstr "Geplant"
+
+#: templates/tasks/_list.html
+#, python-format
+msgid "%(skill)s: %(assigned)s of %(effort)s person-days planned"
+msgstr "%(skill)s: %(assigned)s von %(effort)s Personentagen geplant"
+
+#: templates/tasks/_list.html
+msgid "No tasks found."
+msgstr "Keine Aufgaben gefunden."
+
+#: templates/tasks/_list.html
+msgid "Change the filters, or add the first task."
+msgstr "Ändern Sie die Filter oder legen Sie die erste Aufgabe an."
+
+#: templates/tasks/index.html
+msgid "Every status"
+msgstr "Jeder Status"
+
+#: templates/teams/_list.html
+msgid "No teams yet."
+msgstr "Noch keine Teams."
+
+#: templates/teams/_list.html
+msgid "Create a team first; members belong to a team."
+msgstr "Legen Sie zuerst ein Team an; Mitglieder gehören zu einem Team."
+
+#: templates/users/_list.html
+msgid "Last sign-in"
+msgstr "Letzte Anmeldung"
+
+#: templates/users/_list.html
+msgid "Local"
+msgstr "Lokal"
+
+#: templates/users/_list.html
+msgid "Locked"
+msgstr "Gesperrt"
+
+#: templates/users/_list.html
+msgid "Must choose a password"
+msgstr "Muss Passwort wählen"
+
+#: templates/users/_list.html templates/users/_reset_password.html
+#, python-format
+msgid "Reset the password of %(name)s"
+msgstr "Passwort von %(name)s zurücksetzen"
+
+#: templates/users/_list.html
+msgid "No users found."
+msgstr "Keine Benutzer gefunden."
+
+#: templates/users/_list.html
+msgid "Change the filters, or add the first user."
+msgstr "Ändern Sie die Filter oder legen Sie den ersten Benutzer an."
+
+#: templates/users/_reset_password.html
+msgid ""
+"The account gets a temporary password and has to choose its own at the next sign-in. Sessions "
+"that are open end now."
+msgstr ""
+"Das Konto erhält ein vorläufiges Passwort und muss bei der nächsten Anmeldung ein eigenes wählen."
+" Offene Sitzungen enden jetzt."
+
+#: templates/users/_reset_password.html
+msgid "Leave empty to generate one. It is shown once."
+msgstr "Leer lassen, um eines zu erzeugen. Es wird einmal angezeigt."
+
+#: templates/users/_reset_password.html
+msgid "Reset password"
+msgstr "Passwort zurücksetzen"
+
+#: templates/users/index.html
+msgid "All sources"
+msgstr "Alle Quellen"
+
+#: templates/users/index.html
+msgid "Local accounts"
+msgstr "Lokale Konten"
+
+

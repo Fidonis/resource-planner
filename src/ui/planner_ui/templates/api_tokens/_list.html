@@ -1,0 +1,55 @@
+{% from "macros.html" import pager, empty %}
+<div id="list">
+  {% if rows %}
+  <div class="overflow-x-auto rounded-box border border-base-300 bg-base-100">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>{{ _("Name") }}</th>
+          <th>{{ _("Account") }}</th>
+          <th>{{ _("Token") }}</th>
+          <th>{{ _("Permissions") }}</th>
+          <th>{{ _("Last used") }}</th>
+          <th>{{ _("Expires") }}</th>
+          <th>{{ _("Status") }}</th>
+          <th class="w-px"><span class="sr-only">{{ _("Actions") }}</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for token in rows %}
+        <tr>
+          <td class="font-medium">{{ token.name }}</td>
+          <td>{{ token.username }}</td>
+          <td class="font-mono text-xs">{{ token.prefix }}…</td>
+          <td>
+            <details>
+              <summary class="cursor-pointer text-sm">{{ _("%(count)s permissions", count=token.permissions|length) }}</summary>
+              <ul class="mt-1 space-y-0.5 font-mono text-xs">
+                {% for permission in token.permissions %}<li>{{ permission }}</li>{% endfor %}
+              </ul>
+            </details>
+          </td>
+          <td class="whitespace-nowrap text-sm">{% if token.last_used_at %}{{ token.last_used_at|datetime }}{% else %}<span class="opacity-40">{{ _("never") }}</span>{% endif %}</td>
+          <td class="whitespace-nowrap text-sm">{% if token.expires_at %}{{ token.expires_at|datetime }}{% else %}<span class="opacity-40">—</span>{% endif %}</td>
+          <td>
+            {% if token.status.value == "active" %}<span class="badge badge-success badge-sm badge-outline">{{ _("Active") }}</span>
+            {% elif token.status.value == "expired" %}<span class="badge badge-warning badge-sm badge-outline">{{ _("Expired") }}</span>
+            {% else %}<span class="badge badge-ghost badge-sm">{{ _("Revoked") }}</span>{% endif %}
+          </td>
+          <td>
+            {% if token.status.value != "revoked" %}
+            <div class="flex justify-end">
+              <button type="button" class="btn btn-ghost btn-xs text-error" hx-get="/api-tokens/{{ token.id }}/delete" hx-target="#modal-body" hx-swap="innerHTML" aria-label="{{ _('Revoke %(name)s', name=token.name) }}">{{ icon("ban") }}</button>
+            </div>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {{ pager(view) }}
+  {% else %}
+  {{ empty(_("No API tokens found."), _("A token lets a script or another system call the API without a password.")) }}
+  {% endif %}
+</div>

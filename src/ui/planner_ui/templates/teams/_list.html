@@ -1,0 +1,35 @@
+{% from "macros.html" import pager, row_actions, source_badge, empty %}
+<div id="list">
+  {% if rows %}
+  <div class="overflow-x-auto rounded-box border border-base-300 bg-base-100">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>{{ _("Name") }}</th>
+          <th class="text-right">{{ _("Members") }}</th>
+          <th>{{ _("Source") }}</th>
+          <th class="w-px"><span class="sr-only">{{ _("Actions") }}</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for team in rows %}
+        <tr>
+          <td>
+            <span class="inline-flex items-center gap-2 font-medium">
+              <span class="inline-block h-3 w-3 shrink-0 rounded-full" style="background-color: {{ team.color }}" aria-hidden="true"></span>
+              {{ team.name }}
+            </span>
+          </td>
+          <td class="text-right tabular-nums">{{ team.member_count }}</td>
+          <td>{{ source_badge(team) }}</td>
+          <td>{{ row_actions("teams", team, team.name) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {{ pager(view) }}
+  {% else %}
+  {{ empty(_("No teams yet."), _("Create a team first; members belong to a team.") if can("team:write") else none) }}
+  {% endif %}
+</div>

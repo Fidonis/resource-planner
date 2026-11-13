@@ -1,0 +1,78 @@
+name: Bug report
+description: Report a bug or unexpected behavior
+title: "[Bug]: "
+labels: ["type: bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. Please fill in the fields below so that we can
+        investigate efficiently. Report security problems privately, see SECURITY.md.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of the problem.
+      placeholder: When I do X, Y happens, but I expected Z.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: The shortest steps that trigger the bug.
+      placeholder: |
+        1. Open the planning board
+        2. Drag ... onto ...
+        3. See ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: false
+  - type: dropdown
+    id: area
+    attributes:
+      label: Where does it happen?
+      options:
+        - Planning board
+        - Overview
+        - Master data (teams, skills, members, absences)
+        - Tasks
+        - Sign-in, roles, API tokens
+        - Integrations (sync, providers)
+        - API
+        - Deployment (Compose, proxy)
+        - Other
+    validations:
+      required: false
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      placeholder: 0.1.0 / 0ad5fae
+    validations:
+      required: false
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Browser, operating system, Docker version, identity provider, proxy in front.
+      placeholder: |
+        - Browser: Firefox 140
+        - Docker: 27.0.3
+        - Sign-in: local / OIDC (Keycloak 26)
+        - Behind a TLS proxy: yes/no
+    validations:
+      required: false
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Relevant log lines or the error shown (remove secrets and personal data first).
+      render: shell
+    validations:
+      required: false

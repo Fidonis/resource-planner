@@ -1,0 +1,28 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.import_linter_cache/
+node_modules/
+.env
+.env.*
+!.env.example
+*.egg-info/
+dist/
+build/
+
+# Built or copied from node_modules by `npm run build` in src/ui
+src/ui/planner_ui/static/app.css
+src/ui/planner_ui/static/vendor/
+src/ui/planner_ui/static/fonts/files/
+
+# Local runtime data
+/data/
+/imports/
+test-results/
+playwright-report/
+
+# Built by `npm run build` in src/ui (Tailwind input)
+src/ui/.build/

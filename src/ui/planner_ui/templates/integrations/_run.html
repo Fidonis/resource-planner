@@ -1,0 +1,8 @@
+{% from "integrations/_status.html" import run_body %}
+<div class="space-y-4" aria-labelledby="modal-title">
+  <h2 id="modal-title" class="font-brand text-lg font-bold">{{ _("Run of %(name)s", name=row.name) }}</h2>
+  {{ run_body(run, status_names) }}
+  <div class="modal-action">
+    <button type="button" class="btn btn-primary" data-action="close-modal">{{ _("Close") }}</button>
+  </div>
+</div>

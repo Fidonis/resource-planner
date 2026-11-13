@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _("Your account") }} · {% endblock %}
+{% block page_title %}{{ _("Your account") }}{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl space-y-6">
+  <section class="rounded-box border border-base-300 bg-base-100 p-6">
+    <dl class="grid grid-cols-[10rem_1fr] gap-y-2 text-sm">
+      <dt class="opacity-60">{{ _("Name") }}</dt><dd>{{ me.display_name }}</dd>
+      <dt class="opacity-60">{{ _("User name") }}</dt><dd>{{ me.username }}</dd>
+      {% if me.email %}<dt class="opacity-60">{{ _("E-mail") }}</dt><dd>{{ me.email }}</dd>{% endif %}
+      <dt class="opacity-60">{{ _("Sign-in") }}</dt>
+      <dd>{{ _("Local account") if me.auth_provider == "local" else _("Single sign-on") }}</dd>
+    </dl>
+  </section>
+  <section class="rounded-box border border-base-300 bg-base-100 p-6">
+    <h2 class="font-brand text-base font-bold">{{ _("What you may do") }}</h2>
+    {% if permissions %}
+    <ul class="mt-3 flex flex-wrap gap-2">
+      {% for permission in permissions %}<li class="badge badge-ghost font-mono text-xs">{{ permission }}</li>{% endfor %}
+    </ul>
+    {% else %}
+    <p class="mt-2 text-sm opacity-70">{{ _("Your account has no rights yet. Ask the administrator.") }}</p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

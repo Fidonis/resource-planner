@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _("Absences") }} · {% endblock %}
+{% block page_title %}{{ _("Absences") }}{% endblock %}
+{% block page_actions %}
+<a class="btn btn-ghost btn-sm" href="/absences/calendar">{{ icon("calendar") }} {{ _("Calendar") }}</a>
+<a class="btn btn-ghost btn-sm" href="/absences/export.csv" download>{{ icon("download") }} {{ _("Export CSV") }}</a>
+{% if can("absence:write") or can("absence:write:own") %}
+<button type="button" class="btn btn-ghost btn-sm" hx-get="/absences/import" hx-target="#modal-body" hx-swap="innerHTML">{{ icon("upload") }} {{ _("Import CSV") }}</button>
+<button type="button" class="btn btn-primary btn-sm" hx-get="/absences/new" hx-target="#modal-body" hx-swap="innerHTML">{{ icon("plus") }} {{ _("New absence") }}</button>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<form class="mb-4 flex flex-wrap items-end gap-3" role="search" hx-get="/absences" hx-target="#list" hx-swap="outerHTML" hx-trigger="change, submit" hx-push-url="true">
+  <select name="member" class="select select-bordered" aria-label="{{ _('Member') }}">
+    <option value="">{{ _("All members") }}</option>
+    {% for c in choices.members %}<option value="{{ c.value }}"{% if view.params.member == c.value %} selected{% endif %}>{{ c.label }}</option>{% endfor %}
+  </select>
+  <select name="type" class="select select-bordered" aria-label="{{ _('Type') }}">
+    <option value="">{{ _("All types") }}</option>
+    {% for c in choices.types %}<option value="{{ c.value }}"{% if view.params.type == c.value %} selected{% endif %}>{{ c.label }}</option>{% endfor %}
+  </select>
+  <label class="flex flex-col text-xs opacity-80">{{ _("Ends on or after") }}
+    <input type="date" name="from" value="{{ view.params.get('from', '') }}" class="input input-bordered">
+  </label>
+  <label class="flex flex-col text-xs opacity-80">{{ _("Starts on or before") }}
+    <input type="date" name="to" value="{{ view.params.get('to', '') }}" class="input input-bordered">
+  </label>
+</form>
+{% include "absences/_list.html" %}
+{% endblock %}

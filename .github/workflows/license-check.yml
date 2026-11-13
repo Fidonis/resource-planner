@@ -1,0 +1,191 @@
+name: License check
+
+# Two responsibilities:
+#   1. Generate THIRD_PARTY_LICENSES.md from the locked runtime dependencies of
+#      the api and ui images on every push to main and propose a PR if it has
+#      drifted. The PR is opened with the workflow token, which the repository
+#      must be allowed to use for that (Settings > Actions > General), and its
+#      status checks start only once it is closed and reopened.
+#   2. Fail any pull request that introduces a direct or transitive
+#      dependency under a copyleft license (GPL / LGPL / AGPL / OSL /
+#      EUPL / SSPL), unless the package is listed as an approved exception.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  copyleft-check:
+    name: Reject copyleft dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: '3.12'
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Install the runtime dependencies of all packages into a venv
+        run: uv sync --frozen --all-packages --no-dev
+
+      - name: Install pip-licenses
+        run: uv pip install pip-licenses
+
+      - name: Scan for copyleft licenses
+        run: |
+          set -euo pipefail
+          uv run --frozen --no-sync pip-licenses --format=json > /tmp/licenses.json
+          python - <<'PY'
+          import json, re, sys
+          with open("/tmp/licenses.json") as f:
+              entries = json.load(f)
+          banned = re.compile(
+              r"^(?:GNU )?"
+              r"(GPL|LGPL|AGPL|Affero|OSL|Open Software License|EUPL|"
+              r"European Union Public Licen[cs]e|SSPL|Server Side Public License)"
+              r"(?:[ -].*)?$",
+              re.IGNORECASE,
+          )
+          # Approved exceptions. Each one needs the reason in THIRD_PARTY_NOTICES.md.
+          #   psycopg, psycopg-binary (LGPL-3.0-only): the PostgreSQL driver, used as an
+          #   unmodified library that the image installs from PyPI and that can be replaced.
+          allowed = {"psycopg", "psycopg-binary"}
+          offenders = [
+              e for e in entries
+              if e["Name"].lower() not in allowed
+              and any(banned.match(part.strip())
+                      for part in str(e.get("License", "")).split(";"))
+          ]
+          if offenders:
+              print("Copyleft dependencies detected — failing the build:", file=sys.stderr)
+              for e in offenders:
+                  print(f"  - {e['Name']} {e['Version']}: {e['License']}", file=sys.stderr)
+              sys.exit(1)
+          print(f"OK — scanned {len(entries)} packages, no copyleft dependencies found "
+                f"apart from the approved exceptions ({', '.join(sorted(allowed))}).")
+          PY
+
+  third-party-licenses:
+    name: Refresh THIRD_PARTY_LICENSES.md
+    needs: copyleft-check
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: '3.12'
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Install the runtime dependencies of all packages into a venv
+        run: uv sync --frozen --all-packages --no-dev
+
+      - name: Install pip-licenses
+        run: uv pip install pip-licenses
+
+      - name: Generate THIRD_PARTY_LICENSES.md
+        run: |
+          set -euo pipefail
+          {
+            cat <<'HEADER'
+          # Third-party licenses
+
+          This file is generated automatically by
+          [`.github/workflows/license-check.yml`](.github/workflows/license-check.yml)
+          on every push to `main`. Do not edit it by hand — the next CI run
+          will overwrite manual changes.
+
+          The list below covers the runtime Python dependencies installed in
+          the `api` and `ui` images. Development-only dependencies are excluded.
+          The browser files and fonts that the `ui` image bundles, and the notices
+          some licenses ask for, are in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
+
+          HEADER
+            uv run --frozen --no-sync pip-licenses \
+                --format=markdown \
+                --with-urls --with-authors
+          } > THIRD_PARTY_LICENSES.md.new
+
+      - name: Open a pull request if changed
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          if diff -q THIRD_PARTY_LICENSES.md THIRD_PARTY_LICENSES.md.new >/dev/null 2>&1; then
+            echo "THIRD_PARTY_LICENSES.md unchanged."
+            rm THIRD_PARTY_LICENSES.md.new
+            exit 0
+          fi
+
+          mv THIRD_PARTY_LICENSES.md.new THIRD_PARTY_LICENSES.md
+          branch="chore/refresh-third-party-licenses"
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$branch"
+          git add THIRD_PARTY_LICENSES.md
+          git commit -m "chore(licenses): refresh THIRD_PARTY_LICENSES.md"
+
+          # `main` only takes changes through a pull request, so a direct push is
+          # rejected. The refresh goes to a branch of its own; --force replaces the
+          # commit of an earlier refresh that has not been merged yet.
+          git push --force origin "$branch"
+
+          if [[ -n "$(gh pr list --head "$branch" --base main --state open --json number --jq '.[0].number')" ]]; then
+            echo "A refresh pull request is already open; its branch is up to date."
+            exit 0
+          fi
+
+          cat > "$RUNNER_TEMP/pr-body.md" <<'BODY'
+          ## Summary
+          Regenerates `THIRD_PARTY_LICENSES.md` from the locked runtime dependencies,
+          which have changed since the file was last refreshed.
+
+          ## Linked issues
+          _None._
+
+          ## Type of change
+          - [ ] Bug fix (`fix:`)
+          - [ ] New feature (`feat:`)
+          - [ ] Documentation (`docs:`)
+          - [x] Refactor / chore (`refactor:` / `chore:`)
+          - [ ] CI / build (`ci:` / `build:`)
+          - [ ] Breaking change
+
+          ## Test plan
+          - [x] Generated by the `License check` workflow after a push to `main`; the
+                copyleft scan of the same run passed
+          - [ ] The status checks do not start for a pull request opened with the
+                workflow token. Close and reopen it to run them, then squash-merge.
+
+          ## Checklist
+          - [x] The title follows [Conventional Commits](https://www.conventionalcommits.org/) (`feat: …`, `fix(scope): …`)
+          - [x] Documentation and CHANGELOG are updated where applicable
+          - [x] No secrets, credentials or `.env` files are committed
+          - [x] I have read my own diff
+          BODY
+
+          if ! gh pr create --base main --head "$branch" \
+              --title "chore(licenses): refresh THIRD_PARTY_LICENSES.md" \
+              --body-file "$RUNNER_TEMP/pr-body.md"; then
+            echo "::error::The branch $branch is pushed, but the pull request could not be opened. Enable 'Allow GitHub Actions to create and approve pull requests' under Settings > Actions > General, or open it by hand."
+            exit 1
+          fi

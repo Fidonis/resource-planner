@@ -1,0 +1,63 @@
+{% if empty %}
+<div class="space-y-4">
+  <h2 id="modal-title" class="font-brand text-lg font-bold">{{ _("Assign work") }}</h2>
+  <p>{{ _("Nothing left to plan. Add a task with an effort first.") }}</p>
+  <div class="modal-action"><button type="button" class="btn" data-action="close-modal">{{ _("Close") }}</button></div>
+</div>
+{% else %}
+<form hx-post="/planning/assignments" hx-target="#board" hx-swap="outerHTML" hx-disable-elt="find button[type=submit]" class="space-y-4" aria-labelledby="modal-title">
+  <h2 id="modal-title" class="font-brand text-lg font-bold">{{ _("Assign work") }}</h2>
+
+  {% if banner %}
+  <div role="alert" class="alert alert-warning text-sm">{{ icon("alert-triangle") }}<span>{{ banner }}</span></div>
+  {% endif %}
+
+  {% for key, value in carry.items() %}<input type="hidden" name="{{ 'filter_skill' if key == 'skill' else key }}" value="{{ value }}">{% endfor %}
+
+  <div class="form-control">
+    <label class="label-text mb-1 font-medium" for="a-task">{{ _("Task") }}</label>
+    <select id="a-task" name="task" class="select select-bordered w-full" hx-get="/planning/assign" hx-trigger="change" hx-target="#modal-body" hx-swap="innerHTML" hx-include="closest form">
+      {% for t in tasks %}<option value="{{ t.id }}"{% if t.id == task.id %} selected{% endif %}>{{ t.key }} — {{ t.title }}</option>{% endfor %}
+    </select>
+  </div>
+
+  <div class="form-control">
+    <label class="label-text mb-1 font-medium" for="a-skill">{{ _("Skill") }}</label>
+    <select id="a-skill" name="skill" class="select select-bordered w-full" hx-get="/planning/assign" hx-trigger="change" hx-target="#modal-body" hx-swap="innerHTML" hx-include="closest form">
+      {% for e in task.efforts %}<option value="{{ e.skill_id }}"{% if effort and e.skill_id == effort.skill_id %} selected{% endif %}>{{ e.skill_key }} — {{ _("%(open)s of %(effort)s person-days open", open=e.open|days, effort=e.effort|days) }}</option>{% endfor %}
+    </select>
+  </div>
+
+  {% if members %}
+  <div class="form-control">
+    <label class="label-text mb-1 font-medium" for="a-week">{{ _("Week") }}</label>
+    <select id="a-week" name="week" class="select select-bordered w-full" hx-get="/planning/assign" hx-trigger="change" hx-target="#modal-body" hx-swap="innerHTML" hx-include="closest form">
+      {% for w in weeks %}<option value="{{ w.week_start.isoformat() }}"{% if w.week_start == week_start %} selected{% endif %}>{{ _("W%(week)s", week=w.iso_week) }} · {{ w.week_start|daymonth }}</option>{% endfor %}
+    </select>
+  </div>
+
+  <div class="form-control">
+    <label class="label-text mb-1 font-medium" for="a-member">{{ _("Member") }}</label>
+    <select id="a-member" name="member" class="select select-bordered w-full" hx-get="/planning/assign" hx-trigger="change" hx-target="#modal-body" hx-swap="innerHTML" hx-include="closest form">
+      {% for row in member_rows %}<option value="{{ row.member.member_id }}"{% if row.member.member_id|string == member_id %} selected{% endif %}>{{ row.member.display_name }} · {{ row.member.team_name }} — {{ _("%(free)s free", free=row.free|days) }}</option>{% endfor %}
+    </select>
+  </div>
+
+  <div class="form-control">
+    <label class="label-text mb-1 font-medium" for="a-days">{{ _("Person-days") }}</label>
+    <input id="a-days" name="days" type="text" inputmode="decimal" value="{{ amount|days }}" class="input input-bordered w-full" autocomplete="off" required hx-get="/planning/assign" hx-trigger="change" hx-target="#modal-body" hx-swap="innerHTML" hx-include="closest form">
+  </div>
+
+  {% if would_overbook %}
+  <div role="status" class="alert alert-warning text-sm" data-overbook-warning>{{ icon("alert-triangle") }}<span>{{ _("This is more than the free capacity of that week. It can be saved; the week will be shown as overbooked.") }}</span></div>
+  {% endif %}
+  {% else %}
+  <div role="status" class="alert text-sm">{{ icon("info-circle") }}<span>{{ _("Nobody has this skill yet. Add it to a member first.") }}</span></div>
+  {% endif %}
+
+  <div class="modal-action">
+    <button type="button" class="btn btn-ghost" data-action="close-modal">{{ _("Cancel") }}</button>
+    {% if members %}<button type="submit" class="btn btn-primary">{{ _("Assign") }}</button>{% endif %}
+  </div>
+</form>
+{% endif %}

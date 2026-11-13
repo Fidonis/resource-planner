@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% from "macros.html" import search_input %}
+
+{% block title %}{{ _("Users") }} · {% endblock %}
+{% block page_title %}{{ _("Users") }}{% endblock %}
+{% block page_actions %}
+<button type="button" class="btn btn-primary btn-sm" hx-get="/users/new" hx-target="#modal-body" hx-swap="innerHTML">{{ icon("plus") }} {{ _("New user") }}</button>
+{% endblock %}
+
+{% block content %}
+<form class="mb-4 flex flex-wrap items-center gap-3" role="search" hx-get="/users" hx-target="#list" hx-swap="outerHTML" hx-trigger="input delay:300ms, change, submit" hx-push-url="true">
+  {{ search_input(view.params.q) }}
+  <select name="source" class="select select-bordered" aria-label="{{ _('Source') }}">
+    <option value="">{{ _("All sources") }}</option>
+    <option value="local"{% if view.params.source == "local" %} selected{% endif %}>{{ _("Local accounts") }}</option>
+    <option value="sso"{% if view.params.source == "sso" %} selected{% endif %}>{{ _("Single sign-on") }}</option>
+  </select>
+  <select name="active" class="select select-bordered" aria-label="{{ _('Status') }}">
+    <option value="">{{ _("Active and inactive") }}</option>
+    <option value="yes"{% if view.params.active == "yes" %} selected{% endif %}>{{ _("Active only") }}</option>
+    <option value="no"{% if view.params.active == "no" %} selected{% endif %}>{{ _("Inactive only") }}</option>
+  </select>
+</form>
+{% include "users/_list.html" %}
+{% endblock %}

@@ -1,0 +1,15 @@
+<form hx-delete="{{ action }}" hx-target="#list" hx-swap="outerHTML" hx-disable-elt="find button[type=submit]" class="space-y-4" aria-labelledby="modal-title">
+  <h2 id="modal-title" class="font-brand text-lg font-bold">{{ title }}</h2>
+  <input type="hidden" name="version" value="{{ row.version }}">
+  {% if error %}
+  <div role="alert" class="alert alert-warning text-sm">{{ icon("alert-triangle") }}<span>{{ error }}</span></div>
+  {% else %}
+  <p class="text-sm">{{ _("This cannot be undone.") }}</p>
+  {% endif %}
+  <div class="modal-action">
+    <button type="button" class="btn btn-ghost" data-action="close-modal">{{ _("Cancel") }}</button>
+    {% if not error %}
+    <button type="submit" class="btn btn-error">{{ icon("trash") }} {{ label }}</button>
+    {% endif %}
+  </div>
+</form>

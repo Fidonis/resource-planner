@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _("API tokens") }} · {% endblock %}
+{% block page_title %}{{ _("API tokens") }}{% endblock %}
+{% block page_actions %}
+<button type="button" class="btn btn-primary btn-sm" hx-get="/api-tokens/new" hx-target="#modal-body" hx-swap="innerHTML">{{ icon("plus") }} {{ _("New API token") }}</button>
+{% endblock %}
+
+{% block content %}
+<form class="mb-4 flex flex-wrap items-center gap-3" role="search" hx-get="/api-tokens" hx-target="#list" hx-swap="outerHTML" hx-trigger="change, submit" hx-push-url="true">
+  <select name="revoked" class="select select-bordered" aria-label="{{ _('Status') }}">
+    <option value="">{{ _("Without revoked tokens") }}</option>
+    <option value="yes"{% if view.params.revoked == "yes" %} selected{% endif %}>{{ _("With revoked tokens") }}</option>
+  </select>
+</form>
+{% include "api_tokens/_list.html" %}
+{% endblock %}

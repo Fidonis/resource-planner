@@ -1,0 +1,99 @@
+[project]
+name = "resource-planner"
+version = "0.1.0"
+description = "Resource planning for agile teams"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+dependencies = []
+
+[tool.uv]
+package = false
+
+[tool.uv.workspace]
+members = ["src/api", "src/ui", "src/contracts"]
+
+[tool.uv.sources]
+planner-api = { workspace = true }
+planner-ui = { workspace = true }
+planner-client = { workspace = true }
+
+[dependency-groups]
+dev = [
+    "planner-api",
+    "planner-ui",
+    "planner-client",
+    "pytest>=8.3",
+    "pytest-asyncio>=1.4",
+    "testcontainers[postgres]>=4.15",
+    "playwright>=1.55",
+    "respx>=0.22",
+    "ruff>=0.15",
+    "mypy>=1.18",
+    "datamodel-code-generator>=0.35",
+    "import-linter>=2.4",
+    "types-pyyaml>=6.0",
+]
+
+[tool.pytest.ini_options]
+addopts = ["--import-mode=importlib"]
+asyncio_mode = "auto"
+# One loop for the whole run, so an engine and a connection pool can be shared by all tests.
+asyncio_default_fixture_loop_scope = "session"
+asyncio_default_test_loop_scope = "session"
+testpaths = ["tests/unit", "tests/api", "tests/ui"]
+pythonpath = ["."]
+markers = [
+    "slow: tests that take several seconds (performance, large data sets)",
+    "expects_refusal: browser test that provokes a 4xx answer, which the browser logs to the console",
+]
+filterwarnings = ["error::pytest.PytestUnraisableExceptionWarning"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+plugins = ["pydantic.mypy"]
+mypy_path = ["src/api", "src/ui", "src/contracts"]
+explicit_package_bases = true
+namespace_packages = true
+
+[[tool.mypy.overrides]]
+module = ["apscheduler.*", "testcontainers.*", "babel.*"]
+ignore_missing_imports = true
+
+[tool.importlinter]
+root_packages = ["planner_api", "planner_ui", "planner_client"]
+
+[[tool.importlinter.contracts]]
+name = "The UI and the client never import the API package"
+type = "forbidden"
+source_modules = ["planner_ui", "planner_client"]
+forbidden_modules = ["planner_api"]
+
+[[tool.importlinter.contracts]]
+name = "The API layers point downwards"
+type = "layers"
+layers = [
+    "planner_api.routers",
+    "planner_api.services",
+    "planner_api.domain",
+]
+ignore_imports = []
+
+[[tool.importlinter.contracts]]
+name = "Core code does not reference vendor providers"
+type = "forbidden"
+source_modules = [
+    "planner_api.routers",
+    "planner_api.services",
+    "planner_api.sync",
+    "planner_api.domain",
+    "planner_api.repositories",
+    "planner_api.models",
+]
+forbidden_modules = [
+    "planner_api.providers.keycloak",
+    "planner_api.providers.csv_tasks",
+    "planner_api.providers.csv_absences",
+    "planner_api.providers.csv_members",
+]

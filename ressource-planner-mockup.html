@@ -1,0 +1,1068 @@
+<!doctype html>
+<html lang="en" data-theme="fidonis-light" data-sidebar="pinned">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Resource Planner: mock-up</title>
+<script>
+  // Same anti-flicker idea as papaia-manager: the theme is set before first paint.
+  document.documentElement.setAttribute("data-theme",
+    window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "fidonis-dark" : "fidonis-light");
+</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Manrope:wght@500;700;800&display=swap">
+<style>
+/* ── Tokens: the daisyUI themes fidonis-light / fidonis-dark of papaia-manager ── */
+html[data-theme="fidonis-light"]{
+  --b1:#fff;--b2:#f3f5f7;--b3:#e0e5ea;--bc:#0b0e12;
+  --pri:#0a2f4d;--pric:#fff;--sec:#1b5e8c;--secc:#fff;--acc:#c8972a;
+  --info:#1b6f9e;--ok:#0d724e;--wn:#8a6014;--er:#c53c3c;--erc:#fff;
+  --ink:#0a2f4d;--hatch:#d5dbe1;
+  --t-vac:#2a78d6;--t-sick:#c53c3c;--t-trn:#7a4fc4;--t-hol:#a87820;--t-call:#5f6b78;
+  color-scheme:light;
+}
+html[data-theme="fidonis-dark"]{
+  --b1:#17191c;--b2:#101214;--b3:#272c32;--bc:#eef1f4;
+  --pri:#2b6fa8;--pric:#fff;--sec:#4ba5dd;--secc:#08161f;--acc:#d1a33c;
+  --info:#4ba5dd;--ok:#46c98a;--wn:#e0a63a;--er:#ef6a6a;--erc:#1c0808;
+  --ink:#c3d2de;--hatch:#2f353c;
+  --t-vac:#3987e5;--t-sick:#ef6a6a;--t-trn:#a98be8;--t-hol:#d1a33c;--t-call:#9aa6b2;
+  color-scheme:dark;
+}
+:root{--sidebar-w:16rem;--rail:4rem;--r-box:.75rem;--r-btn:.5rem}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;display:flex;flex-direction:column;background:var(--b2);color:var(--bc);font:14px/1.5 "IBM Plex Sans",system-ui,sans-serif}
+h1,h2,h3,.brand-name,.kpi b{font-family:Manrope,"IBM Plex Sans",system-ui,sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--sec);outline-offset:2px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.dim{opacity:.6}.mono{font-variant-numeric:tabular-nums}
+i.ti{font-size:1.1em;line-height:1;flex:none}
+
+/* ── Mock-up control strip (not part of the product) ── */
+.mockbar{flex:none;display:flex;flex-wrap:wrap;gap:.35rem 1rem;align-items:center;padding:.4rem 1rem;background:#1c1c1a;color:#e8e8e4;font-size:12px}
+.mockbar label,.mockbar .lbl{display:inline-flex;align-items:center;gap:.4rem}
+.mockbar .grow{flex:1}
+.seg{display:inline-flex}
+.seg button{height:24px;padding:0 .6rem;border:1px solid #5f5e5a;background:transparent;color:#e8e8e4;cursor:pointer;margin-left:-1px}
+.seg button:first-child{border-radius:6px 0 0 6px;margin-left:0}.seg button:last-child{border-radius:0 6px 6px 0}
+.seg button[aria-pressed="true"]{background:#e8e8e4;color:#1c1c1a;border-color:#e8e8e4}
+.mockbar .link{background:none;border:0;color:#9ec9ee;text-decoration:underline;cursor:pointer;padding:0}
+
+/* ── App shell ── */
+.app{flex:1;min-height:0;display:flex}
+.sb-wrap{flex:none;width:var(--sidebar-w);position:relative;transition:width .2s ease;z-index:30}
+.sidebar{position:absolute;inset:0 auto 0 0;width:var(--sidebar-w);background:var(--b1);border-right:1px solid var(--b3);display:flex;flex-direction:column;transition:width .2s ease}
+.sb-row{display:flex;align-items:center;gap:.75rem;white-space:nowrap}
+.brand{padding:1.1rem 1.25rem;border-bottom:1px solid var(--b3)}
+.brand svg{width:2rem;height:2rem;flex:none}
+.brand-ink{fill:var(--ink)}
+.brand-name{margin:0;font-weight:800;font-size:1rem;letter-spacing:-.01em;line-height:1.2}
+.brand-tag{margin:0;font-size:12px;font-weight:500;opacity:.5}
+.nav{flex:1;display:flex;flex-direction:column;gap:2px;overflow-y:auto;padding:1rem .75rem}
+.nav a,.sb-btn{display:flex;align-items:center;gap:.75rem;border-radius:.5rem;padding:.6rem .75rem;font-size:14px;font-weight:500;color:color-mix(in srgb,var(--bc) 70%,transparent);text-decoration:none;white-space:nowrap;transition:background .15s,color .15s;background:none;border:0;cursor:pointer;width:100%;text-align:left}
+.nav a:hover,.sb-btn:hover{background:var(--b3);color:var(--bc)}
+.nav a.on{background:color-mix(in srgb,var(--sec) 15%,transparent);color:var(--sec);font-weight:600}
+.nav a i,.sb-btn i{font-size:1.15rem}
+.cap{margin:.9rem 0 .15rem;padding:0 .75rem;font-size:12px;font-weight:500;text-transform:uppercase;opacity:.5;white-space:nowrap}
+.sb-foot{border-top:1px solid var(--b3);padding:.75rem;display:flex;flex-direction:column;gap:2px;position:relative}
+.ddm{position:absolute;left:.75rem;bottom:calc(100% - .25rem);width:13rem;background:var(--b1);border:1px solid var(--b3);border-radius:var(--r-box);padding:.5rem;box-shadow:0 8px 24px rgb(0 0 0/.18);display:none;z-index:40}
+.ddm.show{display:block}
+.ddm p{margin:.25rem .5rem;font-size:12px;font-weight:600;text-transform:uppercase;opacity:.55}
+.ddm button{display:flex;align-items:center;justify-content:space-between;width:100%;border:0;background:none;border-radius:.4rem;padding:.4rem .5rem;cursor:pointer;text-align:left}
+.ddm button:hover{background:var(--b3)}
+/* collapsed rail + hover peek (same behaviour as the manager) */
+[data-sidebar="collapsed"] .sb-wrap{width:var(--rail)}
+[data-sidebar="collapsed"] .sidebar{width:var(--rail)}
+[data-sidebar="collapsed"] .sb-label{display:none}
+[data-sidebar="collapsed"] .sb-row,[data-sidebar="collapsed"] .nav a,[data-sidebar="collapsed"] .sb-btn{justify-content:center;padding-left:0;padding-right:0}
+[data-sidebar="collapsed"] .brand{justify-content:center;padding-left:0;padding-right:0}
+[data-sidebar="collapsed"] .ico-collapse{display:none}
+.ico-expand{display:none}
+[data-sidebar="collapsed"] .ico-expand{display:inline-block}
+@media (hover:hover) and (min-width:1024px){
+  [data-sidebar="collapsed"] .sidebar:hover{width:var(--sidebar-w);box-shadow:0 0 0 1px rgb(255 255 255/.08),0 0 2rem rgb(0 0 0/.35)}
+  [data-sidebar="collapsed"] .sidebar:hover .sb-label{display:block}
+  [data-sidebar="collapsed"] .sidebar:hover .sb-row,[data-sidebar="collapsed"] .sidebar:hover .nav a,[data-sidebar="collapsed"] .sidebar:hover .sb-btn{justify-content:flex-start;padding-left:.75rem;padding-right:.75rem}
+  [data-sidebar="collapsed"] .sidebar:hover .brand{justify-content:flex-start;padding-left:1.25rem}
+  [data-sidebar="collapsed"] .sidebar:hover .ico-collapse{display:inline-block}
+  [data-sidebar="collapsed"] .sidebar:hover .ico-expand{display:none}
+}
+@media (max-width:1023px){
+  .sb-wrap{width:var(--rail)}.sidebar{width:var(--rail)}
+  .sb-label{display:none}
+  .sb-row,.nav a,.sb-btn{justify-content:center;padding-left:0;padding-right:0}
+  .brand{justify-content:center;padding-left:0;padding-right:0}
+  .ico-collapse,.ico-expand{display:none!important}
+  [data-sidebar="open"] .sidebar{width:var(--sidebar-w);box-shadow:0 0 2rem rgb(0 0 0/.35)}
+  [data-sidebar="open"] .sb-label{display:block}
+  [data-sidebar="open"] .sb-row,[data-sidebar="open"] .nav a,[data-sidebar="open"] .sb-btn{justify-content:flex-start;padding-left:.75rem;padding-right:.75rem}
+  [data-sidebar="open"] .brand{justify-content:flex-start;padding-left:1.25rem}
+}
+.main{flex:1;min-width:0;overflow:auto;position:relative}
+.hd{position:sticky;top:0;z-index:20;background:var(--b1);border-bottom:1px solid var(--b3);padding:1rem 2rem}
+.hd-in{max-width:1680px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:.75rem 1rem;flex-wrap:wrap}
+.hd h1{margin:0;font-size:1.5rem;font-weight:700;line-height:1.25}
+.hd .sub{margin:.1rem 0 0;font-size:13px;opacity:.6}
+.hd .acts{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.content{padding:1.5rem 2rem 3rem;max-width:1680px;margin:0 auto;display:flex;flex-direction:column;gap:1rem}
+@media (max-width:639px){.hd{padding:.75rem 1rem}.content{padding:1rem 1rem 2rem}.hd h1{font-size:1.25rem}}
+
+/* ── Components ── */
+.card{background:var(--b1);border:1px solid var(--b3);border-radius:var(--r-box)}
+.card-pad{padding:1rem 1.1rem}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;height:2rem;padding:0 .8rem;border-radius:var(--r-btn);border:1px solid color-mix(in srgb,var(--bc) 30%,transparent);background:transparent;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+.btn:hover:not(:disabled){background:var(--b3)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn-pri{background:var(--pri);color:var(--pric);border-color:transparent}
+.btn-pri:hover:not(:disabled){background:color-mix(in srgb,var(--pri) 88%,var(--bc))}
+.btn-err{color:var(--er);border-color:color-mix(in srgb,var(--er) 55%,transparent)}
+.btn-ghost{border-color:transparent}
+.btn-sq{width:2rem;padding:0}
+.join{display:inline-flex}
+.join .btn{border-radius:0;margin-left:-1px}.join .btn:first-child{border-radius:var(--r-btn) 0 0 var(--r-btn);margin-left:0}.join .btn:last-child{border-radius:0 var(--r-btn) var(--r-btn) 0}
+.join .btn[aria-pressed="true"]{background:var(--sec);color:var(--secc);border-color:var(--sec)}
+.inp,.sel{height:2rem;border:1px solid var(--b3);background:var(--b1);border-radius:var(--r-btn);padding:0 .6rem;min-width:0}
+.inp:hover,.sel:hover{border-color:color-mix(in srgb,var(--bc) 35%,transparent)}
+.chk{display:inline-flex;align-items:center;gap:.4rem;cursor:pointer}
+.chk input{accent-color:var(--sec);width:1rem;height:1rem}
+.badge{--c:var(--sec);display:inline-flex;align-items:center;gap:.25rem;height:1.4rem;padding:0 .5rem;border-radius:99px;font-size:12px;font-weight:600;white-space:nowrap;color:color-mix(in srgb,var(--c) 78%,var(--bc));background:color-mix(in srgb,var(--c) 13%,transparent);border:1px solid color-mix(in srgb,var(--c) 35%,transparent)}
+.badge.neutral{--c:var(--bc);font-weight:500}
+.badge.sm{height:1.25rem;font-size:11px;padding:0 .4rem}
+.dot{width:.65rem;height:.65rem;border-radius:50%;display:inline-block;flex:none;background:var(--c,var(--sec))}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{text-align:left;font-size:12px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;opacity:.6;padding:.55rem .9rem;border-bottom:1px solid var(--b3);white-space:nowrap}
+.tbl td{padding:.6rem .9rem;border-bottom:1px solid var(--b3);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:0}
+.tbl tbody tr:hover{background:color-mix(in srgb,var(--bc) 3%,transparent)}
+.tbl .num{text-align:right;font-variant-numeric:tabular-nums}
+.tblwrap{overflow-x:auto}
+.bar{height:.5rem;border-radius:99px;background:var(--b3);overflow:hidden;min-width:5rem}
+.bar>i{display:block;height:100%;background:var(--sec);border-radius:99px}
+.bar.ok>i{background:var(--ok)}.bar.wn>i{background:var(--wn)}.bar.er>i{background:var(--er)}
+.barrow{display:flex;align-items:center;gap:.6rem}.barrow .bar{flex:1}.barrow span{font-size:12px;min-width:2.6rem;text-align:right;font-variant-numeric:tabular-nums}
+.tabs{display:inline-flex;gap:2px;border-bottom:1px solid var(--b3);width:100%;overflow-x:auto}
+.tabs button{border:0;background:none;padding:.55rem 1rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;opacity:.65;white-space:nowrap}
+.tabs button[aria-selected="true"]{border-bottom-color:var(--sec);color:var(--sec);opacity:1}
+.bar-tools{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem .75rem}
+.bar-tools .grow{flex:1}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--b3);border:1px solid var(--b3);border-radius:var(--r-box);overflow:hidden}
+.kpi{background:var(--b1);padding:.9rem 1.2rem}
+.kpi small{display:block;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;opacity:.55}
+.kpi b{display:block;font-size:1.65rem;font-weight:700;line-height:1.3}
+.kpi span{font-size:12px;opacity:.6}
+@media (max-width:767px){.kpis{grid-template-columns:repeat(2,1fr)}}
+.note{display:flex;gap:.6rem;align-items:flex-start;padding:.7rem .9rem;border-radius:var(--r-btn);border:1px solid color-mix(in srgb,var(--c) 40%,transparent);background:color-mix(in srgb,var(--c) 10%,transparent);--c:var(--info)}
+.note.wn{--c:var(--wn)}.note.er{--c:var(--er)}
+.empty{padding:2.5rem 1rem;text-align:center;opacity:.65}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;padding:.8rem 1.1rem;border-bottom:1px solid var(--b3)}
+.sec-h h2{margin:0;font-size:1rem;font-weight:700}
+.sec-h small{opacity:.6}
+
+/* ── Toasts and dialogs ── */
+#toasts{position:fixed;top:3.4rem;right:1rem;z-index:100;display:flex;flex-direction:column;gap:.5rem;max-width:min(26rem,calc(100vw - 2rem))}
+.toast{background:var(--b1);border:1px solid var(--b3);border-left:4px solid var(--c,var(--info));border-radius:var(--r-btn);padding:.65rem .8rem;box-shadow:0 8px 24px rgb(0 0 0/.18);display:flex;gap:.6rem;align-items:flex-start;font-size:13px}
+.toast.ok{--c:var(--ok)}.toast.wn{--c:var(--wn)}.toast.er{--c:var(--er)}
+.toast button{margin-left:auto}
+dialog{border:1px solid var(--b3);border-radius:var(--r-box);background:var(--b1);color:var(--bc);padding:0;width:min(34rem,calc(100vw - 2rem));box-shadow:0 20px 60px rgb(0 0 0/.35)}
+dialog::backdrop{background:rgb(0 0 0/.5)}
+.dlg-h{display:flex;justify-content:space-between;align-items:center;padding:.9rem 1.2rem;border-bottom:1px solid var(--b3)}
+.dlg-h h2{margin:0;font-size:1.1rem}
+.dlg-b{padding:1rem 1.2rem;display:flex;flex-direction:column;gap:.8rem;max-height:70vh;overflow:auto}
+.dlg-f{display:flex;justify-content:flex-end;gap:.5rem;padding:.8rem 1.2rem;border-top:1px solid var(--b3)}
+.fld{display:flex;flex-direction:column;gap:.25rem}
+.fld>span,.fld>legend{font-size:12px;font-weight:600;opacity:.7}
+.fld .inp,.fld .sel{width:100%}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+.mem-list{display:flex;flex-direction:column;border:1px solid var(--b3);border-radius:var(--r-btn);max-height:14rem;overflow:auto}
+.mem-list label{display:flex;align-items:center;gap:.6rem;padding:.45rem .7rem;border-bottom:1px solid var(--b3);cursor:pointer}
+.mem-list label:last-child{border-bottom:0}
+.mem-list label:hover{background:var(--b2)}
+.mem-list input{accent-color:var(--sec)}
+.mem-list .free{margin-left:auto;font-size:12px;font-variant-numeric:tabular-nums}
+
+/* ── Planning board ── */
+.board{display:grid;gap:1rem;align-items:start;grid-template-columns:minmax(0,1fr)}
+@media (min-width:1400px){.board{grid-template-columns:300px minmax(0,1fr)}.pool{position:sticky;top:5.5rem;max-height:calc(100vh - 11rem)}}
+.pool{overflow:auto}
+.pool-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(250px,100%),1fr));gap:.6rem;padding:.7rem;max-height:20rem;overflow:auto}
+@media (min-width:1400px){.pool-list{display:flex;flex-direction:column;max-height:none;overflow:visible}}
+.tcard{border:1px solid var(--b3);border-radius:var(--r-btn);padding:.55rem .6rem;background:var(--b1);border-left:4px solid var(--tc,var(--sec))}
+.tcard h3{margin:0;font-size:13px;font-weight:700;line-height:1.3}
+.tcard .meta{display:flex;align-items:center;gap:.4rem;font-size:12px;opacity:.65;margin:.1rem 0 .35rem}
+.pitems{display:flex;flex-direction:column;gap:3px;margin-top:.4rem}
+.pitem{display:flex;align-items:center;gap:.4rem;width:100%;border:1px solid var(--b3);background:var(--b2);border-radius:.4rem;padding:.25rem .45rem;cursor:grab;text-align:left;font-size:12.5px}
+.pitem:hover:not(.done):not([disabled]){border-color:var(--sec)}
+.pitem .nm{font-weight:600}
+.pitem .rest{margin-left:auto;font-variant-numeric:tabular-nums;display:flex;align-items:center;gap:.25rem}
+.pitem.done{cursor:default;opacity:.55}.pitem.done .nm{text-decoration:line-through}
+.pitem[disabled]{cursor:not-allowed;opacity:.6}
+.pitem[aria-pressed="true"]{border-color:var(--sec);background:color-mix(in srgb,var(--sec) 16%,var(--b1));box-shadow:0 0 0 2px color-mix(in srgb,var(--sec) 45%,transparent)}
+.pitem.over{border-color:color-mix(in srgb,var(--wn) 60%,transparent)}
+.asg{flex:none;width:1.6rem;height:1.6rem;display:inline-flex;align-items:center;justify-content:center;border:0;background:none;border-radius:.35rem;cursor:pointer}
+.asg:hover:not(:disabled){background:var(--b3)}
+.asg:disabled{opacity:.35;cursor:not-allowed}
+.gridwrap{overflow-x:auto}
+.grid{display:grid;grid-template-columns:190px repeat(4,minmax(165px,1fr));min-width:850px}
+.g-h{padding:.55rem .7rem;border-bottom:1px solid var(--b3);background:var(--b1);font-size:12px;font-weight:600;position:sticky;top:0}
+.g-h small{display:block;font-weight:500;opacity:.6}
+.g-h.today{box-shadow:inset 0 -3px 0 var(--sec)}
+.g-team{grid-column:1/-1;display:flex;align-items:center;gap:.6rem;padding:.45rem .7rem;background:var(--b2);border-bottom:1px solid var(--b3);border-top:1px solid var(--b3);font-weight:700;font-size:13px}
+.g-team small{font-weight:500;opacity:.65;margin-left:auto}
+.g-mem{padding:.55rem .7rem;border-bottom:1px solid var(--b3);border-right:1px solid var(--b3);background:var(--b1);position:sticky;left:0;z-index:2}
+.g-mem b{display:block;font-weight:600;line-height:1.25}
+.g-mem small{font-size:12px;opacity:.65}
+.g-mem .sk{display:flex;flex-wrap:wrap;gap:3px;margin-top:3px}
+.cell{padding:.4rem .5rem;border-bottom:1px solid var(--b3);border-right:1px solid var(--b3);min-height:5.2rem;display:flex;flex-direction:column;gap:4px;position:relative;background:var(--b1)}
+.cell:last-child{border-right:0}
+.cell.full{background:color-mix(in srgb,var(--ok) 7%,var(--b1))}
+.cell.over{background:color-mix(in srgb,var(--er) 11%,var(--b1));box-shadow:inset 3px 0 0 var(--er)}
+.cell.zero{background:repeating-linear-gradient(135deg,var(--hatch) 0 6px,transparent 6px 12px),var(--b1)}
+.cellhead{display:flex;flex-wrap:wrap;align-items:center;gap:.2rem .5rem;font-size:12px}
+.cellhead .num{font-weight:700;font-variant-numeric:tabular-nums}
+.st{display:inline-flex;align-items:center;gap:.2rem;font-weight:600}.st.ok{color:color-mix(in srgb,var(--ok) 80%,var(--bc))}.st.er{color:color-mix(in srgb,var(--er) 80%,var(--bc))}
+.abs{display:inline-flex;align-items:center;gap:.2rem;opacity:.75}
+.chips{display:flex;flex-direction:column;gap:3px}
+.chip{display:flex;align-items:center;gap:.4rem;width:100%;text-align:left;border:1px solid var(--b3);border-left:4px solid var(--tc,var(--sec));background:var(--b2);border-radius:.35rem;padding:.15rem .4rem;font-size:12px;cursor:grab;white-space:nowrap}
+.chip .ck{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.chip b{flex:none;font-variant-numeric:tabular-nums}
+button.chip:hover{border-color:var(--sec);border-left-color:var(--tc)}
+span.chip{cursor:default}
+body.dragging .cell.ok,.armedmode .cell.ok{outline:2px dashed var(--sec);outline-offset:-3px;background:color-mix(in srgb,var(--sec) 10%,var(--b1))}
+body.dragging .cell.no,.armedmode .cell.no{opacity:.4}
+.cell.ok.hover{outline:2px solid var(--sec);background:color-mix(in srgb,var(--sec) 20%,var(--b1))}
+.armedmode .cell.ok{cursor:pointer}
+.cell.focus-pulse{animation:pulse 1.2s}
+@keyframes pulse{0%{box-shadow:0 0 0 3px var(--sec)}100%{box-shadow:0 0 0 0 transparent}}
+.legend{display:flex;flex-wrap:wrap;gap:.4rem 1rem;font-size:12px;padding:.55rem 1rem;border-top:1px solid var(--b3)}
+.legend span{display:inline-flex;align-items:center;gap:.3rem}
+
+/* ── Absence calendar ── */
+.cal{display:grid;grid-template-columns:170px repeat(20,minmax(30px,1fr));min-width:850px;font-size:12px}
+.cal>div{border-bottom:1px solid var(--b3);padding:.25rem .15rem;text-align:center;min-height:2rem;display:flex;align-items:center;justify-content:center}
+.cal .c-h{position:sticky;top:0;background:var(--b1);flex-direction:column;line-height:1.15;font-weight:600}
+.cal .c-h small{font-weight:500;opacity:.6}
+.cal .c-wk{font-weight:700;border-left:1px solid var(--b3);justify-content:flex-start;padding-left:.5rem;background:var(--b1)}
+.cal .c-m{justify-content:flex-start;padding-left:.6rem;text-align:left;position:sticky;left:0;background:var(--b1);z-index:2;border-right:1px solid var(--b3)}
+.cal .c-t{grid-column:1/-1;justify-content:flex-start;padding:.3rem .6rem;background:var(--b2);font-weight:700}
+.cal .c-d.wk0{border-left:1px solid var(--b3)}
+.cal .c-d.we{background:var(--b2)}
+.ab{--c:var(--bc);width:100%;height:100%;min-height:1.7rem;border-radius:4px;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--bc);background:color-mix(in srgb,var(--c) 28%,transparent);border:1px solid color-mix(in srgb,var(--c) 55%,transparent)}
+.ab.nored{border-style:dashed;background:color-mix(in srgb,var(--c) 10%,transparent)}
+.ab.half{font-size:10px;line-height:1}
+.ab.am{background:linear-gradient(90deg,color-mix(in srgb,var(--c) 38%,transparent) 50%,transparent 50%)}
+.ab.pm{background:linear-gradient(90deg,transparent 50%,color-mix(in srgb,var(--c) 38%,transparent) 50%)}
+.tv-vac{--c:var(--t-vac)}.tv-sick{--c:var(--t-sick)}.tv-trn{--c:var(--t-trn)}.tv-hol{--c:var(--t-hol)}.tv-call{--c:var(--t-call)}
+.ltr{display:inline-flex;align-items:center;justify-content:center;width:1.4rem;height:1.4rem;border-radius:4px;font-weight:700;font-size:12px;color:var(--bc);background:color-mix(in srgb,var(--c) 28%,transparent);border:1px solid color-mix(in srgb,var(--c) 55%,transparent)}
+
+/* ── Integrations ── */
+.int-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(300px,100%),1fr));gap:1rem}
+.int-card{padding:1rem 1.1rem;display:flex;flex-direction:column;gap:.5rem;cursor:pointer}
+.int-card[aria-pressed="true"]{border-color:var(--sec);box-shadow:0 0 0 1px var(--sec)}
+.int-card h3{margin:0;font-size:1rem}
+.int-card dl{display:grid;grid-template-columns:auto 1fr;gap:.15rem .8rem;margin:0;font-size:13px}
+.int-card dt{opacity:.6}.int-card dd{margin:0}
+.int-card .btns{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.3rem}
+</style>
+</head>
+<body>
+
+<!-- ── Mock-up controls ── -->
+<div class="mockbar" role="region" aria-label="Mock-up controls">
+  <b>Mock-up</b>
+  <span class="lbl">Theme
+    <span class="seg" id="mbTheme"><button data-v="fidonis-light" aria-pressed="true">Light</button><button data-v="fidonis-dark" aria-pressed="false">Dark</button></span>
+  </span>
+  <span class="lbl">Role
+    <span class="seg" id="mbRole"><button data-v="admin" aria-pressed="false">Admin</button><button data-v="planner" aria-pressed="true">Planner</button><button data-v="viewer" aria-pressed="false">Viewer</button></span>
+  </span>
+  <label><input type="checkbox" id="mbConflict"> next change fails with 409</label>
+  <span class="grow"></span>
+  <button class="link" id="mbAbout" type="button">About this mock-up</button>
+</div>
+
+<div class="app">
+  <div class="sb-wrap">
+    <aside class="sidebar" id="sidebar" aria-label="Main">
+      <div class="sb-row brand">
+        <svg viewBox="0 0 72 72" fill="none" aria-hidden="true">
+          <rect x="43.5" y="19.5" width="18" height="18" rx="3" transform="rotate(22.5 52.5 28.5)" fill="#C8972A"/>
+          <rect class="brand-ink" x="19.5" y="9.5" width="18" height="18" rx="3" transform="rotate(22.5 28.5 18.5)"/>
+          <rect class="brand-ink" x="9.5" y="33.5" width="18" height="18" rx="3" transform="rotate(22.5 18.5 42.5)"/>
+          <rect class="brand-ink" x="33.5" y="43.5" width="18" height="18" rx="3" transform="rotate(22.5 42.5 52.5)"/>
+        </svg>
+        <div class="sb-label" style="min-width:0">
+          <p class="brand-name">Resource Planner</p>
+          <p class="brand-tag">Team capacity</p>
+        </div>
+      </div>
+      <nav class="nav" id="nav" aria-label="Pages"></nav>
+      <div class="sb-foot">
+        <button class="sb-btn" id="sbToggle" type="button" aria-label="Collapse sidebar">
+          <i class="ti ti-layout-sidebar-left-collapse ico-collapse"></i><i class="ti ti-layout-sidebar-left-expand ico-expand"></i>
+          <span class="sb-label">Collapse</span>
+        </button>
+        <button class="sb-btn" id="sbTheme" type="button" aria-label="Toggle dark mode">
+          <i class="ti ti-moon" id="sbThemeIco"></i><span class="sb-label" id="sbThemeTxt">Dark mode</span>
+        </button>
+        <div class="ddm" id="userMenu" role="menu">
+          <p>Language</p>
+          <button type="button" role="menuitem"><span>English</span><i class="ti ti-check"></i></button>
+          <button type="button" role="menuitem" data-stub="Deutsch"><span>Deutsch</span></button>
+          <p>Account</p>
+          <button type="button" role="menuitem" data-stub="Sign out"><span>Sign out</span><i class="ti ti-logout"></i></button>
+        </div>
+        <button class="sb-btn" id="sbUser" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Account">
+          <i class="ti ti-user-circle"></i><span class="sb-label" id="sbUserTxt">m.planner</span>
+        </button>
+      </div>
+    </aside>
+  </div>
+
+  <div class="main" id="main">
+    <header class="hd">
+      <div class="hd-in">
+        <div style="min-width:0"><h1 id="pgTitle"></h1><p class="sub" id="pgSub"></p></div>
+        <div class="acts" id="pgActs"></div>
+      </div>
+    </header>
+    <main class="content" id="view"></main>
+  </div>
+</div>
+
+<div id="toasts" aria-live="polite"></div>
+<div class="sr-only" id="live" aria-live="polite"></div>
+<dialog id="dlg" aria-labelledby="dlgTitle"></dialog>
+
+<script>
+(() => {
+'use strict';
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const r2 = n => Math.round(n * 100) / 100;
+const f1 = n => (Math.round(n * 10) / 10).toFixed(1);
+const DAY = 864e5;
+
+/* ── Dates: every date is relative to the current week (as the demo seed of the spec) ── */
+const today = new Date(); today.setHours(12, 0, 0, 0);
+const BASE = new Date(today); BASE.setDate(BASE.getDate() - ((BASE.getDay() + 6) % 7));
+const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+const dayDate = di => addDays(BASE, di);
+const weekStart = w => addDays(BASE, w * 7);
+const fmtD = d => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+const fmtDY = d => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+const isoWeek = d => {
+  const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  t.setUTCDate(t.getUTCDate() + 4 - (t.getUTCDay() || 7));
+  return Math.ceil(((t - Date.UTC(t.getUTCFullYear(), 0, 1)) / DAY + 1) / 7);
+};
+
+/* ── Synthetic demo data (3 teams, 12 members, 8 skills, 13 tasks) ── */
+const TEAMS = [
+  { id: 'a', name: 'Alpha', color: '#2a78d6' },
+  { id: 'b', name: 'Beta', color: '#d9631f' },
+  { id: 'c', name: 'Gamma', color: '#16966a' },
+];
+const SKILLS = [
+  { id: 'be', key: 'backend', name: 'Backend' }, { id: 'fe', key: 'frontend', name: 'Frontend' },
+  { id: 'qa', key: 'qa', name: 'QA' }, { id: 'ios', key: 'ios', name: 'iOS' },
+  { id: 'and', key: 'android', name: 'Android' }, { id: 'do', key: 'devops', name: 'DevOps' },
+  { id: 'ux', key: 'ux', name: 'UX' }, { id: 'da', key: 'data', name: 'Data' },
+];
+const MEMBERS = [
+  { id: 'm1', name: 'Anna Berger', team: 'a', alloc: 80, skills: ['be', 'do'], email: 'anna.berger@example.org' },
+  { id: 'm2', name: 'Ben Krüger', team: 'a', alloc: 80, skills: ['be'], email: 'ben.krueger@example.org' },
+  { id: 'm3', name: 'Clara Voss', team: 'a', alloc: 60, skills: ['fe', 'ux'], email: 'clara.voss@example.org' },
+  { id: 'm4', name: 'Dario Lenz', team: 'a', alloc: 80, skills: ['fe'], email: 'dario.lenz@example.org' },
+  { id: 'm5', name: 'Eva Sander', team: 'b', alloc: 80, skills: ['ios'], email: 'eva.sander@example.org' },
+  { id: 'm6', name: 'Finn Roth', team: 'b', alloc: 80, skills: ['and'], email: 'finn.roth@example.org' },
+  { id: 'm7', name: 'Greta Albers', team: 'b', alloc: 80, skills: ['be', 'da'], email: 'greta.albers@example.org' },
+  { id: 'm8', name: 'Hugo Brandt', team: 'b', alloc: 80, skills: ['qa'], email: 'hugo.brandt@example.org' },
+  { id: 'm9', name: 'Ida Moser', team: 'c', alloc: 80, skills: ['qa', 'ux'], email: 'ida.moser@example.org' },
+  { id: 'm10', name: 'Jonas Pohl', team: 'c', alloc: 80, skills: ['do'], email: 'jonas.pohl@example.org', src: 'Keycloak' },
+  { id: 'm11', name: 'Katja Wolf', team: 'c', alloc: 60, skills: ['da'], email: 'katja.wolf@example.org', src: 'Keycloak' },
+  { id: 'm12', name: 'Leon Sachs', team: 'c', alloc: 80, skills: ['fe', 'ios'], email: 'leon.sachs@example.org' },
+];
+const TASKS = [
+  { id: 't1', key: 'SHOP-101', title: 'Checkout redesign', team: 'a', status: 'open', src: 'Jira', eff: { fe: 4, ux: 2, be: 3, qa: 2 } },
+  { id: 't2', key: 'SHOP-102', title: 'Payment provider API v2', team: 'a', status: 'open', src: 'Jira', eff: { be: 6, qa: 2, do: 1 } },
+  { id: 't3', key: 'SHOP-103', title: 'Wishlist sync', team: 'b', status: 'open', src: 'Jira', eff: { ios: 3, and: 3, be: 2 } },
+  { id: 't4', key: 'SHOP-104', title: 'Order history search', team: 'a', status: 'open', src: 'Jira', eff: { be: 3, fe: 2, da: 1 } },
+  { id: 't5', key: 'SHOP-105', title: 'Push notifications', team: 'b', status: 'open', src: 'Jira', eff: { ios: 2, and: 2, be: 1.5 } },
+  { id: 't6', key: 'SHOP-106', title: 'Release automation', team: 'c', status: 'open', src: 'Jira', eff: { do: 4, qa: 1 } },
+  { id: 't7', key: 'SHOP-107', title: 'Analytics dashboard', team: 'c', status: 'open', src: 'Jira', eff: { da: 5, fe: 2, ux: 1 } },
+  { id: 't8', key: 'SHOP-108', title: 'Accessibility audit fixes', team: 'a', status: 'open', src: 'Jira', eff: { fe: 3, ux: 1, qa: 2 } },
+  { id: 't9', key: 'SHOP-109', title: 'Customer import (CSV)', team: 'b', status: 'open', src: 'Manual', eff: { be: 2, qa: 1 } },
+  { id: 't10', key: 'SHOP-110', title: 'Mobile onboarding', team: 'b', status: 'open', src: 'Jira', eff: { ios: 2, and: 2, ux: 2 } },
+  { id: 't11', key: 'SHOP-111', title: 'Loyalty programme (cross-team)', team: 'b', status: 'open', src: 'Jira', eff: { be: 4, fe: 3, ios: 2, da: 2, qa: 2 } },
+  { id: 't12', key: 'SHOP-112', title: 'Infrastructure cost review', team: 'c', status: 'open', src: 'Manual', eff: { do: 2, da: 1 } },
+  { id: 't13', key: 'SHOP-113', title: 'Remove legacy API', team: 'c', status: 'done', src: 'Jira', eff: { be: 2 } },
+];
+const TASK_COLORS = ['#2a78d6', '#d9631f', '#16966a', '#b8860b', '#a14fb8', '#c0457a', '#4b8a9c', '#7c8a2e', '#8a5a44', '#5a6bd6', '#d6455a', '#3f8f5f', '#7a7f87'];
+const taskColor = t => TASK_COLORS[TASKS.indexOf(t) % TASK_COLORS.length];
+
+let seq = 100;
+const A = (t, s, m, w, pd) => ({ id: 'x' + (seq++), t, s, m, w, pd, v: 1 });
+let ASSIGN = [
+  A('t2', 'be', 'm1', 0, 2), A('t1', 'be', 'm1', 0, 1), A('t13', 'be', 'm1', 0, 1), A('t4', 'be', 'm1', 1, 1),
+  A('t2', 'be', 'm2', 0, 2.5), A('t2', 'be', 'm2', 1, 1.5), A('t4', 'be', 'm2', 1, 1), A('t13', 'be', 'm2', 1, 1),
+  A('t1', 'fe', 'm3', 0, 1.5), A('t1', 'ux', 'm3', 0, 1), A('t1', 'ux', 'm3', 1, 1),
+  A('t1', 'fe', 'm4', 0, 2.5), A('t8', 'fe', 'm4', 1, 2),
+  A('t3', 'ios', 'm5', 0, 2), A('t5', 'ios', 'm5', 1, 2),
+  A('t3', 'and', 'm6', 0, 2.5), A('t5', 'and', 'm6', 1, 2),
+  A('t3', 'be', 'm7', 0, 2), A('t11', 'be', 'm7', 0, 2), A('t11', 'be', 'm7', 1, 3), A('t5', 'be', 'm7', 1, 1.5),
+  A('t2', 'qa', 'm8', 0, 1), A('t1', 'qa', 'm8', 1, 1), A('t8', 'qa', 'm8', 1, 1),
+  A('t1', 'qa', 'm9', 0, 1), A('t10', 'ux', 'm9', 1, 1.5),
+  A('t6', 'do', 'm10', 0, 3), A('t2', 'do', 'm10', 0, 1), A('t6', 'do', 'm10', 1, 1), A('t12', 'do', 'm10', 1, 1),
+  A('t7', 'da', 'm11', 0, 2), A('t7', 'da', 'm11', 1, 1.5),
+  A('t11', 'fe', 'm12', 0, 1), A('t7', 'fe', 'm12', 1, 2),
+];
+const ABS_TYPES = [
+  { id: 'vac', name: 'Vacation', letter: 'V', reduces: true },
+  { id: 'sick', name: 'Sick', letter: 'S', reduces: true },
+  { id: 'trn', name: 'Training', letter: 'T', reduces: true },
+  { id: 'hol', name: 'Public holiday', letter: 'H', reduces: true },
+  { id: 'call', name: 'On-call duty', letter: 'O', reduces: false },
+];
+/* day offsets from the Monday of the current week; sp/ep: FULL | AM | PM */
+const AB = (m, type, s, e, note, sp = 'FULL', ep = 'FULL', src = null) => ({ id: 'a' + (seq++), m, type, s, e, sp, ep, note, src });
+let ABSENCES = [
+  AB('m1', 'vac', 14, 18, 'Summer break'),
+  AB('m2', 'trn', 9, 9, 'Workshop', 'AM', 'AM'),
+  AB('m8', 'sick', 1, 2, ''),
+  AB('m11', 'trn', 10, 11, 'Conference'),
+  AB('m10', 'call', 7, 11, 'On-call week'),
+  AB('m12', 'vac', 23, 25, '', 'FULL', 'FULL', 'SAP'),
+  AB(null, 'hol', 17, 17, 'Company day'),
+];
+const USERS = [
+  { name: 'm.planner', display: 'Mara Planner', provider: 'oidc:keycloak', roles: ['planner'], member: null, last: 'today 09:14', active: true },
+  { name: 'admin', display: 'Admin', provider: 'local', roles: ['admin'], member: null, last: 'yesterday', active: true },
+  { name: 'anna.berger', display: 'Anna Berger', provider: 'oidc:keycloak', roles: ['member'], member: 'Anna Berger', last: '3 days ago', active: true },
+  { name: 'ben.krueger', display: 'Ben Krüger', provider: 'oidc:keycloak', roles: ['team-lead'], member: 'Ben Krüger', last: 'today 08:02', active: true, scope: 'Alpha' },
+  { name: 'viewer01', display: 'Guest viewer', provider: 'local', roles: ['viewer'], member: null, last: 'never', active: false },
+];
+const ROLES = [
+  { key: 'viewer', desc: 'All read permissions', perms: 'all *:read' },
+  { key: 'member', desc: 'Viewer plus own absences', perms: 'viewer + absence:write:own' },
+  { key: 'team-lead', desc: 'Team-scoped planning', perms: 'viewer + assignment:write, absence:write, member:write (in scope)' },
+  { key: 'planner', desc: 'Planning across all teams', perms: 'viewer + task:write, assignment:write, absence:write' },
+  { key: 'master-data-admin', desc: 'Teams, skills, members, absence types', perms: 'viewer + team:write, skill:write, member:write, absence-type:write' },
+  { key: 'admin', desc: 'Everything', perms: 'all permissions' },
+];
+const INTEGRATIONS = [
+  { id: 'i1', name: 'Jira · SHOP project', kind: 'Task source', provider: 'jira', on: true, sched: 'every 30 min', last: '12 min ago', status: 'ok', note: 'EVEN_SPLIT · label → skill by key' },
+  { id: 'i2', name: 'Keycloak directory', kind: 'Directory', provider: 'keycloak', on: true, sched: 'daily 03:00', last: 'today 03:00', status: 'ok', note: 'groups → teams · 2 groups mapped' },
+  { id: 'i3', name: 'SAP absences', kind: 'Absence source', provider: 'sap', on: true, sched: 'daily 04:30', last: 'today 04:30', status: 'wn', note: '1 absence type code unmapped' },
+];
+const RUNS = {
+  i1: [['today 10:30', 'ok', 0, 3, 14, 0], ['today 10:00', 'ok', 0, 0, 17, 0], ['today 09:30', 'ok', 1, 2, 14, 0], ['yesterday 18:00', 'ok', 0, 1, 16, 0]],
+  i2: [['today 03:00', 'ok', 0, 1, 11, 0], ['yesterday 03:00', 'ok', 0, 0, 12, 0]],
+  i3: [['today 04:30', 'wn', 0, 2, 5, 1], ['yesterday 04:30', 'ok', 1, 0, 4, 0]],
+};
+
+/* ── State ── */
+const PERMS = {
+  viewer: [],
+  planner: ['assignment:write', 'task:write', 'absence:write'],
+  admin: ['assignment:write', 'task:write', 'absence:write', 'member:write', 'team:write', 'skill:write', 'user:admin', 'integration:admin', 'audit:read', 'settings:admin'],
+};
+const S = {
+  view: 'planning', role: 'planner', off: 0, team: '', skill: '', onlyOpen: true,
+  armed: null, conflict: false,
+  teamsTab: 'teams', usersTab: 'users', absView: 'cal', integ: 'i1',
+  tf: { q: '', team: '', status: '', skill: '' }, taskOpen: null,
+};
+const can = p => PERMS[S.role].includes(p);
+const RO = () => !can('assignment:write');
+
+/* ── Calculation (§4). In the product only the API does this. ── */
+const byId = (arr, id) => arr.find(x => x.id === id);
+const mem = id => byId(MEMBERS, id);
+const absType = id => byId(ABS_TYPES, id);
+const weeks = () => [0, 1, 2, 3].map(i => S.off + i);
+
+function dayAbsence(m, di) {
+  let am = false, pm = false; const items = [];
+  for (const a of ABSENCES) {
+    if ((a.m !== null && a.m !== m.id) || di < a.s || di > a.e) continue;
+    items.push(a);
+    if (!absType(a.type).reduces) continue;
+    const part = a.s === a.e ? a.sp : di === a.s ? a.sp : di === a.e ? a.ep : 'FULL';
+    if (part === 'FULL' || part === 'AM') am = true;
+    if (part === 'FULL' || part === 'PM') pm = true;
+  }
+  return { frac: (am ? .5 : 0) + (pm ? .5 : 0), items };
+}
+function capOf(m, w) {
+  let absent = 0;
+  for (let d = 0; d < 5; d++) absent += dayAbsence(m, w * 7 + d).frac;
+  return { absent, cap: r2((5 - absent) * m.alloc / 100) };
+}
+const bookedOf = (m, w) => r2(ASSIGN.filter(a => a.m === m.id && a.w === w).reduce((s, a) => s + a.pd, 0));
+const assignedOf = (t, s) => r2(ASSIGN.filter(a => a.t === t.id && a.s === s).reduce((x, a) => x + a.pd, 0));
+const openOf = (t, s) => r2((t.eff[s] || 0) - assignedOf(t, s));
+const floorHalf = n => Math.floor(n * 2 + 1e-9) / 2;
+function proposal(t, s, m, w) {
+  const free = r2(capOf(m, w).cap - bookedOf(m, w));
+  let amt = Math.min(openOf(t, s), floorHalf(free));
+  if (amt <= 0) amt = Math.min(openOf(t, s), 1);
+  return Math.max(amt, 0.5);
+}
+function overview() {
+  const W = weeks(), open = TASKS.filter(t => t.status === 'open');
+  const skills = SKILLS.map(sk => {
+    let demand = 0, assigned = 0, rest = 0;
+    for (const t of open) if (t.eff[sk.id]) { const e = t.eff[sk.id], a = assignedOf(t, sk.id); demand += e; assigned += Math.min(a, e); rest += Math.max(0, e - a); }
+    const ms = MEMBERS.filter(m => m.skills.includes(sk.id));
+    const pool = r2(ms.reduce((s, m) => s + W.reduce((x, w) => x + capOf(m, w).cap, 0), 0));
+    const booked = r2(ms.reduce((s, m) => s + W.reduce((x, w) => x + bookedOf(m, w), 0), 0));
+    const free = r2(pool - booked);
+    const status = rest > free ? 'BOTTLENECK' : rest > 0.8 * free ? 'TIGHT' : 'OK';
+    return { sk, demand: r2(demand), assigned: r2(assigned), rest: r2(rest), pool, free, status };
+  }).filter(r => r.demand > 0);
+  const teams = TEAMS.map(tm => {
+    const ms = MEMBERS.filter(m => m.team === tm.id);
+    const cap = r2(ms.reduce((s, m) => s + W.reduce((x, w) => x + capOf(m, w).cap, 0), 0));
+    const booked = r2(ms.reduce((s, m) => s + W.reduce((x, w) => x + bookedOf(m, w), 0), 0));
+    return { tm, n: ms.length, cap, booked, free: r2(cap - booked), util: cap ? booked / cap : 0 };
+  });
+  let over = 0;
+  for (const m of MEMBERS) for (const w of W) if (bookedOf(m, w) > capOf(m, w).cap + 1e-9) over++;
+  const demand = r2(skills.reduce((s, r) => s + r.demand, 0)), assigned = r2(skills.reduce((s, r) => s + r.assigned, 0));
+  return { skills, teams, over, demand, assigned, rest: r2(demand - assigned) };
+}
+
+/* ── UI helpers ── */
+function toast(msg, kind = 'info', action) {
+  const el = document.createElement('div');
+  el.className = 'toast ' + kind;
+  el.innerHTML = `<i class="ti ${kind === 'ok' ? 'ti-circle-check' : kind === 'er' ? 'ti-alert-octagon' : kind === 'wn' ? 'ti-alert-triangle' : 'ti-info-circle'}" aria-hidden="true"></i><span>${msg}</span>`;
+  if (action) { const b = document.createElement('button'); b.className = 'btn'; b.textContent = action.label; b.onclick = () => { action.run(); el.remove(); }; el.appendChild(b); }
+  $('#toasts').appendChild(el);
+  setTimeout(() => el.remove(), action ? 12000 : 4500);
+}
+const say = t => { $('#live').textContent = ''; setTimeout(() => $('#live').textContent = t, 30); };
+const dlg = $('#dlg');
+function openDlg(title, body, foot) {
+  dlg.innerHTML = `<div class="dlg-h"><h2 id="dlgTitle">${title}</h2><button class="btn btn-ghost btn-sq" type="button" data-close aria-label="Close"><i class="ti ti-x"></i></button></div><div class="dlg-b">${body}</div><div class="dlg-f">${foot}</div>`;
+  if (!dlg.open) dlg.showModal();
+}
+const closeDlg = () => dlg.open && dlg.close();
+const badge = (txt, c = 'neutral', icon = '', cls = '') => `<span class="badge ${c === 'neutral' ? 'neutral' : ''} ${cls}" style="${c === 'neutral' ? '' : '--c:var(--' + c + ')'}">${icon ? `<i class="ti ti-${icon}" aria-hidden="true"></i>` : ''}${txt}</span>`;
+const skillBadge = id => `<span class="badge neutral sm">${esc(byId(SKILLS, id).name)}</span>`;
+const teamDot = id => `<span class="dot" style="--c:${byId(TEAMS, id).color}"></span>`;
+const srcBadge = s => s ? badge(`<i class="ti ti-lock" aria-hidden="true"></i>managed by ${esc(s)}`, 'info', '', 'sm') : '';
+function guardConflict() {
+  if (!S.conflict) return false;
+  S.conflict = false; $('#mbConflict').checked = false;
+  toast('<b>Conflict:</b> this assignment was changed by someone else (version 4 ≠ 3). Reload to see the current state.', 'wn', { label: 'Reload', run: () => { render(); say('Board reloaded'); } });
+  return true;
+}
+
+/* ── Navigation ── */
+const NAV = [
+  { id: 'planning', label: 'Planning', icon: 'calendar-stats', perm: null },
+  { id: 'overview', label: 'Overview', icon: 'chart-bar', perm: null },
+  { cap: 'Data' },
+  { id: 'teams', label: 'Teams & Skills', icon: 'users-group', perm: null },
+  { id: 'tasks', label: 'Tasks', icon: 'checklist', perm: null },
+  { id: 'absences', label: 'Absences', icon: 'beach', perm: null },
+  { cap: 'Administration', perm: 'user:admin' },
+  { id: 'users', label: 'Users & Roles', icon: 'user-shield', perm: 'user:admin' },
+  { id: 'integrations', label: 'Integrations', icon: 'plug-connected', perm: 'integration:admin' },
+  { id: 'audit', label: 'Audit log', icon: 'history', perm: 'audit:read' },
+  { id: 'settings', label: 'Settings', icon: 'settings', perm: 'settings:admin' },
+];
+function renderNav() {
+  $('#nav').innerHTML = NAV.filter(n => !n.perm || can(n.perm)).map(n => n.cap
+    ? `<p class="cap sb-label">${n.cap}</p>`
+    : `<a href="#${n.id}" data-nav="${n.id}" aria-label="${n.label}" ${S.view === n.id ? 'class="on" aria-current="page"' : ''}><i class="ti ti-${n.icon}" aria-hidden="true"></i><span class="sb-label">${n.label}</span></a>`).join('');
+}
+
+/* ── Pages ── */
+const PAGES = {};
+
+/* Planning */
+PAGES.planning = {
+  title: 'Planning',
+  sub: () => { const W = weeks(); return `CW ${isoWeek(weekStart(W[0]))}–${isoWeek(weekStart(W[3]))} · ${fmtD(weekStart(W[0]))} – ${fmtDY(addDays(weekStart(W[3]), 4))}`; },
+  acts: () => can('assignment:write') ? `<button class="btn btn-pri" data-act="assign-open"><i class="ti ti-user-plus"></i>Assign…</button>` : '',
+  html() {
+    const W = weeks(), ro = RO();
+    const tools = `<div class="card card-pad bar-tools">
+      <span class="join" role="group" aria-label="Week navigation">
+        <button class="btn btn-sq" data-act="prev" aria-label="Previous week"><i class="ti ti-chevron-left"></i></button>
+        <button class="btn" data-act="today">Today</button>
+        <button class="btn btn-sq" data-act="next" aria-label="Next week"><i class="ti ti-chevron-right"></i></button>
+      </span>
+      <label class="chk">Team <select class="sel" id="fTeam" aria-label="Filter rows by team"><option value="">All teams</option>${TEAMS.map(t => `<option value="${t.id}" ${S.team === t.id ? 'selected' : ''}>${t.name}</option>`).join('')}</select></label>
+      <span class="grow"></span>
+      <span class="dim" style="font-size:12px">Horizon: 4 weeks</span>
+    </div>`;
+    const note = ro ? `<div class="note"><i class="ti ti-eye" aria-hidden="true"></i><span><b>Read-only.</b> Your role cannot change assignments, so dragging and dialogs are switched off.</span></div>` : '';
+    const armedNote = S.armed ? `<div class="note" role="status"><i class="ti ti-keyboard" aria-hidden="true"></i><span><b>Armed:</b> ${esc(byId(TASKS, S.armed.t).key)} · ${esc(byId(SKILLS, S.armed.s).name)}. Move to a highlighted cell and press Enter (or click it). Esc cancels.</span></div>` : '';
+    return `${tools}${note}${armedNote}
+      <div class="board ${S.armed ? 'armedmode' : ''}" id="board" data-armed-skill="${S.armed ? S.armed.s : ''}">
+        ${this.pool()}
+        <section class="card" aria-label="Planning grid">
+          <div class="gridwrap"><div class="grid" role="grid" aria-label="Members by week">${this.grid(W)}</div></div>
+          <div class="legend" aria-label="Legend">
+            <span><i class="ti ti-circle-check" style="color:var(--ok)"></i>full</span>
+            <span><i class="ti ti-alert-triangle" style="color:var(--er)"></i>overbooked (allowed, flagged)</span>
+            <span><i class="ti ti-calendar-off"></i>absent days</span>
+            <span><span class="dot" style="background:repeating-linear-gradient(135deg,var(--hatch) 0 2px,transparent 2px 4px);border:1px solid var(--b3)"></span>no capacity</span>
+          </div>
+        </section>
+      </div>`;
+  },
+  pool() {
+    const ro = RO();
+    const tasks = TASKS.filter(t => {
+      if (S.skill && !t.eff[S.skill]) return false;
+      if (S.onlyOpen) return t.status === 'open' && Object.keys(t.eff).some(s => (!S.skill || s === S.skill) && openOf(t, s) > 0);
+      return true;
+    });
+    const cards = tasks.map(t => {
+      const sk = Object.keys(t.eff).filter(s => !S.skill || s === S.skill);
+      const tot = Object.values(t.eff).reduce((a, b) => a + b, 0);
+      const asg = Object.keys(t.eff).reduce((a, s) => a + Math.min(assignedOf(t, s), t.eff[s]), 0);
+      const items = sk.map(s => {
+        const rest = openOf(t, s), e = t.eff[s], name = byId(SKILLS, s).name;
+        const done = rest <= 0 || t.status !== 'open', over = rest < 0;
+        const armed = S.armed && S.armed.t === t.id && S.armed.s === s;
+        const dis = ro || done;
+        const rt = done ? `<i class="ti ti-check" aria-hidden="true"></i>planned${over ? ` <i class="ti ti-alert-triangle" style="color:var(--wn)" aria-hidden="true"></i>+${f1(-rest)}` : ''}` : `open ${f1(rest)} / ${f1(e)}`;
+        return `<div style="display:flex;gap:3px;align-items:center">
+          <button class="pitem ${done ? 'done' : ''} ${over ? 'over' : ''}" ${dis ? 'disabled' : ''} ${!dis ? `draggable="true" data-drag="pool"` : ''} data-t="${t.id}" data-s="${s}" aria-pressed="${armed ? 'true' : 'false'}" aria-label="${esc(t.key)} ${name}, ${done ? 'fully planned' + (over ? ', over-planned by ' + f1(-rest) : '') : f1(rest) + ' of ' + f1(e) + ' person-days open'}${dis && !done ? ', read-only' : ''}" title="${done ? 'Fully planned' : ro ? 'Read-only' : 'Drag to a cell, or press Enter to arm'}">
+            <i class="ti ti-grip-vertical" aria-hidden="true"></i><span class="nm">${name}</span><span class="rest">${rt}</span></button>
+          <button class="asg" ${dis ? 'disabled' : ''} data-act="assign-open" data-t="${t.id}" data-s="${s}" aria-label="Assign ${esc(t.key)} ${name}…" title="Assign…"><i class="ti ti-user-plus"></i></button></div>`;
+      }).join('');
+      return `<article class="tcard" style="--tc:${taskColor(t)}"><h3>${esc(t.key)} · ${esc(t.title)}</h3>
+        <div class="meta">${teamDot(t.team)}${byId(TEAMS, t.team).name}${t.src === 'Jira' ? ' · ' + badge('Jira', 'neutral', 'brand-jira', 'sm').replace('brand-jira', 'link') : ''}</div>
+        <div class="bar ${asg >= tot ? 'ok' : ''}" role="img" aria-label="${f1(asg)} of ${f1(tot)} PD planned"><i style="width:${Math.min(100, asg / tot * 100)}%"></i></div>
+        <div class="pitems">${items}</div></article>`;
+    }).join('');
+    return `<section class="card pool" aria-label="Task pool">
+      <div class="sec-h"><h2>Pool</h2><small>${tasks.length} task${tasks.length === 1 ? '' : 's'}</small></div>
+      <div class="bar-tools card-pad" style="padding-bottom:.2rem">
+        <label class="chk">Skill <select class="sel" id="fSkill" aria-label="Filter pool by skill"><option value="">All</option>${SKILLS.map(s => `<option value="${s.id}" ${S.skill === s.id ? 'selected' : ''}>${s.name}</option>`).join('')}</select></label>
+        <label class="chk"><input type="checkbox" id="fOpen" ${S.onlyOpen ? 'checked' : ''}> only open effort</label>
+      </div>
+      <div class="pool-list">${cards || '<div class="empty">Nothing to plan.</div>'}</div></section>`;
+  },
+  grid(W) {
+    const ro = RO();
+    let h = `<div class="g-h" role="columnheader">Member</div>` + W.map(w => {
+      const d = weekStart(w);
+      return `<div class="g-h ${w === 0 ? 'today' : ''}" role="columnheader">CW ${isoWeek(d)}${w === 0 ? ' · this week' : ''}<small>${fmtD(d)} – ${fmtD(addDays(d, 4))}</small></div>`;
+    }).join('');
+    for (const tm of TEAMS) {
+      if (S.team && S.team !== tm.id) continue;
+      const ms = MEMBERS.filter(m => m.team === tm.id);
+      const cap = r2(ms.reduce((s, m) => s + W.reduce((x, w) => x + capOf(m, w).cap, 0), 0));
+      const bk = r2(ms.reduce((s, m) => s + W.reduce((x, w) => x + bookedOf(m, w), 0), 0));
+      h += `<div class="g-team" style="--c:${tm.color}"><span class="dot"></span>${tm.name}<small>${ms.length} members · ${f1(bk)} / ${f1(cap)} PD booked</small></div>`;
+      for (const m of ms) {
+        h += `<div class="g-mem" role="rowheader"><b>${esc(m.name)}</b><small>${m.alloc} % available</small><div class="sk">${m.skills.map(skillBadge).join('')}</div></div>`;
+        for (const w of W) h += this.cell(m, w, ro);
+      }
+    }
+    return h;
+  },
+  cell(m, w, ro) {
+    const c = capOf(m, w), b = bookedOf(m, w);
+    const over = b > c.cap + 1e-9, full = !over && c.cap > 0 && b >= c.cap - 1e-9;
+    const st = over ? `<span class="st er"><i class="ti ti-alert-triangle" aria-hidden="true"></i>over +${f1(b - c.cap)}</span>` : full ? `<span class="st ok"><i class="ti ti-circle-check" aria-hidden="true"></i>full</span>` : '';
+    const ab = c.absent > 0 ? `<span class="abs"><i class="ti ti-calendar-off" aria-hidden="true"></i>${c.cap === 0 ? 'absent ' : ''}${f1(c.absent)} d</span>` : '';
+    const chips = ASSIGN.filter(a => a.m === m.id && a.w === w).sort((x, y) => byId(TASKS, x.t).key.localeCompare(byId(TASKS, y.t).key)).map(a => {
+      const t = byId(TASKS, a.t), s = byId(SKILLS, a.s), lab = `${esc(t.key)} · ${s.name} · ${f1(a.pd)}`;
+      const inner = `<span class="ck">${esc(t.key)} · ${s.name}</span><b>${f1(a.pd)}</b>`;
+      return ro ? `<span class="chip" style="--tc:${taskColor(t)}" title="${lab} PD">${inner}</span>`
+        : `<button class="chip" draggable="true" data-drag="chip" data-id="${a.id}" data-s="${a.s}" style="--tc:${taskColor(t)}" title="${lab} PD · click to edit, drag to move" aria-label="${lab} person-days, edit">${inner}</button>`;
+    }).join('');
+    return `<div class="cell ${over ? 'over' : full ? 'full' : ''} ${c.cap === 0 ? 'zero' : ''}" role="gridcell" data-m="${m.id}" data-w="${w}" aria-label="${esc(m.name)}, CW ${isoWeek(weekStart(w))}: ${f1(b)} of ${f1(c.cap)} person-days booked${over ? ', overbooked' : full ? ', full' : ''}">
+      <div class="cellhead"><span class="num">${f1(b)} / ${f1(c.cap)} PD</span>${st}${ab}</div><div class="chips">${chips}</div></div>`;
+  },
+};
+
+/* Overview */
+PAGES.overview = {
+  title: 'Overview',
+  sub: () => PAGES.planning.sub(),
+  acts: () => `<button class="btn" data-act="stub" data-msg="CSV export is a P2 feature (FR-OVR-04)."><i class="ti ti-download"></i>Export CSV</button>`,
+  html() {
+    const o = overview();
+    const stBadge = s => s === 'BOTTLENECK' ? badge('Bottleneck', 'er', 'alert-octagon') : s === 'TIGHT' ? badge('Tight', 'wn', 'alert-triangle') : badge('OK', 'ok', 'circle-check');
+    const pct = o.demand ? Math.round(o.assigned / o.demand * 100) : 0;
+    return `<div class="kpis">
+      <div class="kpi"><small>Total demand</small><b>${f1(o.demand)} PD</b><span>${o.skills.length} skills</span></div>
+      <div class="kpi"><small>Assigned</small><b>${f1(o.assigned)} PD</b><span>${pct} % of demand</span></div>
+      <div class="kpi"><small>Still open</small><b>${f1(o.rest)} PD</b><span>to be planned</span></div>
+      <div class="kpi"><small>Overbooked member-weeks</small><b>${o.over}</b><span>${o.over ? '<i class="ti ti-alert-triangle" style="color:var(--er)" aria-hidden="true"></i> needs attention' : 'none'}</span></div>
+    </div>
+    <section class="card"><div class="sec-h"><h2>Skills</h2><small>A multi-skilled member counts in every skill pool.</small></div>
+      <div class="tblwrap"><table class="tbl"><thead><tr><th>Skill</th><th class="num">Demand</th><th class="num">Assigned</th><th class="num">Open</th><th class="num">Pool</th><th class="num">Pool free</th><th>Status</th><th style="min-width:7rem">Progress</th></tr></thead><tbody>
+      ${o.skills.map(r => `<tr><td><b>${r.sk.name}</b></td><td class="num">${f1(r.demand)}</td><td class="num">${f1(r.assigned)}</td><td class="num">${f1(r.rest)}</td><td class="num">${f1(r.pool)}</td><td class="num">${f1(r.free)}</td><td>${stBadge(r.status)}</td>
+      <td><div class="barrow"><div class="bar ${r.rest <= 0 ? 'ok' : ''}" role="img" aria-label="${Math.round(r.assigned / r.demand * 100)} % assigned"><i style="width:${r.assigned / r.demand * 100}%"></i></div><span>${Math.round(r.assigned / r.demand * 100)} %</span></div></td></tr>`).join('')}
+      </tbody></table></div></section>
+    <section class="card"><div class="sec-h"><h2>Teams</h2><small>Utilisation = booked / capacity over the horizon</small></div>
+      <div class="tblwrap"><table class="tbl"><thead><tr><th>Team</th><th class="num">Members</th><th class="num">Capacity</th><th class="num">Booked</th><th class="num">Free</th><th style="min-width:11rem">Utilisation</th></tr></thead><tbody>
+      ${o.teams.map(r => { const u = Math.round(r.util * 100), c = u > 100 ? 'er' : u >= 85 ? 'wn' : ''; return `<tr><td><span style="display:inline-flex;align-items:center;gap:.5rem">${teamDot(r.tm.id)}<b>${r.tm.name}</b></span></td><td class="num">${r.n}</td><td class="num">${f1(r.cap)}</td><td class="num">${f1(r.booked)}</td><td class="num">${f1(r.free)}</td>
+      <td><div class="barrow"><div class="bar ${c}" role="img" aria-label="${u} % utilised"><i style="width:${Math.min(100, u)}%"></i></div><span>${u} %</span></div></td></tr>`; }).join('')}
+      </tbody></table></div></section>`;
+  },
+};
+
+/* Teams & Skills */
+PAGES.teams = {
+  title: 'Teams & Skills',
+  sub: () => 'Master data: teams, skills and members',
+  acts: () => can('member:write') ? `<button class="btn btn-pri" data-act="stub" data-msg="The ${S.teamsTab === 'teams' ? 'team' : S.teamsTab === 'skills' ? 'skill' : 'member'} form is not part of this mock-up."><i class="ti ti-plus"></i>New ${S.teamsTab === 'teams' ? 'team' : S.teamsTab === 'skills' ? 'skill' : 'member'}</button>` : '',
+  html() {
+    const tabs = [['teams', 'Teams'], ['skills', 'Skills'], ['members', 'Members']];
+    const edit = can('member:write') ? `<button class="btn btn-sq btn-ghost" data-act="stub" data-msg="Edit form is not part of this mock-up." aria-label="Edit"><i class="ti ti-pencil"></i></button>` : '';
+    let body = '';
+    if (S.teamsTab === 'teams') body = `<table class="tbl"><thead><tr><th>Team</th><th class="num">Members</th><th>Skills in team</th><th></th></tr></thead><tbody>${TEAMS.map(t => {
+      const ms = MEMBERS.filter(m => m.team === t.id), sk = [...new Set(ms.flatMap(m => m.skills))];
+      return `<tr><td><span style="display:inline-flex;align-items:center;gap:.5rem">${teamDot(t.id)}<b>${t.name}</b></span></td><td class="num">${ms.length}</td><td style="display:flex;flex-wrap:wrap;gap:3px">${sk.map(skillBadge).join('')}</td><td class="num">${edit}</td></tr>`;
+    }).join('')}</tbody></table>`;
+    if (S.teamsTab === 'skills') body = `<table class="tbl"><thead><tr><th>Key</th><th>Name</th><th class="num">Members</th><th class="num">Open tasks</th><th>PM-tool label</th><th></th></tr></thead><tbody>${SKILLS.map(s => `<tr><td><code>${s.key}</code></td><td><b>${s.name}</b></td><td class="num">${MEMBERS.filter(m => m.skills.includes(s.id)).length}</td><td class="num">${TASKS.filter(t => t.status === 'open' && t.eff[s.id]).length}</td><td class="dim">${s.key}</td><td class="num">${edit}</td></tr>`).join('')}</tbody></table>`;
+    if (S.teamsTab === 'members') body = `<table class="tbl"><thead><tr><th>Member</th><th>Team</th><th class="num">Allocation</th><th>Skills</th><th>Source</th><th></th></tr></thead><tbody>${MEMBERS.map(m => `<tr><td><b>${esc(m.name)}</b><br><small class="dim">${esc(m.email)}</small></td><td><span style="display:inline-flex;align-items:center;gap:.4rem">${teamDot(m.team)}${byId(TEAMS, m.team).name}</span></td><td class="num">${m.alloc} %</td><td><div style="display:flex;flex-wrap:wrap;gap:3px">${m.skills.map(skillBadge).join('')}</div></td><td>${srcBadge(m.src) || '<span class="dim">local</span>'}</td><td class="num">${edit}</td></tr>`).join('')}</tbody></table>`;
+    return `<div class="tabs" role="tablist">${tabs.map(([id, l]) => `<button role="tab" data-tab="teamsTab:${id}" aria-selected="${S.teamsTab === id}">${l}</button>`).join('')}</div>
+      <section class="card"><div class="tblwrap">${body}</div></section>
+      ${S.teamsTab === 'members' ? `<p class="dim" style="margin:0;font-size:12px"><i class="ti ti-info-circle"></i> Fields owned by an integration (name, e-mail) are read-only; skills, allocation and team stay editable.</p>` : ''}`;
+  },
+};
+
+/* Tasks */
+PAGES.tasks = {
+  title: 'Tasks',
+  sub: () => 'User stories with effort per skill',
+  acts: () => can('task:write') ? `<button class="btn" data-act="stub" data-msg="CSV import (Key;Title;Team;Skill=PD|Skill=PD) is not wired in this mock-up."><i class="ti ti-file-import"></i>Import CSV</button><button class="btn btn-pri" data-act="stub" data-msg="The task form is not part of this mock-up."><i class="ti ti-plus"></i>New task</button>` : '',
+  html() {
+    const f = S.tf, q = f.q.toLowerCase();
+    const rows = TASKS.filter(t => (!q || (t.key + ' ' + t.title).toLowerCase().includes(q)) && (!f.team || t.team === f.team) && (!f.status || t.status === f.status) && (!f.skill || t.eff[f.skill]));
+    const tools = `<div class="card card-pad bar-tools">
+      <label class="sr-only" for="tfq">Search tasks</label><input class="inp" id="tfq" type="search" placeholder="Search key or title" value="${esc(f.q)}" style="min-width:12rem">
+      <select class="sel" data-tf="team" aria-label="Team"><option value="">All teams</option>${TEAMS.map(t => `<option value="${t.id}" ${f.team === t.id ? 'selected' : ''}>${t.name}</option>`).join('')}</select>
+      <select class="sel" data-tf="status" aria-label="Status"><option value="">Any status</option><option value="open" ${f.status === 'open' ? 'selected' : ''}>Open</option><option value="done" ${f.status === 'done' ? 'selected' : ''}>Done</option></select>
+      <select class="sel" data-tf="skill" aria-label="Skill"><option value="">Any skill</option>${SKILLS.map(s => `<option value="${s.id}" ${f.skill === s.id ? 'selected' : ''}>${s.name}</option>`).join('')}</select>
+      <span class="grow"></span><span class="dim" style="font-size:12px">${rows.length} of ${TASKS.length}</span></div>`;
+    const body = rows.map(t => {
+      const tot = Object.values(t.eff).reduce((a, b) => a + b, 0), asg = Object.keys(t.eff).reduce((a, s) => a + Math.min(assignedOf(t, s), t.eff[s]), 0), p = Math.round(asg / tot * 100);
+      const open = S.taskOpen === t.id;
+      const main = `<tr><td><button class="btn btn-ghost btn-sq" data-act="task-toggle" data-t="${t.id}" aria-expanded="${open}" aria-label="Details of ${esc(t.key)}"><i class="ti ti-chevron-${open ? 'down' : 'right'}"></i></button></td>
+        <td style="white-space:nowrap"><b>${esc(t.key)}</b> ${t.src === 'Jira' ? `<a href="#tasks" class="dim" data-act="stub" data-msg="Opens the issue in Jira." aria-label="Open ${esc(t.key)} in Jira"><i class="ti ti-external-link"></i></a>` : ''}</td>
+        <td>${esc(t.title)} ${t.src === 'Jira' ? `<i class="ti ti-lock dim" title="Title and status are managed by Jira" aria-label="locked"></i>` : ''}</td>
+        <td><span style="display:inline-flex;align-items:center;gap:.4rem">${teamDot(t.team)}${byId(TEAMS, t.team).name}</span></td>
+        <td>${t.src === 'Jira' ? badge('Jira', 'info', 'link', 'sm') : badge('Manual', 'neutral', '', 'sm')}</td>
+        <td><div style="display:flex;flex-wrap:wrap;gap:3px">${Object.keys(t.eff).map(s => `<span class="badge neutral sm">${byId(SKILLS, s).name} ${f1(t.eff[s])}</span>`).join('')}</div></td>
+        <td class="num">${f1(tot)}</td>
+        <td style="min-width:8rem"><div class="barrow"><div class="bar ${p >= 100 ? 'ok' : ''}" role="img" aria-label="${p} % assigned"><i style="width:${Math.min(100, p)}%"></i></div><span>${p} %</span></div></td>
+        <td>${t.status === 'open' ? badge('Open', 'info') : badge('Done', 'ok', 'check')}</td></tr>`;
+      const det = open ? `<tr><td></td><td colspan="8"><div class="note"><i class="ti ti-lock" aria-hidden="true"></i><span>${t.src === 'Jira' ? `<b>Managed by Jira.</b> Title, status and efforts come from the integration and are read-only. An administrator can unlock a field per task; later syncs then do not overwrite it.${can('task:write') ? ' <button class="btn" style="height:1.6rem;margin-left:.4rem" data-act="stub" data-msg="Unlocking a field requires the administrator role.">Unlock field…</button>' : ''}` : '<b>Manual task.</b> All fields are editable.'}</span></div></td></tr>` : '';
+      return main + det;
+    }).join('');
+    return `${tools}<section class="card"><div class="tblwrap"><table class="tbl"><thead><tr><th style="width:2.5rem"></th><th>Key</th><th>Title</th><th>Owner team</th><th>Source</th><th>Effort per skill (PD)</th><th class="num">Total</th><th>Assigned</th><th>Status</th></tr></thead><tbody>${body || '<tr><td colspan="9" class="empty">No tasks match.</td></tr>'}</tbody></table></div></section>`;
+  },
+};
+
+/* Absences */
+function workdays(a) { let n = 0; for (let d = a.s; d <= a.e; d++) { if ((d % 7) > 4) continue; n += (d === a.s && a.sp !== 'FULL') || (d === a.e && a.ep !== 'FULL') ? .5 : 1; } return n; }
+PAGES.absences = {
+  title: 'Absences',
+  sub: () => PAGES.planning.sub(),
+  acts: () => can('absence:write') ? `<button class="btn btn-pri" data-act="abs-add"><i class="ti ti-plus"></i>Add absence</button>` : '',
+  html() {
+    const W = weeks();
+    const tools = `<div class="bar-tools"><span class="join" role="group" aria-label="View">
+      <button class="btn" data-abs="cal" aria-pressed="${S.absView === 'cal'}"><i class="ti ti-calendar-week"></i>Calendar</button>
+      <button class="btn" data-abs="list" aria-pressed="${S.absView === 'list'}"><i class="ti ti-list"></i>List</button></span>
+      <span class="join" role="group" aria-label="Week navigation"><button class="btn btn-sq" data-act="prev" aria-label="Previous week"><i class="ti ti-chevron-left"></i></button><button class="btn" data-act="today">Today</button><button class="btn btn-sq" data-act="next" aria-label="Next week"><i class="ti ti-chevron-right"></i></button></span></div>`;
+    const legend = `<div class="legend">${ABS_TYPES.map(t => `<span class="tv-${t.id}"><span class="ltr">${t.letter}</span>${t.name}${t.reduces ? '' : ' <span class="dim">(does not reduce capacity)</span>'}</span>`).join('')}<span class="dim">Half days are marked ½ (AM / PM).</span></div>`;
+    if (S.absView === 'list') {
+      const rows = [...ABSENCES].sort((x, y) => x.s - y.s).map(a => { const m = a.m ? mem(a.m) : null, t = absType(a.type); return `<tr class="tv-${t.id}"><td>${m ? esc(m.name) : '<b>All members</b>'}</td><td><span style="display:inline-flex;gap:.4rem;align-items:center"><span class="ltr">${t.letter}</span>${t.name}</span></td><td>${fmtDY(dayDate(a.s))}${a.sp !== 'FULL' ? ' (' + a.sp + ')' : ''}</td><td>${fmtDY(dayDate(a.e))}${a.ep !== 'FULL' ? ' (' + a.ep + ')' : ''}</td><td class="num">${f1(workdays(a))}</td><td>${esc(a.note || '')}</td><td>${a.src ? srcBadge(a.src) : '<span class="dim">manual</span>'}</td></tr>`; }).join('');
+      return `${tools}<section class="card"><div class="tblwrap"><table class="tbl"><thead><tr><th>Member</th><th>Type</th><th>From</th><th>To</th><th class="num">Working days</th><th>Note</th><th>Source</th></tr></thead><tbody>${rows}</tbody></table></div>${legend}</section>`;
+    }
+    let g = `<div class="c-h" style="grid-area:1/1/span 2/span 1;justify-content:flex-end;align-items:flex-start;padding-left:.6rem">Member</div>`
+      + W.map((w, i) => `<div class="c-wk" style="grid-area:1/${2 + i * 5}/span 1/span 5">CW ${isoWeek(weekStart(w))} · ${fmtD(weekStart(w))}</div>`).join('');
+    W.forEach((w, i) => { for (let d = 0; d < 5; d++) g += `<div class="c-h c-d ${d === 0 ? 'wk0' : ''}" style="grid-area:2/${2 + i * 5 + d}">${'MTWTF'[d]}<small>${dayDate(w * 7 + d).getDate()}</small></div>`; });
+    for (const tm of TEAMS) {
+      g += `<div class="c-t">${teamDot(tm.id)}&nbsp;${tm.name}</div>`;
+      for (const m of MEMBERS.filter(x => x.team === tm.id)) {
+        g += `<div class="c-m">${esc(m.name)}</div>`;
+        for (const w of W) for (let d = 0; d < 5; d++) {
+          const di = w * 7 + d, x = dayAbsence(m, di);
+          let cell = '';
+          if (x.items.length) {
+            const a = x.items.find(i => absType(i.type).reduces) || x.items[0], t = absType(a.type);
+            const part = a.s === a.e ? a.sp : di === a.s ? a.sp : di === a.e ? a.ep : 'FULL';
+            cell = `<span class="ab tv-${t.id} ${t.reduces ? '' : 'nored'} ${part !== 'FULL' ? 'half ' + part.toLowerCase() : ''}" title="${esc(m.name)}: ${t.name}${part !== 'FULL' ? ' (' + part + ')' : ''}${a.note ? ', ' + esc(a.note) : ''}" role="img" aria-label="${t.name}${part !== 'FULL' ? ', half day ' + part : ''}">${t.letter}${part !== 'FULL' ? '<sup>½</sup>' : ''}</span>`;
+          }
+          g += `<div class="c-d ${d === 0 ? 'wk0' : ''}">${cell}</div>`;
+        }
+      }
+    }
+    return `${tools}<section class="card"><div class="gridwrap"><div class="cal" role="grid" aria-label="Absence calendar">${g}</div></div>${legend}</section>`;
+  },
+};
+
+/* Users & Roles */
+PAGES.users = {
+  title: 'Users & Roles',
+  sub: () => 'Accounts, roles and the mapping of external roles',
+  acts: () => `<button class="btn btn-pri" data-act="stub" data-msg="The user form is not part of this mock-up."><i class="ti ti-user-plus"></i>New user</button>`,
+  html() {
+    const tabs = `<div class="tabs" role="tablist">${[['users', 'Users'], ['roles', 'Roles']].map(([id, l]) => `<button role="tab" data-tab="usersTab:${id}" aria-selected="${S.usersTab === id}">${l}</button>`).join('')}</div>`;
+    if (S.usersTab === 'roles') return `${tabs}<section class="card"><div class="tblwrap"><table class="tbl"><thead><tr><th>Role</th><th>Description</th><th>Permissions</th><th></th></tr></thead><tbody>${ROLES.map(r => `<tr><td><code>${r.key}</code></td><td>${r.desc}</td><td class="dim">${r.perms}</td><td>${badge('built-in', 'neutral', 'lock', 'sm')}</td></tr>`).join('')}</tbody></table></div></section>
+      <section class="card"><div class="sec-h"><h2>External role mapping</h2><small>Keycloak realm role → internal role</small></div><div class="tblwrap"><table class="tbl"><tbody><tr><td><code>rp-admin</code></td><td><i class="ti ti-arrow-right"></i></td><td><code>admin</code></td></tr><tr><td><code>rp-planner</code></td><td><i class="ti ti-arrow-right"></i></td><td><code>planner</code></td></tr><tr><td><code>rp-viewer</code></td><td><i class="ti ti-arrow-right"></i></td><td><code>viewer</code></td></tr></tbody></table></div></section>`;
+    return `${tabs}<section class="card"><div class="tblwrap"><table class="tbl"><thead><tr><th>User</th><th>Sign-in</th><th>Roles</th><th>Linked member</th><th>Last sign-in</th><th>Status</th></tr></thead><tbody>${USERS.map(u => `<tr><td><b>${esc(u.display)}</b><br><small class="dim">${esc(u.name)}</small></td><td>${badge(u.provider, 'neutral', u.provider === 'local' ? 'key' : 'shield-check', 'sm')}</td><td><div style="display:flex;flex-wrap:wrap;gap:3px">${u.roles.map(r => badge(r, 'info', '', 'sm')).join('')}${u.scope ? badge('scope: ' + u.scope, 'neutral', '', 'sm') : ''}</div></td><td>${u.member ? esc(u.member) : '<span class="dim">–</span>'}</td><td>${u.last}</td><td>${u.active ? badge('Active', 'ok', 'circle-check', 'sm') : badge('Disabled', 'neutral', 'ban', 'sm')}</td></tr>`).join('')}</tbody></table></div></section>`;
+  },
+};
+
+/* Integrations */
+PAGES.integrations = {
+  title: 'Integrations',
+  sub: () => 'Task sources, directories and absence sources',
+  acts: () => `<button class="btn btn-pri" data-act="stub" data-msg="The integration form is not part of this mock-up."><i class="ti ti-plus"></i>New integration</button>`,
+  html() {
+    const cur = byId(INTEGRATIONS, S.integ);
+    const st = s => s === 'ok' ? badge('Last run OK', 'ok', 'circle-check', 'sm') : badge('Finished with warnings', 'wn', 'alert-triangle', 'sm');
+    return `<div class="int-grid">${INTEGRATIONS.map(i => `<article class="card int-card" role="button" tabindex="0" data-int="${i.id}" aria-pressed="${S.integ === i.id}" aria-label="${esc(i.name)}">
+      <div style="display:flex;justify-content:space-between;gap:.5rem;align-items:flex-start"><div><h3>${i.name}</h3><span class="dim" style="font-size:12px">${i.kind} · provider <code>${i.provider}</code></span></div>${i.on ? badge('Enabled', 'ok', 'plug-connected', 'sm') : badge('Disabled', 'neutral', 'plug-off', 'sm')}</div>
+      <dl><dt>Schedule</dt><dd>${i.sched}</dd><dt>Last sync</dt><dd>${i.last}</dd><dt>Mapping</dt><dd>${i.note}</dd></dl><div>${st(i.status)}</div>
+      <div class="btns"><button class="btn" data-act="stub" data-msg="Connection test passed (simulated)."><i class="ti ti-plug"></i>Test</button><button class="btn" data-act="stub" data-msg="Dry run: 0 to create, 2 to update, 0 skipped (simulated). Nothing was written."><i class="ti ti-eye"></i>Dry run</button><button class="btn" data-act="stub" data-msg="Sync started (simulated)."><i class="ti ti-refresh"></i>Sync now</button></div></article>`).join('')}</div>
+      <section class="card"><div class="sec-h"><h2>Sync runs · ${cur.name}</h2><small>Idempotent: a repeated run without source changes reports 0 created, 0 updated.</small></div>
+      <div class="tblwrap"><table class="tbl"><thead><tr><th>Started</th><th>Status</th><th class="num">Created</th><th class="num">Updated</th><th class="num">Skipped</th><th class="num">Errors</th></tr></thead><tbody>${RUNS[cur.id].map(r => `<tr><td>${r[0]}</td><td>${r[1] === 'ok' ? badge('Success', 'ok', 'circle-check', 'sm') : badge('Warnings', 'wn', 'alert-triangle', 'sm')}</td><td class="num">${r[2]}</td><td class="num">${r[3]}</td><td class="num">${r[4]}</td><td class="num">${r[5]}</td></tr>`).join('')}</tbody></table></div></section>`;
+  },
+};
+
+/* Placeholders */
+for (const [id, title, icon] of [['audit', 'Audit log', 'history'], ['settings', 'Settings', 'settings']]) {
+  PAGES[id] = { title, sub: () => '', acts: () => '', html: () => `<section class="card"><div class="empty"><i class="ti ti-${icon}" style="font-size:2rem"></i><p><b>${title}</b> is not part of this mock-up.</p></div></section>` };
+}
+
+/* ── Rendering ── */
+function render() {
+  if (!PAGES[S.view] || (NAV.find(n => n.id === S.view) || {}).perm && !can(NAV.find(n => n.id === S.view).perm)) S.view = 'planning';
+  const p = PAGES[S.view];
+  $('#pgTitle').textContent = p.title;
+  $('#pgSub').textContent = p.sub();
+  $('#pgSub').style.display = p.sub() ? '' : 'none';
+  $('#pgActs').innerHTML = p.acts();
+  $('#view').innerHTML = p.html();
+  renderNav();
+  document.title = p.title + ' · Resource Planner (mock-up)';
+}
+function focusCell(m, w) {
+  const c = $(`.cell[data-m="${m}"][data-w="${w}"]`);
+  if (c) { c.setAttribute('tabindex', '-1'); c.focus({ preventScroll: false }); c.classList.add('focus-pulse'); }
+}
+
+/* ── Assignment actions ── */
+function placeAssignment(t, s, m, w, pd) {
+  if (guardConflict()) return;
+  const ex = ASSIGN.find(a => a.t === t && a.s === s && a.m === m && a.w === w);
+  if (ex) { ex.pd = r2(ex.pd + pd); ex.v++; } else ASSIGN.push(A(t, s, m, w, pd));
+  const mm = mem(m), over = bookedOf(mm, w) > capOf(mm, w).cap + 1e-9;
+  toast(`Assigned <b>${f1(pd)} PD</b> ${esc(byId(TASKS, t).key)} · ${byId(SKILLS, s).name} to ${esc(mm.name)} (CW ${isoWeek(weekStart(w))}).${over ? ' <b>Overbooked</b>: allowed, but flagged.' : ''}`, over ? 'wn' : 'ok');
+  say(`Assigned ${f1(pd)} person-days to ${mm.name}`);
+  S.armed = null; render(); focusCell(m, w);
+}
+function moveAssignment(id, m, w) {
+  const a = byId(ASSIGN, id); if (!a || (a.m === m && a.w === w)) return;
+  if (guardConflict()) return;
+  const ex = ASSIGN.find(x => x !== a && x.t === a.t && x.s === a.s && x.m === m && x.w === w);
+  if (ex) { ex.pd = r2(ex.pd + a.pd); ex.v++; ASSIGN = ASSIGN.filter(x => x !== a); } else { a.m = m; a.w = w; a.v++; }
+  toast(`Moved to ${esc(mem(m).name)}, CW ${isoWeek(weekStart(w))}.`, 'ok');
+  render(); focusCell(m, w);
+}
+function validCell(skill, mid) { return mem(mid).skills.includes(skill); }
+function markTargets(skill) {
+  $$('.cell').forEach(c => { const ok = validCell(skill, c.dataset.m); c.classList.toggle('ok', ok); c.classList.toggle('no', !ok); c.setAttribute('tabindex', ok ? '0' : '-1'); });
+}
+function clearTargets() { $$('.cell').forEach(c => { c.classList.remove('ok', 'no', 'hover'); c.removeAttribute('tabindex'); }); document.body.classList.remove('dragging'); }
+function arm(t, s) {
+  if (S.armed && S.armed.t === t && S.armed.s === s) { S.armed = null; render(); say('Disarmed'); return; }
+  S.armed = { t, s }; render();
+  markTargets(s);
+  const first = $('.cell.ok'); if (first) first.focus();
+  say(`Armed ${byId(TASKS, t).key} ${byId(SKILLS, s).name}. Choose a highlighted cell and press Enter. Escape cancels.`);
+}
+
+/* Assign dialog */
+let AD = { t: null, s: null, w: 0, m: null, pd: 1 };
+function openAssign(t, s) {
+  const openTasks = TASKS.filter(x => x.status === 'open' && Object.keys(x.eff).some(k => openOf(x, k) > 0));
+  AD.t = t || (openTasks[0] && openTasks[0].id); AD.w = weeks()[0]; AD.m = null;
+  const task = byId(TASKS, AD.t), cand = Object.keys(task.eff).filter(k => openOf(task, k) > 0);
+  AD.s = s && cand.includes(s) ? s : cand[0];
+  drawAssign(true);
+}
+function drawAssign(full) {
+  const task = byId(TASKS, AD.t), cand = Object.keys(task.eff).filter(k => openOf(task, k) > 0);
+  const openTasks = TASKS.filter(x => x.status === 'open' && Object.keys(x.eff).some(k => openOf(x, k) > 0));
+  const ms = MEMBERS.filter(m => m.skills.includes(AD.s)).map(m => ({ m, free: r2(capOf(m, AD.w).cap - bookedOf(m, AD.w)) })).sort((a, b) => b.free - a.free);
+  if (!AD.m || !ms.find(x => x.m.id === AD.m)) AD.m = ms[0] && ms[0].m.id;
+  const sel = ms.find(x => x.m.id === AD.m);
+  if (!AD.pd || full) AD.pd = AD.m ? proposal(task, AD.s, mem(AD.m), AD.w) : 1;
+  const over = sel && sel.free - AD.pd < -1e-9;
+  const body = `<div class="frow"><label class="fld"><span>Task</span><select class="sel" data-ad="t">${openTasks.map(x => `<option value="${x.id}" ${x.id === AD.t ? 'selected' : ''}>${esc(x.key)} · ${esc(x.title)}</option>`).join('')}</select></label>
+    <label class="fld"><span>Skill</span><select class="sel" data-ad="s">${cand.map(k => `<option value="${k}" ${k === AD.s ? 'selected' : ''}>${byId(SKILLS, k).name} (open ${f1(openOf(task, k))})</option>`).join('')}</select></label></div>
+    <div class="frow"><label class="fld"><span>Week</span><select class="sel" data-ad="w">${weeks().map(w => `<option value="${w}" ${w === AD.w ? 'selected' : ''}>CW ${isoWeek(weekStart(w))} · ${fmtD(weekStart(w))}</option>`).join('')}</select></label>
+    <label class="fld"><span>Person-days</span><input class="inp" type="number" step="0.5" min="0.5" value="${AD.pd}" data-ad="pd"></label></div>
+    <fieldset class="fld" style="border:0;padding:0;margin:0"><legend>Members with this skill, most free capacity first</legend>
+    <div class="mem-list" role="radiogroup">${ms.map(x => `<label><input type="radio" name="adm" value="${x.m.id}" ${x.m.id === AD.m ? 'checked' : ''} data-ad="m"><span>${esc(x.m.name)}</span><span class="badge neutral sm">${byId(TEAMS, x.m.team).name}</span><span class="free ${x.free <= 0 ? 'st er' : ''}">${x.free <= 0 ? '<i class="ti ti-alert-triangle" aria-hidden="true"></i>' : ''}free ${f1(x.free)} PD</span></label>`).join('')}</div></fieldset>
+    ${over ? `<div class="note wn"><i class="ti ti-alert-triangle" aria-hidden="true"></i><span><b>Overbooking:</b> this would exceed ${esc(sel.m.name)}'s capacity by ${f1(AD.pd - sel.free)} PD. It is allowed and will be flagged.</span></div>` : ''}`;
+  openDlg('Assign…', body, `<button class="btn" type="button" data-close>Cancel</button><button class="btn btn-pri" type="button" data-act="ad-ok" ${AD.m ? '' : 'disabled'}>Assign</button>`);
+}
+
+/* Edit dialog */
+function openEdit(id) {
+  const a = byId(ASSIGN, id), t = byId(TASKS, a.t), m = mem(a.m);
+  openDlg('Edit assignment', `<p style="margin:0"><b>${esc(t.key)}</b> · ${esc(t.title)}</p><p class="dim" style="margin:0">${byId(SKILLS, a.s).name} · ${esc(m.name)} · CW ${isoWeek(weekStart(a.w))} · version ${a.v}</p>
+    <label class="fld"><span>Person-days</span><input class="inp" id="edPd" type="number" step="0.5" min="0.5" value="${a.pd}"></label>`,
+    `<button class="btn btn-err" type="button" data-act="ed-del" data-id="${id}" style="margin-right:auto"><i class="ti ti-trash"></i>Delete</button><button class="btn" type="button" data-close>Cancel</button><button class="btn btn-pri" type="button" data-act="ed-ok" data-id="${id}">Save</button>`);
+}
+
+/* Absence dialog */
+function openAbsAdd() {
+  const iso = d => d.toISOString().slice(0, 10), d0 = iso(addDays(dayDate(S.off * 7), 0));
+  openDlg('Add absence', `<label class="fld"><span>Member</span><select class="sel" id="abM"><option value="">All members (e.g. company holiday)</option>${MEMBERS.map(m => `<option value="${m.id}">${esc(m.name)}</option>`).join('')}</select></label>
+    <label class="fld"><span>Type</span><select class="sel" id="abT">${ABS_TYPES.map(t => `<option value="${t.id}">${t.name}${t.reduces ? '' : ' (no capacity effect)'}</option>`).join('')}</select></label>
+    <div class="frow"><label class="fld"><span>From</span><input class="inp" id="abS" type="date" value="${d0}"></label><label class="fld"><span>To (inclusive)</span><input class="inp" id="abE" type="date" value="${d0}"></label></div>
+    <div class="frow"><label class="fld"><span>First day</span><select class="sel" id="abSp"><option>FULL</option><option>PM</option></select></label><label class="fld"><span>Last day</span><select class="sel" id="abEp"><option>FULL</option><option>AM</option></select></label></div>`,
+    `<button class="btn" type="button" data-close>Cancel</button><button class="btn btn-pri" type="button" data-act="ab-ok">Save</button>`);
+}
+
+/* ── Events ── */
+const view = $('#view');
+document.addEventListener('click', e => {
+  const t = e.target;
+  if (t.closest('[data-close]')) { closeDlg(); return; }
+  const nav = t.closest('[data-nav]');
+  if (nav) { e.preventDefault(); go(nav.dataset.nav); return; }
+  const stub = t.closest('[data-act="stub"]');
+  if (stub) { e.preventDefault(); toast(stub.dataset.msg || 'Not part of this mock-up.', 'info'); return; }
+  const act = t.closest('[data-act]');
+  if (act) {
+    const a = act.dataset.act;
+    if (a === 'prev') { S.off--; render(); }
+    else if (a === 'next') { S.off++; render(); }
+    else if (a === 'today') { S.off = 0; render(); }
+    else if (a === 'assign-open') openAssign(act.dataset.t, act.dataset.s);
+    else if (a === 'ad-ok') { const pd = parseFloat(AD.pd); if (!(pd > 0)) return toast('Enter person-days greater than 0.', 'er'); closeDlg(); placeAssignment(AD.t, AD.s, AD.m, AD.w, r2(pd)); }
+    else if (a === 'ed-ok') { const x = byId(ASSIGN, act.dataset.id), v = parseFloat($('#edPd').value); if (!(v > 0)) return toast('Enter person-days greater than 0.', 'er'); closeDlg(); if (guardConflict()) return; x.pd = r2(v); x.v++; toast('Assignment updated.', 'ok'); render(); focusCell(x.m, x.w); }
+    else if (a === 'ed-del') { const x = byId(ASSIGN, act.dataset.id); closeDlg(); if (guardConflict()) return; ASSIGN = ASSIGN.filter(y => y !== x); toast('Assignment deleted.', 'ok'); render(); focusCell(x.m, x.w); }
+    else if (a === 'abs-add') openAbsAdd();
+    else if (a === 'ab-ok') {
+      const s = Math.round((new Date($('#abS').value + 'T12:00') - BASE) / DAY), en = Math.round((new Date($('#abE').value + 'T12:00') - BASE) / DAY);
+      if (isNaN(s) || isNaN(en) || en < s) return toast('The end date must not be before the start date.', 'er');
+      ABSENCES.push(AB($('#abM').value || null, $('#abT').value, s, en, '', $('#abSp').value, $('#abEp').value)); closeDlg(); toast('Absence saved. Capacity is recalculated.', 'ok'); render();
+    }
+    else if (a === 'task-toggle') { S.taskOpen = S.taskOpen === act.dataset.t ? null : act.dataset.t; render(); }
+    return;
+  }
+  const tab = t.closest('[data-tab]'); if (tab) { const [k, v] = tab.dataset.tab.split(':'); S[k] = v; render(); return; }
+  const abs = t.closest('[data-abs]'); if (abs) { S.absView = abs.dataset.abs; render(); return; }
+  const it = t.closest('[data-int]'); if (it && !t.closest('button')) { S.integ = it.dataset.int; render(); return; }
+  const pi = t.closest('.pitem'); if (pi && !pi.disabled) { arm(pi.dataset.t, pi.dataset.s); return; }
+  const chip = t.closest('button.chip'); if (chip) { openEdit(chip.dataset.id); return; }
+  const cell = t.closest('.cell.ok');
+  if (cell && S.armed) { placeAssignment(S.armed.t, S.armed.s, cell.dataset.m, +cell.dataset.w, proposal(byId(TASKS, S.armed.t), S.armed.s, mem(cell.dataset.m), +cell.dataset.w)); return; }
+  if (t.closest('#sbToggle')) { toggleSidebar(); return; }
+  if (t.closest('#sbTheme')) { setTheme(document.documentElement.dataset.theme === 'fidonis-dark' ? 'fidonis-light' : 'fidonis-dark'); return; }
+  if (t.closest('#sbUser')) { const m = $('#userMenu'), on = m.classList.toggle('show'); $('#sbUser').setAttribute('aria-expanded', on); return; }
+  const ds = t.closest('[data-stub]'); if (ds) { $('#userMenu').classList.remove('show'); toast(`${ds.dataset.stub} is not part of this mock-up.`); return; }
+  if (!t.closest('#userMenu')) $('#userMenu').classList.remove('show');
+  if (document.documentElement.dataset.sidebar === 'open' && !t.closest('#sidebar')) document.documentElement.dataset.sidebar = 'collapsed';
+});
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (t.id === 'fTeam') { S.team = t.value; render(); }
+  else if (t.id === 'fSkill') { S.skill = t.value; S.armed = null; render(); }
+  else if (t.id === 'fOpen') { S.onlyOpen = t.checked; render(); }
+  else if (t.dataset.tf) { S.tf[t.dataset.tf] = t.value; render(); }
+  else if (t.dataset.ad) {
+    const k = t.dataset.ad;
+    if (k === 't') { AD.t = t.value; const task = byId(TASKS, AD.t); AD.s = Object.keys(task.eff).find(x => openOf(task, x) > 0); AD.m = null; drawAssign(true); }
+    else if (k === 's') { AD.s = t.value; AD.m = null; drawAssign(true); }
+    else if (k === 'w') { AD.w = +t.value; drawAssign(true); }
+    else if (k === 'm') { AD.m = t.value; drawAssign(true); }
+    else if (k === 'pd') { AD.pd = parseFloat(t.value); drawAssign(false); }
+  }
+});
+document.addEventListener('input', e => { if (e.target.id === 'tfq') { S.tf.q = e.target.value; const p = e.target.selectionStart; render(); const n = $('#tfq'); n.focus(); n.setSelectionRange(p, p); } });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && S.armed && !dlg.open) { S.armed = null; render(); say('Disarmed'); return; }
+  const cell = e.target.closest && e.target.closest('.cell.ok');
+  if (cell && S.armed && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); placeAssignment(S.armed.t, S.armed.s, cell.dataset.m, +cell.dataset.w, proposal(byId(TASKS, S.armed.t), S.armed.s, mem(cell.dataset.m), +cell.dataset.w)); return; }
+  if (cell && S.armed && e.key.startsWith('Arrow')) {
+    const all = $$('.cell.ok'), i = all.indexOf(cell); let n = null;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') n = all[i + 1]; else n = all[i - 1];
+    if (n) { e.preventDefault(); n.focus(); }
+  }
+  const card = e.target.closest && e.target.closest('.int-card');
+  if (card && (e.key === 'Enter' || e.key === ' ') && e.target === card) { e.preventDefault(); S.integ = card.dataset.int; render(); }
+});
+dlg.addEventListener('close', () => { dlg.innerHTML = ''; });
+
+/* Drag and drop (native in the mock-up; the product uses Sortable.js, which also covers touch) */
+let drag = null;
+document.addEventListener('dragstart', e => {
+  const el = e.target.closest && e.target.closest('[data-drag]'); if (!el) return;
+  drag = { kind: el.dataset.drag, t: el.dataset.t, s: el.dataset.s, id: el.dataset.id };
+  e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', 'planner');
+  setTimeout(() => { document.body.classList.add('dragging'); markTargets(drag.s); $$('.cell').forEach(c => c.removeAttribute('tabindex')); }, 0);
+});
+document.addEventListener('dragover', e => { const c = e.target.closest && e.target.closest('.cell.ok'); if (drag && c) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; $$('.cell.hover').forEach(x => x !== c && x.classList.remove('hover')); c.classList.add('hover'); } });
+document.addEventListener('drop', e => {
+  const c = e.target.closest && e.target.closest('.cell.ok'); if (!drag || !c) return;
+  e.preventDefault(); const d = drag; drag = null; clearTargets();
+  const m = c.dataset.m, w = +c.dataset.w;
+  if (d.kind === 'pool') placeAssignment(d.t, d.s, m, w, proposal(byId(TASKS, d.t), d.s, mem(m), w)); else moveAssignment(d.id, m, w);
+});
+document.addEventListener('dragend', () => { drag = null; clearTargets(); });
+
+/* ── Shell: theme, sidebar, role, routing ── */
+function setTheme(v) {
+  document.documentElement.dataset.theme = v;
+  $$('#mbTheme button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === v));
+  const dark = v === 'fidonis-dark';
+  $('#sbThemeIco').className = 'ti ti-' + (dark ? 'sun' : 'moon'); $('#sbThemeTxt').textContent = dark ? 'Light mode' : 'Dark mode';
+}
+function toggleSidebar() {
+  const r = document.documentElement, cur = r.dataset.sidebar;
+  r.dataset.sidebar = cur === 'pinned' ? 'collapsed' : 'pinned';
+}
+function setRole(v) {
+  S.role = v; S.armed = null;
+  $$('#mbRole button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === v));
+  $('#sbUserTxt').textContent = { admin: 'admin', planner: 'm.planner', viewer: 'viewer01' }[v];
+  render();
+}
+function go(id) { S.view = id; S.armed = null; if (location.hash !== '#' + id) history.replaceState(null, '', '#' + id); render(); $('#main').scrollTop = 0; }
+$('#mbTheme').addEventListener('click', e => { const b = e.target.closest('button'); if (b) setTheme(b.dataset.v); });
+$('#mbRole').addEventListener('click', e => { const b = e.target.closest('button'); if (b) setRole(b.dataset.v); });
+$('#mbConflict').addEventListener('change', e => { S.conflict = e.target.checked; });
+$('#mbAbout').addEventListener('click', () => openDlg('About this mock-up', `
+  <p style="margin:0">Visual and behavioural reference for the Resource Planner UI. It follows the design of the papaia-manager web interface: the same themes, fonts, sidebar and page header.</p>
+  <ul style="margin:0;padding-left:1.1rem;display:flex;flex-direction:column;gap:.3rem">
+    <li>All data is synthetic and relative to the current week. Reload to reset.</li>
+    <li>Capacity, booked, free and the overview are added up <b>in the browser</b> here, following §4 of the specification. In the product only the API computes them; the UI renders what it returns.</li>
+    <li>Planning: drag a pool item or a chip onto a highlighted cell, <b>or</b> focus a pool item and press Enter to arm it, move to a cell, press Enter. "Assign…" opens the dialog that sorts members by free capacity.</li>
+    <li>The control strip above the app is not part of the product: switch theme and role (Viewer makes the board read-only; Planner has no master-data or admin pages), or make the next change fail with a version conflict.</li>
+    <li>Drag and drop is native here; the product uses Sortable.js with HTMX fragments.</li>
+  </ul>`, `<button class="btn btn-pri" type="button" data-close>Close</button>`));
+window.addEventListener('hashchange', () => { const id = location.hash.slice(1); if (PAGES[id] && id !== S.view) go(id); });
+
+setTheme(document.documentElement.dataset.theme);
+if (location.hash && PAGES[location.hash.slice(1)]) S.view = location.hash.slice(1);
+render();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+{% from "macros.html" import pager, empty %}
+{% from "integrations/_status.html" import status_badge %}
+<div id="list">
+  {% if rows %}
+  <div class="overflow-x-auto rounded-box border border-base-300 bg-base-100">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>{{ _("Started") }}</th>
+          <th>{{ _("Result") }}</th>
+          <th class="text-right">{{ _("Created") }}</th>
+          <th class="text-right">{{ _("Updated") }}</th>
+          <th class="text-right">{{ _("Unchanged") }}</th>
+          <th class="text-right">{{ _("Errors") }}</th>
+          <th>{{ _("Started by") }}</th>
+          <th class="w-px"><span class="sr-only">{{ _("Actions") }}</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for run in rows %}
+        <tr>
+          <td class="whitespace-nowrap text-sm">{{ run.started_at|datetime }}</td>
+          <td class="whitespace-nowrap">
+            {{ status_badge(run.status, status_names) }}
+            {% if run.dry_run %}<span class="badge badge-info badge-sm badge-outline">{{ _("Preview") }}</span>{% endif %}
+            {% if run.full %}<span class="badge badge-ghost badge-sm">{{ _("Full read") }}</span>{% endif %}
+          </td>
+          <td class="text-right tabular-nums">{{ run.created }}</td>
+          <td class="text-right tabular-nums">{{ run.updated }}</td>
+          <td class="text-right tabular-nums">{{ run.skipped }}</td>
+          <td class="text-right tabular-nums{% if run.errors %} text-error{% endif %}">{{ run.errors }}</td>
+          <td class="text-sm">{{ run.triggered_by or "—" }}</td>
+          <td>
+            <div class="flex justify-end">
+              <button type="button" class="btn btn-ghost btn-xs" hx-get="/integrations/{{ run.integration_id }}/runs/{{ run.id }}" hx-target="#modal-body" hx-swap="innerHTML" aria-label="{{ _('Details of the run of %(when)s', when=run.started_at|datetime) }}" title="{{ _('Details') }}">{{ icon("info-circle") }}</button>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {{ pager(view) }}
+  {% else %}
+  {{ empty(_("No runs yet."), _("Every sync, preview and scheduled run is listed here with its log.")) }}
+  {% endif %}
+</div>

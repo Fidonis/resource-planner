@@ -1,0 +1,21 @@
+<div class="space-y-4" aria-labelledby="modal-title">
+  <h2 id="modal-title" class="font-brand text-lg font-bold">{{ _("New integration") }}</h2>
+  <p class="text-sm opacity-70">{{ _("What do you want to bring in, and from where?") }}</p>
+  {% for label, kind, items in groups %}
+  <section aria-label="{{ label }}">
+    <h3 class="mb-1 text-xs font-medium uppercase opacity-50">{{ label }}</h3>
+    <ul class="space-y-1">
+      {% for p in items %}
+      <li>
+        <button type="button" class="btn btn-outline w-full justify-start" hx-get="/integrations/new/{{ kind }}/{{ p.key }}" hx-target="#modal-body" hx-swap="innerHTML">{{ icon("plug-connected") }} {{ _(p.title) }}</button>
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% else %}
+  <p class="text-sm opacity-60">{{ _("No provider is installed.") }}</p>
+  {% endfor %}
+  <div class="modal-action">
+    <button type="button" class="btn btn-ghost" data-action="close-modal">{{ _("Cancel") }}</button>
+  </div>
+</div>

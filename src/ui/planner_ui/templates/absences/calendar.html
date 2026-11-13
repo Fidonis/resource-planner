@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _("Absence calendar") }} · {% endblock %}
+{% block page_title %}{{ _("Absence calendar") }}{% endblock %}
+{% block page_actions %}
+<a class="btn btn-ghost btn-sm" href="/absences">{{ icon("list-check") }} {{ _("List") }}</a>
+{% endblock %}
+
+{% block content %}
+<div id="calendar" class="space-y-4">
+  <div class="flex flex-wrap items-end justify-between gap-3">
+    <div class="flex items-center gap-2">
+      <a class="btn btn-sm btn-square" href="{{ nav.previous }}" aria-label="{{ _('Earlier weeks') }}">{{ icon("chevron-left") }}</a>
+      <a class="btn btn-sm" href="{{ nav.today }}">{{ _("Today") }}</a>
+      <a class="btn btn-sm btn-square" href="{{ nav.following }}" aria-label="{{ _('Later weeks') }}">{{ icon("chevron-right") }}</a>
+    </div>
+    <form method="get" action="/absences/calendar" class="flex flex-wrap items-end gap-3" hx-get="/absences/calendar" hx-trigger="change" hx-target="#calendar" hx-select="#calendar" hx-swap="outerHTML" hx-push-url="true">
+      <input type="hidden" name="from" value="{{ data.start.isoformat() }}">
+      <label class="flex flex-col text-xs opacity-80">{{ _("Weeks") }}
+        <select name="weeks" class="select select-bordered select-sm">
+          {% for n in week_choices %}<option value="{{ n }}"{% if n == count %} selected{% endif %}>{{ n }}</option>{% endfor %}
+        </select>
+      </label>
+      <label class="flex flex-col text-xs opacity-80">{{ _("Team") }}
+        <select name="team" class="select select-bordered select-sm">
+          <option value="">{{ _("All teams") }}</option>
+          {% for t in teams %}<option value="{{ t.id }}"{% if team == t.id|string %} selected{% endif %}>{{ t.name }}</option>{% endfor %}
+        </select>
+      </label>
+    </form>
+  </div>
+
+  {% if data.members %}
+  <div class="overflow-x-auto rounded-box border border-base-300 bg-base-100">
+    <table class="table table-xs" data-calendar>
+      <thead>
+        <tr>
+          <th rowspan="2" class="sticky left-0 z-10 min-w-40 bg-base-100">{{ _("Member") }}</th>
+          {% for w in data.weeks %}<th colspan="5" class="border-l border-base-300 text-center">{{ _("W%(week)s", week=w.iso_week) }}</th>{% endfor %}
+        </tr>
+        <tr>
+          {% for d in data.days %}
+          <th class="min-w-14 text-center font-normal{% if d.weekday() == 0 %} border-l border-base-300{% endif %}"><div>{{ d|weekday }}</div><div class="opacity-60">{{ d|daymonth }}</div></th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for m in data.members %}
+        <tr data-member="{{ m.display_name }}">
+          <th scope="row" class="sticky left-0 z-10 bg-base-100 font-medium">{{ m.display_name }}</th>
+          {% for day in m.days %}
+          <td class="p-0.5{% if day.date.weekday() == 0 %} border-l border-base-300{% endif %}">
+            <div class="flex gap-px">
+              {% for half, slot in (("AM", day.am), ("PM", day.pm)) %}
+              {% if slot %}
+              <span class="flex h-6 flex-1 items-center justify-center rounded-sm text-xs font-bold text-white{% if not slot.reduces_capacity %} opacity-60{% endif %}" style="background-color: {{ slot.color }}" data-half="{{ half }}" title="{{ m.display_name }} · {{ day.date|date }} · {{ _('morning') if half == 'AM' else _('afternoon') }}">{{ slot.letter }}<span class="sr-only"> {{ day.date|date }} {{ _('morning') if half == 'AM' else _('afternoon') }}</span></span>
+              {% else %}
+              <span class="h-6 flex-1 rounded-sm bg-base-200" aria-hidden="true"></span>
+              {% endif %}
+              {% endfor %}
+            </div>
+          </td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="text-xs opacity-70">{{ _("Left half: morning, right half: afternoon. A faded letter marks an entry that does not reduce capacity.") }}</p>
+  {% else %}
+  <p class="rounded-box border border-dashed border-base-300 bg-base-100 px-6 py-8 text-center text-sm opacity-70">{{ _("No members to show.") }}</p>
+  {% endif %}
+</div>
+{% endblock %}

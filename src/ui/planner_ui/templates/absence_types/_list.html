@@ -1,0 +1,41 @@
+{% from "macros.html" import pager, row_actions, empty %}
+<div id="list">
+  {% if rows %}
+  <div class="overflow-x-auto rounded-box border border-base-300 bg-base-100">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>{{ _("Type") }}</th>
+          <th>{{ _("Key") }}</th>
+          <th>{{ _("Capacity") }}</th>
+          <th class="text-right">{{ _("Absences") }}</th>
+          <th>{{ _("Status") }}</th>
+          <th class="w-px"><span class="sr-only">{{ _("Actions") }}</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for kind in rows %}
+        <tr>
+          <td>
+            <span class="inline-flex items-center gap-2 font-medium">
+              <span class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded text-xs font-bold text-white" style="background-color: {{ kind.color }}" aria-hidden="true">{{ kind.letter }}</span>
+              {{ kind.name }}
+            </span>
+          </td>
+          <td><code class="text-xs">{{ kind.key }}</code></td>
+          <td>{{ _("Reduces capacity") if kind.reduces_capacity else _("Information only") }}</td>
+          <td class="text-right tabular-nums">{{ kind.absence_count }}</td>
+          <td>
+            {% if kind.active %}<span class="badge badge-success badge-sm badge-outline">{{ _("Active") }}</span>{% else %}<span class="badge badge-ghost badge-sm">{{ _("Inactive") }}</span>{% endif %}
+          </td>
+          <td>{{ row_actions("absence-types", kind, kind.name) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {{ pager(view) }}
+  {% else %}
+  {{ empty(_("No absence types found.")) }}
+  {% endif %}
+</div>

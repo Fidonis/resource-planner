@@ -1,0 +1,54 @@
+{% from "macros.html" import pager, empty %}
+{% from "integrations/_status.html" import status_badge %}
+<div id="list">
+  {% if rows %}
+  <div class="overflow-x-auto rounded-box border border-base-300 bg-base-100">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>{{ _("Name") }}</th>
+          <th>{{ _("Brings in") }}</th>
+          <th>{{ _("Status") }}</th>
+          <th>{{ _("Schedule") }}</th>
+          <th>{{ _("Last sync") }}</th>
+          <th class="w-px"><span class="sr-only">{{ _("Actions") }}</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        <tr>
+          <td>
+            <p class="font-medium">{{ row.name }}</p>
+            <p class="text-xs opacity-60">{% if row.provider_title %}{{ _(row.provider_title) }}{% else %}{{ row.provider_key }} · {{ _("not installed") }}{% endif %}</p>
+          </td>
+          <td>{{ _(type_names[row.type.value]) }}</td>
+          <td>
+            {% if row.enabled %}<span class="badge badge-success badge-sm badge-outline">{{ _("Enabled") }}</span>
+            {% else %}<span class="badge badge-ghost badge-sm">{{ _("Off") }}</span>{% endif %}
+          </td>
+          <td class="whitespace-nowrap font-mono text-xs">{% if row.schedule %}{{ row.schedule }}{% else %}<span class="font-sans opacity-40">{{ _("manual") }}</span>{% endif %}</td>
+          <td class="whitespace-nowrap text-sm">
+            {% if row.last_sync_at %}
+            <span>{{ row.last_sync_at|datetime }}</span>
+            {% if row.last_sync_status %}{{ status_badge(row.last_sync_status, status_names) }}{% endif %}
+            {% else %}<span class="opacity-40">{{ _("never") }}</span>{% endif %}
+          </td>
+          <td>
+            <div class="flex justify-end gap-1">
+              <button type="button" class="btn btn-ghost btn-xs" hx-post="/integrations/{{ row.id }}/test" hx-swap="none" hx-disable-elt="this" aria-label="{{ _('Test the connection of %(name)s', name=row.name) }}" title="{{ _('Test the connection') }}">{{ icon("plug-connected") }}</button>
+              <button type="button" class="btn btn-ghost btn-xs" hx-get="/integrations/{{ row.id }}/sync" hx-target="#modal-body" hx-swap="innerHTML" aria-label="{{ _('Sync %(name)s now', name=row.name) }}" title="{{ _('Sync now') }}">{{ icon("player-play") }}</button>
+              <a class="btn btn-ghost btn-xs" href="/integrations/{{ row.id }}/runs" aria-label="{{ _('Runs of %(name)s', name=row.name) }}" title="{{ _('Runs') }}">{{ icon("history") }}</a>
+              <button type="button" class="btn btn-ghost btn-xs" hx-get="/integrations/{{ row.id }}/edit" hx-target="#modal-body" hx-swap="innerHTML" aria-label="{{ _('Edit %(name)s', name=row.name) }}" title="{{ _('Edit') }}">{{ icon("pencil") }}</button>
+              <button type="button" class="btn btn-ghost btn-xs text-error" hx-get="/integrations/{{ row.id }}/delete" hx-target="#modal-body" hx-swap="innerHTML" aria-label="{{ _('Delete %(name)s', name=row.name) }}" title="{{ _('Delete') }}">{{ icon("trash") }}</button>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {{ pager(view) }}
+  {% else %}
+  {{ empty(_("No integrations yet."), _("An integration reads tasks, people or absences from another system and keeps them up to date.")) }}
+  {% endif %}
+</div>

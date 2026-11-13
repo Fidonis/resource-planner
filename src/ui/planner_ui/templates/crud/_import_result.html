@@ -1,0 +1,33 @@
+{% if error %}
+<div role="alert" class="alert alert-warning text-sm">{{ icon("alert-triangle") }}<span>{{ error }}</span></div>
+{% endif %}
+{% if result %}
+<div class="space-y-3" role="status">
+  <p class="font-medium">
+    {% if result.dry_run %}{{ _("Checked, nothing was saved yet.") }}{% else %}{{ _("Imported.") }} <a class="link" href="/{{ kind.slug }}">{{ _("Show the list") }}</a>{% endif %}
+  </p>
+  <dl class="grid grid-cols-3 gap-2 text-center">
+    <div class="rounded-box border border-base-300 p-2"><dt class="text-xs opacity-60">{{ _("Created") }}</dt><dd class="text-xl font-bold tabular-nums">{{ result.created }}</dd></div>
+    <div class="rounded-box border border-base-300 p-2"><dt class="text-xs opacity-60">{{ _("Updated") }}</dt><dd class="text-xl font-bold tabular-nums">{{ result.updated }}</dd></div>
+    <div class="rounded-box border border-base-300 p-2"><dt class="text-xs opacity-60">{{ _("Unchanged") }}</dt><dd class="text-xl font-bold tabular-nums">{{ result.skipped }}</dd></div>
+  </dl>
+  {% if result.created_skills %}
+  <p class="text-sm">{{ _("Skills created:") }} {{ result.created_skills|join(", ") }}</p>
+  {% endif %}
+  {% if result.unknown_skills %}
+  <p class="text-sm text-warning">{{ _("Unknown skills (rows skipped):") }} {{ result.unknown_skills|join(", ") }}</p>
+  {% endif %}
+  {% if result.errors %}
+  <div class="max-h-48 overflow-y-auto rounded-box border border-base-300">
+    <table class="table table-xs">
+      <thead><tr><th>{{ _("Line") }}</th><th>{{ _("Field") }}</th><th>{{ _("Problem") }}</th></tr></thead>
+      <tbody>
+        {% for e in result.errors %}
+        <tr><td class="tabular-nums">{{ e.line }}</td><td>{{ e.field or "—" }}</td><td>{{ e.message }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+</div>
+{% endif %}

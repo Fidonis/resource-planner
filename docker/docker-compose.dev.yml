@@ -1,0 +1,74 @@
+# Development additions to ../docker-compose.yml: a reverse proxy that puts the web interface and
+# the API on one address (as a real proxy in front would), and a throw-away Keycloak for trying
+# single sign-on. Not for production. Use it together with the main file:
+#
+#   docker compose -f docker-compose.yml -f docker/docker-compose.dev.yml up -d --build
+#   docker compose -f docker-compose.yml -f docker/docker-compose.dev.yml --profile dev-keycloak up -d
+#
+# Relative paths below are resolved from the directory of the first file (the repository root).
+# The proxy takes over HTTP_PORT, so the interface and the API are no longer published by
+# themselves.
+
+services:
+  api:
+    ports: !reset []
+
+  ui:
+    ports: !reset []
+
+  proxy:
+    restart: unless-stopped
+    image: nginx:1.31-alpine
+    depends_on:
+      api:
+        condition: service_healthy
+      ui:
+        condition: service_healthy
+    ports:
+      - "${BIND_ADDRESS:-127.0.0.1}:${HTTP_PORT:-8080}:8080"
+    volumes:
+      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # A realm "planner" with the demo accounts admin-demo, planner-demo and viewer-demo, ready for
+  # single sign-on. Development mode, no TLS. The OIDC_* variables that connect the planner to it
+  # are described in .env.example.
+  keycloak:
+    restart: unless-stopped
+    profiles: ["dev-keycloak"]
+    image: quay.io/keycloak/keycloak:26.7.0
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN:-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-}
+      # The address of the browser. Requests that arrive on the container network (the API reading
+      # the discovery document and the keys) get the matching internal addresses back.
+      KC_HOSTNAME: http://localhost:${KEYCLOAK_HTTP_PORT:-8180}
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
+      KC_HTTP_ENABLED: "true"
+      KC_HEALTH_ENABLED: "true"
+      # Filled into docker/keycloak/planner-realm.json when the realm is imported.
+      PLANNER_PUBLIC_URL: ${PUBLIC_BASE_URL:-http://localhost:8080}
+      PLANNER_CLIENT_SECRET: ${OIDC_CLIENT_SECRET:-}
+      PLANNER_SYNC_CLIENT_SECRET: ${KEYCLOAK_SYNC_CLIENT_SECRET:-}
+      PLANNER_DEMO_PASSWORD: ${KEYCLOAK_DEMO_PASSWORD:-}
+    volumes:
+      - ./docker/keycloak/planner-realm.json:/opt/keycloak/data/import/planner-realm.json:ro
+    ports:
+      - "${BIND_ADDRESS:-127.0.0.1}:${KEYCLOAK_HTTP_PORT:-8180}:8080"
+    healthcheck:
+      # The image has no curl; the management port answers on /health/ready.
+      test:
+        - CMD-SHELL
+        - >-
+          exec 3<>/dev/tcp/127.0.0.1/9000 &&
+          printf 'GET /health/ready HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3 &&
+          grep -q '"status": "UP"' <&3
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s

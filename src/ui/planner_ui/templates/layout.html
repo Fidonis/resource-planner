@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="{{ html_lang() }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#101214" media="(prefers-color-scheme: dark)">
+  <meta name="htmx-config" content='{"allowEval":false,"allowScriptTags":false,"includeIndicatorStyles":false,"selfRequestsOnly":true,"historyCacheSize":0,"responseHandling":[{"code":"204","swap":false},{"code":"[23]..","swap":true},{"code":"^(409|412|422|428)$","swap":true,"error":false},{"code":"[45]..","swap":false,"error":true}]}'>
+  <title>{% block title %}{% endblock %}Resource Planner</title>
+  <link rel="icon" type="image/svg+xml" href="{{ asset_url('favicon.svg') }}">
+  <link rel="stylesheet" href="{{ asset_url('app.css') }}">
+  <script src="{{ asset_url('js/init.js') }}"></script>
+  <script src="{{ asset_url('js/app.js') }}" defer></script>
+  <script src="{{ asset_url('vendor/htmx.min.js') }}" defer></script>
+  <script src="{{ asset_url('vendor/alpine-csp.min.js') }}" defer></script>
+  {% block head_scripts %}{% endblock %}
+</head>
+<body class="bg-base-200 text-base-content min-h-screen" data-msg-unreachable="{{ _('The server cannot be reached. Please try again in a moment.') }}" data-msg-copied="{{ _('Copied.') }}"{% block body_attrs %}{% endblock %}>
+{% block body %}{% endblock %}
+</body>
+</html>

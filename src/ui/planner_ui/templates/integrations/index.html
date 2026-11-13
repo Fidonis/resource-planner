@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _("Integrations") }} · {% endblock %}
+{% block page_title %}{{ _("Integrations") }}{% endblock %}
+{% block page_subtitle %}<p class="text-sm opacity-60">{{ _("Connections that bring tasks, people and absences in from other systems.") }}</p>{% endblock %}
+{% block page_actions %}
+<button type="button" class="btn btn-primary btn-sm" hx-get="/integrations/new" hx-target="#modal-body" hx-swap="innerHTML">{{ icon("plus") }} {{ _("New integration") }}</button>
+{% endblock %}
+
+{% block content %}
+{% include "integrations/_list.html" %}
+{% endblock %}

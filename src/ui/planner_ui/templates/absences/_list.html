@@ -1,0 +1,41 @@
+{% from "macros.html" import pager, row_actions, source_badge, type_chip, empty %}
+<div id="list">
+  {% if rows %}
+  <div class="overflow-x-auto rounded-box border border-base-300 bg-base-100">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>{{ _("Member") }}</th>
+          <th>{{ _("Type") }}</th>
+          <th>{{ _("Period") }}</th>
+          <th class="text-right">{{ _("Working days") }}</th>
+          <th>{{ _("Note") }}</th>
+          <th>{{ _("Source") }}</th>
+          <th class="w-px"><span class="sr-only">{{ _("Actions") }}</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in rows %}
+        <tr>
+          <td>{% if a.member_name %}<span class="font-medium">{{ a.member_name }}</span>{% else %}<span class="italic">{{ _("Everybody") }}</span>{% endif %}</td>
+          <td>{{ type_chip(a.type_color, a.type_letter, a.type_name) }}</td>
+          <td class="whitespace-nowrap">
+            {{ a.start_date|date }}{% if a.start_part.value != "FULL" %} <span class="opacity-60">({{ _("morning") if a.start_part.value == "AM" else _("afternoon") }})</span>{% endif %}
+            {% if a.end_date != a.start_date or a.end_part != a.start_part %}
+            – {{ a.end_date|date }}{% if a.end_part.value != "FULL" %} <span class="opacity-60">({{ _("morning") if a.end_part.value == "AM" else _("afternoon") }})</span>{% endif %}
+            {% endif %}
+          </td>
+          <td class="text-right tabular-nums">{{ a.working_days|days }}</td>
+          <td class="max-w-xs"><div class="truncate" title="{{ a.note or '' }}">{{ a.note or "—" }}</div></td>
+          <td>{{ source_badge(a) }}</td>
+          <td>{{ row_actions("absences", a, a.member_name or _("Everybody")) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {{ pager(view) }}
+  {% else %}
+  {{ empty(_("No absences found."), _("Change the filters, or add an absence.") if (can("absence:write") or can("absence:write:own")) else none) }}
+  {% endif %}
+</div>

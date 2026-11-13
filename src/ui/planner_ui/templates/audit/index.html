@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _("Audit log") }} · {% endblock %}
+{% block page_title %}{{ _("Audit log") }}{% endblock %}
+
+{% block content %}
+<form class="mb-4 flex flex-wrap items-end gap-3" role="search" hx-get="/audit" hx-target="#list" hx-swap="outerHTML" hx-trigger="input delay:400ms, change, submit" hx-push-url="true">
+  <div class="form-control">
+    <label class="label-text mb-1 text-xs" for="audit-entity">{{ _("Entity") }}</label>
+    <input id="audit-entity" type="text" name="entity_type" value="{{ view.params.entity_type }}" class="input input-bordered input-sm w-36" placeholder="member" autocomplete="off">
+  </div>
+  <div class="form-control">
+    <label class="label-text mb-1 text-xs" for="audit-action">{{ _("Action") }}</label>
+    <input id="audit-action" type="text" name="action" value="{{ view.params.action }}" class="input input-bordered input-sm w-36" placeholder="update" autocomplete="off">
+  </div>
+  <div class="form-control">
+    <label class="label-text mb-1 text-xs" for="audit-via">{{ _("Through") }}</label>
+    <select id="audit-via" name="via" class="select select-bordered select-sm">
+      <option value="">{{ _("Any") }}</option>
+      {% for option in via_options %}<option value="{{ option }}"{% if view.params.via == option %} selected{% endif %}>{{ option }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="form-control">
+    <label class="label-text mb-1 text-xs" for="audit-client">{{ _("Client") }}</label>
+    <input id="audit-client" type="text" name="client_name" value="{{ view.params.client_name }}" class="input input-bordered input-sm w-36" placeholder="planner-ui" autocomplete="off">
+  </div>
+  <div class="form-control">
+    <label class="label-text mb-1 text-xs" for="audit-since">{{ _("From") }}</label>
+    <input id="audit-since" type="date" name="since" value="{{ view.params.since }}" class="input input-bordered input-sm">
+  </div>
+  <div class="form-control">
+    <label class="label-text mb-1 text-xs" for="audit-until">{{ _("Until") }}</label>
+    <input id="audit-until" type="date" name="until" value="{{ view.params.until }}" class="input input-bordered input-sm">
+  </div>
+</form>
+{% include "audit/_list.html" %}
+{% endblock %}

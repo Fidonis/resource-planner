@@ -1,0 +1,56 @@
+{% from "macros.html" import pager, empty %}
+<div id="list">
+  {% if rows %}
+  <div class="overflow-x-auto rounded-box border border-base-300 bg-base-100">
+    <table class="table table-sm">
+      <thead>
+        <tr>
+          <th>{{ _("When") }}</th>
+          <th>{{ _("Who") }}</th>
+          <th>{{ _("Through") }}</th>
+          <th>{{ _("Action") }}</th>
+          <th>{{ _("Entity") }}</th>
+          <th>{{ _("Details") }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        {% set entry = row.entry %}
+        <tr class="align-top">
+          <td class="whitespace-nowrap">{{ entry.at|datetime }}</td>
+          <td>{{ entry.actor_name or "—" }}</td>
+          <td>
+            <span class="badge badge-ghost badge-sm">{{ entry.via }}</span>
+            {% if entry.client_name %}<div class="text-xs opacity-60">{{ entry.client_name }}</div>{% endif %}
+          </td>
+          <td class="font-mono text-xs">{{ entry.action }}</td>
+          <td>
+            <div>{{ entry.entity_type }}</div>
+            {% if entry.entity_id %}<div class="font-mono text-xs opacity-60">{{ entry.entity_id }}</div>{% endif %}
+          </td>
+          <td>
+            {% if row.before or row.after or entry.note %}
+            <details>
+              <summary class="cursor-pointer text-sm">{{ _("Show") }}</summary>
+              {% if entry.note %}<p class="mt-1 text-xs">{{ entry.note }}</p>{% endif %}
+              {% if row.before %}
+              <p class="mt-2 text-xs font-medium opacity-70">{{ _("Before") }}</p>
+              <pre class="max-w-md overflow-x-auto rounded bg-base-200 p-2 text-xs">{{ row.before }}</pre>
+              {% endif %}
+              {% if row.after %}
+              <p class="mt-2 text-xs font-medium opacity-70">{{ _("After") }}</p>
+              <pre class="max-w-md overflow-x-auto rounded bg-base-200 p-2 text-xs">{{ row.after }}</pre>
+              {% endif %}
+            </details>
+            {% else %}<span class="opacity-40">—</span>{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {{ pager(view) }}
+  {% else %}
+  {{ empty(_("No entries found."), _("Change the filters.")) }}
+  {% endif %}
+</div>

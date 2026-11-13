@@ -1,0 +1,116 @@
+{
+  "realm": "planner",
+  "displayName": "Resource Planner (development)",
+  "enabled": true,
+  "sslRequired": "none",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": false,
+  "bruteForceProtected": true,
+  "accessTokenLifespan": 900,
+  "roles": {
+    "realm": [
+      { "name": "rp-admin", "description": "Resource Planner: administrator" },
+      { "name": "rp-planner", "description": "Resource Planner: planner" },
+      { "name": "rp-viewer", "description": "Resource Planner: viewer" }
+    ]
+  },
+  "groups": [
+    { "name": "Backend" },
+    { "name": "Frontend" }
+  ],
+  "clients": [
+    {
+      "clientId": "resource-planner",
+      "name": "Resource Planner",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "${PLANNER_CLIENT_SECRET}",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "rootUrl": "${PLANNER_PUBLIC_URL}",
+      "baseUrl": "${PLANNER_PUBLIC_URL}",
+      "redirectUris": ["${PLANNER_PUBLIC_URL}/api/v1/auth/oidc/callback"],
+      "webOrigins": [],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "${PLANNER_PUBLIC_URL}/login"
+      },
+      "defaultClientScopes": ["basic", "web-origins", "acr", "profile", "roles", "email"],
+      "optionalClientScopes": ["offline_access"],
+      "protocolMappers": [
+        {
+          "name": "resource-planner-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "resource-planner",
+            "id.token.claim": "false",
+            "access.token.claim": "true",
+            "introspection.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "resource-planner-sync",
+      "name": "Resource Planner directory import",
+      "description": "Lets the planner read users and groups through the admin API.",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "${PLANNER_SYNC_CLIENT_SECRET}",
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true
+    }
+  ],
+  "users": [
+    {
+      "username": "admin-demo",
+      "enabled": true,
+      "email": "admin-demo@example.test",
+      "emailVerified": true,
+      "firstName": "Ada",
+      "lastName": "Admin",
+      "credentials": [{ "type": "password", "value": "${PLANNER_DEMO_PASSWORD}", "temporary": false }],
+      "realmRoles": ["rp-admin"]
+    },
+    {
+      "username": "planner-demo",
+      "enabled": true,
+      "email": "planner-demo@example.test",
+      "emailVerified": true,
+      "firstName": "Paula",
+      "lastName": "Planner",
+      "credentials": [{ "type": "password", "value": "${PLANNER_DEMO_PASSWORD}", "temporary": false }],
+      "realmRoles": ["rp-planner"],
+      "groups": ["/Backend"]
+    },
+    {
+      "username": "viewer-demo",
+      "enabled": true,
+      "email": "viewer-demo@example.test",
+      "emailVerified": true,
+      "firstName": "Viktor",
+      "lastName": "Viewer",
+      "credentials": [{ "type": "password", "value": "${PLANNER_DEMO_PASSWORD}", "temporary": false }],
+      "realmRoles": ["rp-viewer"],
+      "groups": ["/Frontend"]
+    },
+    {
+      "username": "service-account-resource-planner-sync",
+      "enabled": true,
+      "serviceAccountClientId": "resource-planner-sync",
+      "clientRoles": {
+        "realm-management": ["view-users", "query-users", "query-groups", "view-realm"]
+      }
+    }
+  ]
+}

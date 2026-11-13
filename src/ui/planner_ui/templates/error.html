@@ -1,0 +1,11 @@
+{% extends "bare.html" %}
+
+{% block title %}{{ _("Something went wrong") }} · {% endblock %}
+
+{% block card %}
+<div role="alert">
+  <p class="text-sm opacity-60">{{ code }}</p>
+  <h1 class="mt-1 font-brand text-xl font-bold">{{ message }}</h1>
+  <p class="mt-4"><a class="btn btn-primary btn-sm" href="/">{{ _("Back to the start") }}</a></p>
+</div>
+{% endblock %}

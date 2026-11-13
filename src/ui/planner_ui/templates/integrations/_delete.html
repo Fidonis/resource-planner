@@ -1,0 +1,23 @@
+<form hx-delete="/integrations/{{ row.id }}" hx-target="#list" hx-swap="outerHTML" hx-disable-elt="find button[type=submit]" class="space-y-4" aria-labelledby="modal-title">
+  <h2 id="modal-title" class="font-brand text-lg font-bold">{{ _("Delete integration") }}</h2>
+  <input type="hidden" name="version" value="{{ row.version }}">
+  {% if owned %}
+  <div role="alert" class="alert alert-warning text-sm">
+    {{ icon("alert-triangle") }}
+    <span>{{ _("This integration has written %(items)s. Keep them as manual data, or remove them first.", items=owned) }}</span>
+  </div>
+  {% else %}
+  <p class="text-sm">{{ _("Delete %(name)s? The synchronisation stops. This cannot be undone.", name=row.name) }}</p>
+  {% endif %}
+  <div class="form-control">
+    <label class="label cursor-pointer justify-start gap-3" for="f-detach">
+      <input type="checkbox" id="f-detach" name="detach" class="checkbox checkbox-sm"{% if owned %} checked{% endif %} aria-describedby="f-detach-help">
+      <span class="label-text">{{ _("Keep what it brought in as manual data") }}</span>
+    </label>
+    <p id="f-detach-help" class="px-1 text-xs opacity-60">{{ _("The tasks, people and absences stay and can be edited by hand from then on.") }}</p>
+  </div>
+  <div class="modal-action">
+    <button type="button" class="btn btn-ghost" data-action="close-modal">{{ _("Cancel") }}</button>
+    <button type="submit" class="btn btn-error">{{ icon("trash") }} {{ _("Delete") }}</button>
+  </div>
+</form>

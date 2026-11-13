@@ -1,0 +1,45 @@
+{% from "macros.html" import pager, row_actions, source_badge, empty %}
+<div id="list">
+  {% if rows %}
+  <div class="overflow-x-auto rounded-box border border-base-300 bg-base-100">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>{{ _("Name") }}</th>
+          <th>{{ _("Team") }}</th>
+          <th class="text-right">{{ _("Availability") }}</th>
+          <th>{{ _("Skills") }}</th>
+          <th>{{ _("Status") }}</th>
+          <th>{{ _("Source") }}</th>
+          <th class="w-px"><span class="sr-only">{{ _("Actions") }}</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for member in rows %}
+        <tr>
+          <td>
+            <div class="font-medium">{{ member.display_name }}</div>
+            {% if member.email %}<div class="text-xs opacity-60">{{ member.email }}</div>{% endif %}
+          </td>
+          <td>{{ member.team_name }}</td>
+          <td class="text-right tabular-nums">{{ member.allocation_percent }} %</td>
+          <td>
+            <div class="flex max-w-xs flex-wrap gap-1">
+              {% for skill_id in member.skill_ids %}<span class="badge badge-outline badge-sm">{{ skill_names.get(skill_id|string, "?") }}</span>{% else %}<span class="opacity-40">—</span>{% endfor %}
+            </div>
+          </td>
+          <td>
+            {% if member.active %}<span class="badge badge-success badge-sm badge-outline">{{ _("Active") }}</span>{% else %}<span class="badge badge-ghost badge-sm">{{ _("Inactive") }}</span>{% endif %}
+          </td>
+          <td>{{ source_badge(member) }}</td>
+          <td>{{ row_actions("members", member, member.display_name) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {{ pager(view) }}
+  {% else %}
+  {{ empty(_("No members found."), _("Change the filters, or add the first member.") if can("member:write") else none) }}
+  {% endif %}
+</div>

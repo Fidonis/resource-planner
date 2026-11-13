@@ -1,0 +1,23 @@
+{% from "macros.html" import form_field %}
+<form id="settings-form" hx-put="/settings" hx-target="#settings-form" hx-swap="outerHTML" hx-disable-elt="find button[type=submit]" class="max-w-xl space-y-4 rounded-box border border-base-300 bg-base-100 p-6">
+  {% if banner %}
+  <div role="alert" class="alert alert-warning text-sm">{{ icon("alert-triangle") }}<span>{{ banner }}</span></div>
+  {% endif %}
+  {% for f in fields %}
+  {{ form_field(f) }}
+  {% endfor %}
+
+  <div class="border-t border-base-300 pt-4">
+    <h2 class="text-sm font-medium">{{ _("Set by the installation") }}</h2>
+    <p class="mb-2 text-xs opacity-60">{{ _("These are environment variables of the server and cannot be changed here.") }}</p>
+    <ul class="space-y-1 text-sm">
+      <li class="flex items-center justify-between gap-3"><span>{{ _("Sign-in with a local account") }}</span>{% if settings.auth_local_enabled %}<span class="badge badge-success badge-outline badge-sm">{{ _("On") }}</span>{% else %}<span class="badge badge-ghost badge-sm">{{ _("Off") }}</span>{% endif %}</li>
+      <li class="flex items-center justify-between gap-3"><span>{{ _("Sign-in with single sign-on") }}</span>{% if settings.auth_oidc_enabled %}<span class="badge badge-success badge-outline badge-sm">{{ _("On") }}</span>{% else %}<span class="badge badge-ghost badge-sm">{{ _("Off") }}</span>{% endif %}</li>
+      <li class="flex items-center justify-between gap-3"><span>{{ _("Demo data can be loaded") }}</span>{% if settings.demo_seed_enabled %}<span class="badge badge-success badge-outline badge-sm">{{ _("On") }}</span>{% else %}<span class="badge badge-ghost badge-sm">{{ _("Off") }}</span>{% endif %}</li>
+    </ul>
+  </div>
+
+  <div class="flex justify-end">
+    <button type="submit" class="btn btn-primary">{{ _("Save") }}</button>
+  </div>
+</form>

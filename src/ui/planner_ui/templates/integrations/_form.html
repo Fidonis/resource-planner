@@ -1,0 +1,63 @@
+{% from "integrations/_fields.html" import schema_field %}
+<form {% if method == "put" %}hx-put="{{ action }}"{% else %}hx-post="{{ action }}"{% endif %} hx-target="#list" hx-swap="outerHTML" hx-disable-elt="find button[type=submit]" class="space-y-4" aria-labelledby="modal-title">
+  <div>
+    <h2 id="modal-title" class="font-brand text-lg font-bold">{{ title }}</h2>
+    <p class="text-sm opacity-60">{{ type_name }} · {{ _(info.title) }}</p>
+  </div>
+
+  {% if banner %}
+  <div role="alert" class="alert alert-warning text-sm">
+    {{ icon("alert-triangle") }}
+    <span>{{ banner }}</span>
+    {% if edit_url and version %}
+    <button type="button" class="btn btn-sm" hx-get="{{ edit_url }}" hx-target="#modal-body" hx-swap="innerHTML">{{ icon("refresh") }} {{ _("Load current values") }}</button>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <input type="hidden" name="version" value="{{ version }}">
+  {% if not row %}
+  <input type="hidden" name="type" value="{{ kind }}">
+  <input type="hidden" name="provider_key" value="{{ info.key }}">
+  {% endif %}
+
+  <div class="form-control">
+    <label class="label-text mb-1 font-medium" for="f-name">{{ _("Name") }} <span class="text-error" aria-hidden="true">*</span></label>
+    <input type="text" id="f-name" name="name" value="{{ given_name }}" required maxlength="160" autocomplete="off" class="input input-bordered w-full{% if name_error %} input-error{% endif %}"{% if name_error %} aria-invalid="true" aria-describedby="f-name-err"{% endif %}>
+    {% if name_error %}<p id="f-name-err" class="mt-1 text-xs text-error" role="alert">{{ name_error }}</p>{% endif %}
+  </div>
+
+  <div class="form-control">
+    <label class="label-text mb-1 font-medium" for="f-schedule">{{ _("Schedule") }}</label>
+    <input type="text" id="f-schedule" name="schedule" value="{{ schedule }}" maxlength="120" autocomplete="off" spellcheck="false" placeholder="0 6 * * 1-5" class="input input-bordered w-full font-mono{% if schedule_error %} input-error{% endif %}"{% if schedule_error %} aria-invalid="true" aria-describedby="f-schedule-err"{% else %} aria-describedby="f-schedule-help"{% endif %}>
+    {% if schedule_error %}<p id="f-schedule-err" class="mt-1 text-xs text-error" role="alert">{{ schedule_error }}</p>
+    {% else %}<p id="f-schedule-help" class="mt-1 text-xs opacity-60">{{ _("A cron line of five fields in UTC, for example 0 6 * * 1-5 for weekdays at 6:00. Empty: only when you start it.") }}</p>{% endif %}
+  </div>
+
+  <div class="form-control">
+    <label class="label cursor-pointer justify-start gap-3" for="f-enabled">
+      <input type="checkbox" id="f-enabled" name="enabled" class="checkbox checkbox-sm"{% if enabled %} checked{% endif %} aria-describedby="f-enabled-help">
+      <span class="label-text">{{ _("Enabled") }}</span>
+    </label>
+    <p id="f-enabled-help" class="px-1 text-xs opacity-60">{{ _("Only an enabled integration runs on its schedule. You can always start it by hand.") }}</p>
+  </div>
+
+  {% if config_fields %}
+  <fieldset class="space-y-4 rounded-box border border-base-300 p-4">
+    <legend class="px-2 text-sm font-medium">{{ _("Connection") }}</legend>
+    {% for f in config_fields %}{{ schema_field(f) }}{% endfor %}
+  </fieldset>
+  {% endif %}
+
+  {% if mapping_fields %}
+  <fieldset class="space-y-4 rounded-box border border-base-300 p-4">
+    <legend class="px-2 text-sm font-medium">{{ _("Mapping") }}</legend>
+    {% for f in mapping_fields %}{{ schema_field(f) }}{% endfor %}
+  </fieldset>
+  {% endif %}
+
+  <div class="modal-action">
+    <button type="button" class="btn btn-ghost" data-action="close-modal">{{ _("Cancel") }}</button>
+    <button type="submit" class="btn btn-primary">{{ submit_label }}</button>
+  </div>
+</form>

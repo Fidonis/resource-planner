@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _("Absence types") }} · {% endblock %}
+{% block page_title %}{{ _("Absence types") }}{% endblock %}
+{% block page_actions %}
+{% if can("absence-type:write") %}
+<button type="button" class="btn btn-primary btn-sm" hx-get="/absence-types/new" hx-target="#modal-body" hx-swap="innerHTML">{{ icon("plus") }} {{ _("New absence type") }}</button>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<form class="mb-4" hx-get="/absence-types" hx-target="#list" hx-swap="outerHTML" hx-trigger="change, submit" hx-push-url="true">
+  <select name="active" class="select select-bordered" aria-label="{{ _('Status') }}">
+    <option value="">{{ _("Active and inactive") }}</option>
+    <option value="yes"{% if view.params.active == "yes" %} selected{% endif %}>{{ _("Active only") }}</option>
+    <option value="no"{% if view.params.active == "no" %} selected{% endif %}>{{ _("Inactive only") }}</option>
+  </select>
+</form>
+{% include "absence_types/_list.html" %}
+{% endblock %}

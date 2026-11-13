@@ -1,0 +1,35 @@
+{# One input of a provider's settings, drawn from its schema (see planner_ui/schema_form.py). #}
+{% macro schema_field(f) %}
+<div class="form-control">
+  {% if f.kind == "checkbox" %}
+  <label class="label cursor-pointer justify-start gap-3" for="{{ f.id }}">
+    <input type="checkbox" id="{{ f.id }}" name="{{ f.name }}" class="checkbox checkbox-sm"{% if f.value %} checked{% endif %}{% if f.help %} aria-describedby="{{ f.id }}-help"{% endif %}>
+    <span class="label-text">{{ f.label }}</span>
+  </label>
+  {% if f.help %}<p id="{{ f.id }}-help" class="px-1 text-xs opacity-60">{{ f.help }}</p>{% endif %}
+  {% else %}
+  <label class="label-text mb-1 font-medium" for="{{ f.id }}">{{ f.label }}{% if f.required and not f.secret_set %} <span class="text-error" aria-hidden="true">*</span>{% endif %}</label>
+  {% if f.kind == "select" %}
+  <select id="{{ f.id }}" name="{{ f.name }}" class="select select-bordered w-full{% if f.error %} select-error{% endif %}"{% if f.error %} aria-invalid="true" aria-describedby="{{ f.id }}-err"{% endif %}>
+    {% if not f.required and not f.value %}<option value="">—</option>{% endif %}
+    {% for option in f.options %}<option value="{{ option }}"{% if f.value == option %} selected{% endif %}>{{ option }}</option>{% endfor %}
+  </select>
+  {% elif f.kind == "lines" or f.kind == "pairs" or f.kind == "json" %}
+  <textarea id="{{ f.id }}" name="{{ f.name }}" rows="{{ f.rows }}" spellcheck="false" class="textarea textarea-bordered w-full font-mono text-sm{% if f.error %} textarea-error{% endif %}"{% if f.error %} aria-invalid="true" aria-describedby="{{ f.id }}-err"{% endif %}>{{ f.value }}</textarea>
+  {% elif f.kind == "secret" %}
+  <input type="password" id="{{ f.id }}" name="{{ f.name }}" value="" autocomplete="new-password" class="input input-bordered w-full{% if f.error %} input-error{% endif %}"{% if f.secret_set %} placeholder="{{ _('Set. Leave empty to keep it.') }}"{% elif f.required %} required{% endif %}{% if f.maxlength %} maxlength="{{ f.maxlength }}"{% endif %}{% if f.error %} aria-invalid="true" aria-describedby="{{ f.id }}-err"{% endif %}>
+  {% elif f.kind == "integer" %}
+  <input type="number" id="{{ f.id }}" name="{{ f.name }}" value="{{ f.value }}" step="1" inputmode="numeric" class="input input-bordered w-full{% if f.error %} input-error{% endif %}"{% if f.required %} required{% endif %}{% if f.minimum is not none %} min="{{ f.minimum }}"{% endif %}{% if f.maximum is not none %} max="{{ f.maximum }}"{% endif %}{% if f.error %} aria-invalid="true" aria-describedby="{{ f.id }}-err"{% endif %}>
+  {% else %}
+  <input type="text" id="{{ f.id }}" name="{{ f.name }}" value="{{ f.value }}" autocomplete="off" spellcheck="false"{% if f.kind == "decimal" %} inputmode="decimal"{% endif %} class="input input-bordered w-full{% if f.error %} input-error{% endif %}"{% if f.required %} required{% endif %}{% if f.maxlength %} maxlength="{{ f.maxlength }}"{% endif %}{% if f.error %} aria-invalid="true" aria-describedby="{{ f.id }}-err"{% endif %}>
+  {% endif %}
+  {% if f.error %}
+  <p id="{{ f.id }}-err" class="mt-1 text-xs text-error" role="alert">{{ f.error }}</p>
+  {% else %}
+  {% if f.help %}<p id="{{ f.id }}-help" class="mt-1 text-xs opacity-60">{{ f.help }}</p>{% endif %}
+  {% if f.kind == "lines" %}<p class="mt-1 text-xs opacity-60">{{ _("One entry per line.") }}</p>
+  {% elif f.kind == "pairs" %}<p class="mt-1 text-xs opacity-60">{{ _("One entry per line, written as name=value.") }}</p>{% endif %}
+  {% endif %}
+  {% endif %}
+</div>
+{% endmacro %}

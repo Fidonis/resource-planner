@@ -1,0 +1,17 @@
+<form hx-put="/roles/mappings" hx-target="#modal-body" hx-swap="innerHTML" hx-disable-elt="find button[type=submit]" class="space-y-4" aria-labelledby="modal-title">
+  <h2 id="modal-title" class="font-brand text-lg font-bold">{{ _("Role mapping") }}</h2>
+  <p class="text-sm">{{ _("Which role of the identity provider (%(provider)s) gives which role here. A change applies to the next request of every account that is signed in.", provider=provider_id) }}</p>
+  {% if error %}
+  <div role="alert" class="alert alert-warning text-sm">{{ icon("alert-triangle") }}<span>{{ error }}</span></div>
+  {% endif %}
+  <div id="mapping-rows" class="space-y-2">
+    {% for external_role, role_id in rows %}
+    {% include "roles/_mapping_row.html" %}
+    {% endfor %}
+  </div>
+  <button type="button" class="btn btn-ghost btn-sm" hx-get="/roles/mappings/row" hx-target="#mapping-rows" hx-swap="beforeend">{{ icon("plus") }} {{ _("Add mapping") }}</button>
+  <div class="modal-action">
+    <button type="button" class="btn btn-ghost" data-action="close-modal">{{ _("Cancel") }}</button>
+    <button type="submit" class="btn btn-primary">{{ _("Save") }}</button>
+  </div>
+</form>

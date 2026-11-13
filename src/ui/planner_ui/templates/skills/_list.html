@@ -1,0 +1,32 @@
+{% from "macros.html" import pager, row_actions, source_badge, empty %}
+<div id="list">
+  {% if rows %}
+  <div class="overflow-x-auto rounded-box border border-base-300 bg-base-100">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>{{ _("Name") }}</th>
+          <th>{{ _("Key") }}</th>
+          <th class="text-right">{{ _("Members") }}</th>
+          <th>{{ _("Source") }}</th>
+          <th class="w-px"><span class="sr-only">{{ _("Actions") }}</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for skill in rows %}
+        <tr>
+          <td class="font-medium">{{ skill.name }}</td>
+          <td><code class="text-xs">{{ skill.key }}</code></td>
+          <td class="text-right tabular-nums">{{ skill.member_count }}</td>
+          <td>{{ source_badge(skill) }}</td>
+          <td>{{ row_actions("skills", skill, skill.name) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {{ pager(view) }}
+  {% else %}
+  {{ empty(_("No skills yet."), _("A skill's key is matched against the labels of imported tasks.") if can("skill:write") else none) }}
+  {% endif %}
+</div>

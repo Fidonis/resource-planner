@@ -1,0 +1,18 @@
+{# Pages without the application shell: sign-in, the first password, errors. #}
+{% extends "layout.html" %}
+{% from "macros.html" import brand_mark, theme_toggle %}
+
+{% block body %}
+<div class="flex min-h-screen flex-col items-center justify-center px-4 py-10">
+  <div class="mb-6 flex items-center gap-3">
+    {{ brand_mark("h-10 w-10 shrink-0") }}
+    <span class="font-brand text-2xl font-extrabold tracking-tight">{{ _("Resource Planner") }}</span>
+  </div>
+  <main class="w-full max-w-md rounded-box border border-base-300 bg-base-100 p-6 shadow-sm sm:p-8">
+    {% block card %}{% endblock %}
+  </main>
+  <div class="mt-4">
+    {{ theme_toggle("btn btn-ghost btn-sm gap-2 font-normal opacity-70") }}
+  </div>
+</div>
+{% endblock %}

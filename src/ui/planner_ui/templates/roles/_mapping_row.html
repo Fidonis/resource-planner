@@ -1,0 +1,8 @@
+<div class="flex items-center gap-2" data-row>
+  <input type="text" name="external_role" value="{{ external_role }}" maxlength="255" autocomplete="off" class="input input-bordered input-sm w-full" placeholder="{{ _('Role of the identity provider') }}" aria-label="{{ _('Role of the identity provider') }}">
+  {{ icon("arrow-right", "h-4 w-4 shrink-0 opacity-60") }}
+  <select name="role_id" class="select select-bordered select-sm w-full" aria-label="{{ _('Role here') }}">
+    {% for r in roles %}<option value="{{ r.value }}"{% if r.value == role_id %} selected{% endif %}>{{ r.label }}</option>{% endfor %}
+  </select>
+  <button type="button" class="btn btn-ghost btn-sm btn-square" data-action="remove-row" aria-label="{{ _('Remove mapping') }}">{{ icon("x") }}</button>
+</div>

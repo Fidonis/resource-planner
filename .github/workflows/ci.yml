@@ -1,0 +1,145 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint-yaml:
+    name: Yamllint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Install yamllint
+        run: pip install --user yamllint
+      - name: Run yamllint
+        run: yamllint .
+
+  lint-python:
+    name: Ruff
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Install uv
+        run: pip install --user uv
+      - name: Sync dependencies
+        run: uv sync --frozen
+      - name: Run ruff
+        run: |
+          uv run --frozen ruff check .
+          uv run --frozen ruff format --check .
+
+  typecheck:
+    name: Mypy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Install uv
+        run: pip install --user uv
+      - name: Sync dependencies
+        run: uv sync --frozen
+      - name: Run mypy
+        run: uv run --frozen mypy src/api/planner_api src/ui/planner_ui src/contracts/planner_client tests
+
+  contracts:
+    name: Contracts and wording
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Install uv
+        run: pip install --user uv
+      - name: Sync dependencies
+        run: uv sync --frozen
+      - name: Import rules
+        run: uv run --frozen lint-imports
+      - name: The client matches the OpenAPI snapshot
+        run: uv run --frozen python scripts/generate_client.py --check
+      - name: Message catalogues are complete
+        run: uv run --frozen python scripts/i18n.py missing
+      - name: Wording
+        env:
+          WORDING_RULES: ${{ secrets.WORDING_RULES }}
+        run: python scripts/check_wording.py
+
+  test:
+    name: Pytest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: src/ui/package-lock.json
+      - name: Install uv
+        run: pip install --user uv
+      - name: Sync dependencies
+        run: uv sync --frozen
+      - name: Build the style sheet and the browser files
+        working-directory: src/ui
+        run: |
+          npm ci --no-audit --no-fund
+          npm run build
+      - name: Unit, API and interface tests (PostgreSQL starts in a container)
+        run: uv run --frozen pytest -q
+
+  stack:
+    name: Compose stack starts and answers
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Write a .env with generated secrets
+        run: python scripts/init_env.py
+      - name: Check the Compose file
+        run: docker compose config --quiet
+      - name: Build and start
+        run: docker compose up -d --build --wait --wait-timeout 300
+      - name: Probe the interface and the API
+        run: |
+          curl --fail --silent --show-error http://127.0.0.1:8080/health/live
+          curl --fail --silent --show-error --output /dev/null http://127.0.0.1:8080/login
+          curl --fail --silent --show-error http://127.0.0.1:8081/health/live
+          curl --fail --silent --show-error http://127.0.0.1:8081/health/ready
+          curl --fail --silent --show-error http://127.0.0.1:8081/openapi.json | python -c "import json,sys; json.load(sys.stdin)"
+      - name: Check the development additions
+        run: docker compose -f docker-compose.yml -f docker/docker-compose.dev.yml --profile dev-keycloak config --quiet
+      - name: Logs on failure
+        if: failure()
+        run: docker compose logs --no-color --tail 200
+      - name: Stop
+        if: always()
+        run: docker compose down --volumes
+
+  pr-title:
+    name: Conventional Commit PR title
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    steps:
+      - uses: amannn/action-semantic-pull-request@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            docs
+            style
+            refactor
+            perf
+            test
+            build
+            ci
+            chore
+            revert
+          requireScope: false
+          subjectPattern: ^(?![A-Z]).+$
+          subjectPatternError: |
+            The subject "{subject}" found in the pull request title "{title}"
+            didn't match the configured pattern. Please ensure that the subject
+            doesn't start with an uppercase character.

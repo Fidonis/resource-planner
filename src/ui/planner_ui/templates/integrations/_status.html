@@ -1,0 +1,49 @@
+{# The outcome of a run as a badge. Class names are written out in full so the stylesheet build finds them. #}
+{% macro status_badge(status, names) %}
+{% if status == "success" %}<span class="badge badge-success badge-sm badge-outline">{{ _(names[status]) }}</span>
+{% elif status == "partial" %}<span class="badge badge-warning badge-sm badge-outline">{{ _(names[status]) }}</span>
+{% elif status == "failed" %}<span class="badge badge-error badge-sm badge-outline">{{ _(names[status]) }}</span>
+{% elif status == "running" %}<span class="badge badge-info badge-sm badge-outline">{{ _(names[status]) }}</span>
+{% else %}<span class="badge badge-ghost badge-sm">{{ _(names[status]) if status in names else status }}</span>{% endif %}
+{% endmacro %}
+
+{% macro counts(run) %}
+<dl class="grid grid-cols-4 gap-2 text-center">
+  <div class="flex flex-col-reverse rounded-box border border-base-300 bg-base-100 px-2 py-2"><dt class="text-xs opacity-60">{{ _("Created") }}</dt><dd class="text-xl font-bold tabular-nums">{{ run.created }}</dd></div>
+  <div class="flex flex-col-reverse rounded-box border border-base-300 bg-base-100 px-2 py-2"><dt class="text-xs opacity-60">{{ _("Updated") }}</dt><dd class="text-xl font-bold tabular-nums">{{ run.updated }}</dd></div>
+  <div class="flex flex-col-reverse rounded-box border border-base-300 bg-base-100 px-2 py-2"><dt class="text-xs opacity-60">{{ _("Unchanged") }}</dt><dd class="text-xl font-bold tabular-nums">{{ run.skipped }}</dd></div>
+  <div class="flex flex-col-reverse rounded-box border border-base-300 bg-base-100 px-2 py-2"><dt class="text-xs opacity-60">{{ _("Errors") }}</dt><dd class="text-xl font-bold tabular-nums{% if run.errors %} text-error{% endif %}">{{ run.errors }}</dd></div>
+</dl>
+{% endmacro %}
+
+{# What a run did: the summary line, the counts and the log. #}
+{% macro run_body(run, names) %}
+<div class="space-y-3">
+  <div class="flex flex-wrap items-center gap-2 text-sm">
+    {{ status_badge(run.status, names) }}
+    {% if run.dry_run %}<span class="badge badge-info badge-sm badge-outline">{{ _("Preview") }}</span>{% endif %}
+    {% if run.full %}<span class="badge badge-ghost badge-sm">{{ _("Full read") }}</span>{% endif %}
+    <span class="opacity-60">{{ run.started_at|datetime }}</span>
+  </div>
+  {% if run.dry_run %}
+  <div role="alert" class="alert alert-info text-sm">{{ icon("info-circle") }}<span>{{ _("This was a preview. Nothing was saved.") }}</span></div>
+  {% endif %}
+  {{ counts(run) }}
+  {% if run.log %}
+  <ul class="max-h-64 divide-y divide-base-300 overflow-y-auto rounded-box border border-base-300 bg-base-100 text-sm" aria-label="{{ _('Log') }}">
+    {% for entry in run.log %}
+    <li class="flex items-start gap-2 px-3 py-2">
+      {% if entry.level.value == "error" %}<span class="text-error">{{ icon("circle-x") }}</span>
+      {% elif entry.level.value == "warning" %}<span class="text-warning">{{ icon("alert-triangle") }}</span>
+      {% else %}<span class="opacity-60">{{ icon("info-circle") }}</span>{% endif %}
+      <span class="min-w-0 grow">
+        {% if entry.reference %}<span class="font-mono text-xs opacity-70">{{ entry.reference }}</span> {% endif %}{{ entry.message }}
+      </span>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="text-sm opacity-60">{{ _("Nothing was reported.") }}</p>
+  {% endif %}
+</div>
+{% endmacro %}

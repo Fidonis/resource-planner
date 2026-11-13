@@ -1,0 +1,92 @@
+# Resource planner: the database, the API and the web interface. Start with:
+#   python scripts/init_env.py      # writes .env with generated secrets (once)
+#   docker compose up -d --build
+# then open http://localhost:8080 (the web interface); the API answers on http://localhost:8081.
+# Every ${VAR} comes from .env; see .env.example.
+#
+# There is no reverse proxy and no identity provider in this file: bring your own. Single sign-on
+# and API clients need one address for both services (the interface for everything, the API under
+# /api/, /openapi.json and /health/); docker/nginx.conf shows the routing. For a try-out with a
+# ready proxy and a throw-away Keycloak, add docker/docker-compose.dev.yml (see the README).
+
+name: resource-planner
+
+x-restart: &restart
+  restart: unless-stopped
+
+services:
+  db:
+    <<: *restart
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-planner}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-planner}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  api:
+    <<: *restart
+    build:
+      context: .
+      dockerfile: docker/api.Dockerfile
+    image: resource-planner-api:${IMAGE_TAG:-local}
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-planner}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-planner}
+      MIGRATE_ON_START: "true"
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-http://localhost:8080}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      SESSION_TTL_HOURS: ${SESSION_TTL_HOURS:-12}
+      CORS_ORIGINS: ${CORS_ORIGINS:-}
+      AUTH_LOCAL_ENABLED: ${AUTH_LOCAL_ENABLED:-true}
+      AUTH_OIDC_ENABLED: ${AUTH_OIDC_ENABLED:-false}
+      BOOTSTRAP_ADMIN_USER: ${BOOTSTRAP_ADMIN_USER:-admin}
+      BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:?set BOOTSTRAP_ADMIN_PASSWORD in .env}
+      OIDC_ISSUER: ${OIDC_ISSUER:-}
+      OIDC_DISCOVERY_URL: ${OIDC_DISCOVERY_URL:-}
+      OIDC_CLIENT_ID: ${OIDC_CLIENT_ID:-}
+      OIDC_CLIENT_SECRET: ${OIDC_CLIENT_SECRET:-}
+      OIDC_SCOPES: ${OIDC_SCOPES:-openid profile email}
+      OIDC_ROLES_CLAIM: ${OIDC_ROLES_CLAIM:-realm_access.roles}
+      OIDC_ROLES_SOURCE: ${OIDC_ROLES_SOURCE:-access_token}
+      OIDC_USERNAME_CLAIM: ${OIDC_USERNAME_CLAIM:-preferred_username}
+      OIDC_API_AUDIENCES: ${OIDC_API_AUDIENCES:-}
+      APP_ENCRYPTION_KEY: ${APP_ENCRYPTION_KEY:-}
+      ENABLE_DEMO_SEED: ${ENABLE_DEMO_SEED:-false}
+      IMPORT_DIR: /data/imports
+      SCHEDULER_ENABLED: ${SCHEDULER_ENABLED:-true}
+    volumes:
+      - imports:/data/imports
+    ports:
+      # Loopback only. A proxy on the host (or one that joins this network) routes /api/ here.
+      - "${BIND_ADDRESS:-127.0.0.1}:${API_PORT:-8081}:8000"
+
+  ui:
+    <<: *restart
+    build:
+      context: .
+      dockerfile: docker/ui.Dockerfile
+    image: resource-planner-ui:${IMAGE_TAG:-local}
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      API_BASE_URL: http://api:8000
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-http://localhost:8080}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      DEFAULT_LOCALE: ${DEFAULT_LOCALE:-en}
+    ports:
+      # Loopback only. Put a proxy that terminates TLS in front of it to expose it.
+      - "${BIND_ADDRESS:-127.0.0.1}:${HTTP_PORT:-8080}:8000"
+
+volumes:
+  db-data: {}
+  imports: {}

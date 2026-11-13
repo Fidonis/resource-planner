@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _("Overview") }} · {% endblock %}
+{% block page_title %}{{ _("Overview") }}{% endblock %}
+{% block page_actions %}
+<a class="btn btn-ghost btn-sm" href="/overview/export.csv?table=skills&amp;from={{ data.start.isoformat() }}&amp;weeks={{ count }}" download>{{ icon("download") }} {{ _("Skills as CSV") }}</a>
+<a class="btn btn-ghost btn-sm" href="/overview/export.csv?table=teams&amp;from={{ data.start.isoformat() }}&amp;weeks={{ count }}" download>{{ icon("download") }} {{ _("Teams as CSV") }}</a>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+  <div class="flex flex-wrap items-end justify-between gap-3">
+    <div class="flex items-center gap-2">
+      <a class="btn btn-sm btn-square" href="{{ nav.previous }}" aria-label="{{ _('Earlier weeks') }}">{{ icon("chevron-left") }}</a>
+      <a class="btn btn-sm" href="{{ nav.today }}">{{ _("Today") }}</a>
+      <a class="btn btn-sm btn-square" href="{{ nav.following }}" aria-label="{{ _('Later weeks') }}">{{ icon("chevron-right") }}</a>
+      <p class="ml-2 font-medium tabular-nums">
+        {{ _("W%(week)s", week=first.iso_week) }}{% if count > 1 %} – {{ _("W%(week)s", week=last.iso_week) }}{% endif %} · {{ first.iso_year }}
+      </p>
+    </div>
+    <form method="get" action="/overview" class="flex items-end gap-2">
+      <input type="hidden" name="from" value="{{ data.start.isoformat() }}">
+      <label class="flex flex-col text-xs opacity-80">{{ _("Weeks") }}
+        <select name="weeks" class="select select-bordered select-sm">
+          {% for n in week_choices %}<option value="{{ n }}"{% if n == count %} selected{% endif %}>{{ n }}</option>{% endfor %}
+        </select>
+      </label>
+      <button type="submit" class="btn btn-sm">{{ _("Show") }}</button>
+    </form>
+  </div>
+
+  <dl class="grid grid-cols-2 gap-3 lg:grid-cols-5" data-kpis>
+    <div class="rounded-box border border-base-300 bg-base-100 p-4">
+      <dt class="text-xs uppercase opacity-60">{{ _("Demand") }}</dt>
+      <dd class="font-brand text-2xl font-bold tabular-nums" data-kpi="demand">{{ data.kpis.demand|days }}</dd>
+      <p class="text-xs opacity-60">{{ _("person-days of open tasks") }}</p>
+    </div>
+    <div class="rounded-box border border-base-300 bg-base-100 p-4">
+      <dt class="text-xs uppercase opacity-60">{{ _("Assigned") }}</dt>
+      <dd class="font-brand text-2xl font-bold tabular-nums" data-kpi="assigned">{{ data.kpis.assigned|days }}</dd>
+      <p class="text-xs opacity-60">{{ data.kpis.assigned_percent|number(1) }} %</p>
+    </div>
+    <div class="rounded-box border border-base-300 bg-base-100 p-4">
+      <dt class="text-xs uppercase opacity-60">{{ _("Open") }}</dt>
+      <dd class="font-brand text-2xl font-bold tabular-nums" data-kpi="open">{{ data.kpis.open|days }}</dd>
+      <p class="text-xs opacity-60">{{ _("still to plan") }}</p>
+    </div>
+    <div class="rounded-box border border-base-300 bg-base-100 p-4 lg:col-span-2">
+      <dt class="text-xs uppercase opacity-60">{{ _("Overbooked member-weeks") }}</dt>
+      <dd class="font-brand text-2xl font-bold tabular-nums{% if data.kpis.overbooked_member_weeks > 0 %} text-error{% endif %}" data-kpi="overbooked">
+        {% if data.kpis.overbooked_member_weeks > 0 %}{{ icon("alert-triangle") }}{% endif %}
+        {{ data.kpis.overbooked_member_weeks }}
+      </dd>
+      <p class="text-xs opacity-60">{{ _("in the weeks shown") }}</p>
+    </div>
+  </dl>
+
+  <section aria-labelledby="skills-title">
+    <h2 id="skills-title" class="mb-2 font-brand text-lg font-bold">{{ _("Skills") }}</h2>
+    {% if data.skills %}
+    <div class="overflow-x-auto rounded-box border border-base-300 bg-base-100">
+      <table class="table" data-skills>
+        <thead>
+          <tr>
+            <th>{{ _("Skill") }}</th>
+            <th class="text-right">{{ _("Demand") }}</th>
+            <th class="text-right">{{ _("Assigned") }}</th>
+            <th class="text-right">{{ _("Open") }}</th>
+            <th class="text-right">{{ _("Capacity of members with the skill") }}</th>
+            <th class="text-right">{{ _("Free") }}</th>
+            <th>{{ _("Status") }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in data.skills %}
+          <tr data-skill="{{ s.skill_key }}">
+            <td class="font-medium">{{ s.skill_name }}</td>
+            <td class="text-right tabular-nums">{{ s.demand|days }}</td>
+            <td class="text-right tabular-nums">{{ s.assigned|days }} <span class="text-xs opacity-60">({{ s.assigned_percent|number(0) }} %)</span></td>
+            <td class="text-right tabular-nums">{{ s.open|days }}</td>
+            <td class="text-right tabular-nums">{{ s.pool|days }}</td>
+            <td class="text-right tabular-nums">{{ s.pool_free|days }}</td>
+            <td>
+              {% if s.status.value == "BOTTLENECK" %}<span class="badge badge-error gap-1">{{ icon("alert-triangle") }} {{ _("Bottleneck") }}</span>
+              {% elif s.status.value == "TIGHT" %}<span class="badge badge-warning gap-1">{{ _("Tight") }}</span>
+              {% else %}<span class="badge badge-success badge-outline gap-1">{{ icon("check") }} {{ _("OK") }}</span>{% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="rounded-box border border-dashed border-base-300 bg-base-100 px-6 py-8 text-center text-sm opacity-70">{{ _("No open tasks with an effort.") }}</p>
+    {% endif %}
+  </section>
+
+  <section aria-labelledby="teams-title">
+    <h2 id="teams-title" class="mb-2 font-brand text-lg font-bold">{{ _("Teams") }}</h2>
+    {% if data.teams %}
+    <div class="overflow-x-auto rounded-box border border-base-300 bg-base-100">
+      <table class="table" data-teams>
+        <thead>
+          <tr>
+            <th>{{ _("Team") }}</th>
+            <th class="text-right">{{ _("Members") }}</th>
+            <th class="text-right">{{ _("Capacity") }}</th>
+            <th class="text-right">{{ _("Booked") }}</th>
+            <th class="text-right">{{ _("Free") }}</th>
+            <th class="min-w-40">{{ _("Utilisation") }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in data.teams %}
+          <tr data-team="{{ t.team_name }}">
+            <td><span class="inline-flex items-center gap-2"><span class="inline-block h-3 w-3 rounded-full" style="background-color: {{ t.color }}" aria-hidden="true"></span>{{ t.team_name }}</span></td>
+            <td class="text-right tabular-nums">{{ t.member_count }}</td>
+            <td class="text-right tabular-nums">{{ t.capacity|days }}</td>
+            <td class="text-right tabular-nums">{{ t.booked|days }}</td>
+            <td class="text-right tabular-nums">{{ t.free|days }}</td>
+            <td>
+              <div class="flex items-center gap-2">
+                <progress class="progress {{ 'progress-error' if t.utilisation_percent > 100 else 'progress-secondary' }} w-24" value="{{ [t.utilisation_percent, 100]|min }}" max="100" aria-label="{{ _('Utilisation') }}"></progress>
+                <span class="text-xs tabular-nums">{{ t.utilisation_percent|number(0) }} %</span>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

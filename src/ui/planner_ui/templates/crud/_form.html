@@ -1,0 +1,24 @@
+{% from "macros.html" import form_field %}
+<form {% if method == "put" %}hx-put="{{ action }}"{% else %}hx-post="{{ action }}"{% endif %} hx-target="#list" hx-swap="outerHTML" hx-disable-elt="find button[type=submit]" class="space-y-4" aria-labelledby="modal-title">
+  <h2 id="modal-title" class="font-brand text-lg font-bold">{{ title }}</h2>
+
+  {% if banner %}
+  <div role="alert" class="alert alert-warning text-sm">
+    {{ icon("alert-triangle") }}
+    <span>{{ banner }}</span>
+    {% if edit_url and version %}
+    <button type="button" class="btn btn-sm" hx-get="{{ edit_url }}" hx-target="#modal-body" hx-swap="innerHTML">{{ icon("refresh") }} {{ _("Load current values") }}</button>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <input type="hidden" name="version" value="{{ version }}">
+  {% for f in fields %}
+  {{ form_field(f) }}
+  {% endfor %}
+
+  <div class="modal-action">
+    <button type="button" class="btn btn-ghost" data-action="close-modal">{{ _("Cancel") }}</button>
+    <button type="submit" class="btn btn-primary">{{ submit_label }}</button>
+  </div>
+</form>

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% from "macros.html" import search_input %}
+
+{% block title %}{{ _("Tasks") }} · {% endblock %}
+{% block page_title %}{{ _("Tasks") }}{% endblock %}
+{% block page_actions %}
+<a class="btn btn-ghost btn-sm" href="/tasks/export.csv" download>{{ icon("download") }} {{ _("Export CSV") }}</a>
+{% if can("task:write") %}
+<button type="button" class="btn btn-ghost btn-sm" hx-get="/tasks/import" hx-target="#modal-body" hx-swap="innerHTML">{{ icon("upload") }} {{ _("Import CSV") }}</button>
+<button type="button" class="btn btn-primary btn-sm" hx-get="/tasks/new" hx-target="#modal-body" hx-swap="innerHTML">{{ icon("plus") }} {{ _("New task") }}</button>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<form class="mb-4 flex flex-wrap items-center gap-3" role="search" hx-get="/tasks" hx-target="#list" hx-swap="outerHTML" hx-trigger="input delay:300ms, change, submit" hx-push-url="true">
+  {{ search_input(view.params.q) }}
+  <select name="team" class="select select-bordered" aria-label="{{ _('Team') }}">
+    <option value="">{{ _("All teams") }}</option>
+    {% for c in choices.teams %}<option value="{{ c.value }}"{% if view.params.team == c.value %} selected{% endif %}>{{ c.label }}</option>{% endfor %}
+  </select>
+  <select name="skill" class="select select-bordered" aria-label="{{ _('Skill') }}">
+    <option value="">{{ _("All skills") }}</option>
+    {% for c in choices.skills %}<option value="{{ c.value }}"{% if view.params.skill == c.value %} selected{% endif %}>{{ c.label }}</option>{% endfor %}
+  </select>
+  <select name="status" class="select select-bordered" aria-label="{{ _('Status') }}">
+    <option value="">{{ _("Every status") }}</option>
+    {% for c in choices.statuses %}<option value="{{ c.value }}"{% if view.params.status == c.value %} selected{% endif %}>{{ c.label }}</option>{% endfor %}
+  </select>
+</form>
+{% include "tasks/_list.html" %}
+{% endblock %}

@@ -1,0 +1,106 @@
+{#
+  fidonis-brand: 2 -- the shell follows the Fidonis interface layout: brand mark, rail / peek / pin
+  sidebar, tinted active row, theme toggle and account menu. The sidebar geometry lives in
+  tailwind.app.css and is driven by <html data-sidebar>, which init.js sets before first paint.
+#}
+{% extends "layout.html" %}
+{% from "macros.html" import brand_mark, theme_toggle %}
+
+{% block body_attrs %} hx-headers='{{ {"X-CSRF-Token": csrf_token}|tojson }}'{% endblock %}
+
+{% block body %}
+<div class="flex">
+
+  <aside class="app-sidebar fixed inset-y-0 left-0 z-30 flex w-64 flex-col border-r border-base-300 bg-base-100">
+
+    <div class="sidebar-row flex items-center gap-3 border-b border-base-300 px-5 py-5">
+      {{ brand_mark() }}
+      <div class="sidebar-label min-w-0 leading-tight">
+        <p class="truncate font-brand text-base font-extrabold tracking-tight">{{ _("Resource Planner") }}</p>
+      </div>
+    </div>
+
+    <nav class="flex flex-1 flex-col gap-0.5 overflow-y-auto px-3 py-4" aria-label="{{ _('Main navigation') }}">
+      {% for group in nav_groups %}
+      <div class="flex flex-col gap-0.5{% if not loop.first %} mt-3 border-t border-base-300 pt-3{% endif %}">
+        <p class="sidebar-label px-3 pb-1 text-xs font-medium uppercase opacity-50">{{ group.label }}</p>
+        {% for item in group.items %}
+        {% set active = nav_active(item, path) %}
+        <a href="{{ item.href }}" aria-label="{{ _(item.label) }}"{% if active %} aria-current="page"{% endif %}
+           class="sidebar-row flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors {{ 'bg-secondary/15 text-secondary font-semibold' if active else 'text-base-content/70 hover:bg-base-300 hover:text-base-content' }}">
+          {{ icon(item.icon) }}
+          <span class="sidebar-label">{{ _(item.label) }}</span>
+        </a>
+        {% endfor %}
+      </div>
+      {% endfor %}
+    </nav>
+
+    <div class="space-y-0.5 border-t border-base-300 px-3 py-3">
+      <button type="button" data-action="toggle-sidebar" aria-label="{{ _('Toggle sidebar') }}"
+              class="sidebar-row flex w-full select-none items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-base-content/70 transition-colors hover:bg-base-300 hover:text-base-content">
+        <span class="sidebar-icon-collapse">{{ icon("layout-sidebar-left-collapse") }}</span>
+        <span class="sidebar-icon-expand">{{ icon("layout-sidebar-left-expand") }}</span>
+        <span class="sidebar-label">{{ _("Collapse") }}</span>
+      </button>
+
+      {{ theme_toggle("sidebar-row flex w-full select-none items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-base-content/70 transition-colors hover:bg-base-300 hover:text-base-content") }}
+
+      <div class="dropdown dropdown-top w-full">
+        <div tabindex="0" role="button" aria-label="{{ _('Account menu for %(name)s', name=me.display_name) }}"
+             class="sidebar-row flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-base-content/70 transition-colors hover:bg-base-300 hover:text-base-content">
+          <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-base-300 text-xs font-bold uppercase text-base-content">{{ me.display_name[:1] }}</span>
+          <span class="sidebar-label truncate">{{ me.display_name }}</span>
+        </div>
+        <ul tabindex="0" class="menu dropdown-content z-10 mb-1 w-56 rounded-box border border-base-300 bg-base-100 p-2 shadow">
+          <li class="menu-title">{{ _("Language") }}</li>
+          {% for choice in available_locales() %}
+          <li>
+            <form method="post" action="/account/language">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+              <button type="submit" name="locale" value="{{ choice.code }}" lang="{{ choice.code|replace('_', '-') }}" class="w-full text-left"{% if current_locale() == choice.code %} aria-current="true"{% endif %}>
+                <span class="inline-block w-4" aria-hidden="true">{% if current_locale() == choice.code %}✓{% endif %}</span>{{ choice.name }}
+              </button>
+            </form>
+          </li>
+          {% endfor %}
+          <li class="menu-title">{{ _("Account") }}</li>
+          <li><a href="/account">{{ _("Your account") }}</a></li>
+          <li><a href="/change-password">{{ _("Change password") }}</a></li>
+          <li>
+            <form method="post" action="/logout" hx-post="/logout" hx-swap="none">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+              <button type="submit" class="w-full text-left">{{ _("Sign out") }}</button>
+            </form>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+  <div class="app-main ml-64 flex min-h-screen w-full min-w-0 flex-col">
+    <header class="sticky top-0 z-20 border-b border-base-300 bg-base-100 px-4 py-4 sm:px-8 sm:py-5">
+      <div class="mx-auto flex w-full max-w-[1680px] flex-wrap items-center justify-between gap-x-4 gap-y-2">
+        <div class="min-w-0">
+          <h1 class="truncate font-brand text-2xl font-bold leading-tight">{% block page_title %}{% endblock %}</h1>
+          {% block page_subtitle %}{% endblock %}
+        </div>
+        <div class="flex flex-wrap items-center gap-3">{% block page_actions %}{% endblock %}</div>
+      </div>
+    </header>
+
+    <div id="toasts" class="toast toast-top toast-end z-50" aria-live="polite"></div>
+
+    <main class="flex-1 px-4 py-5 sm:px-8 sm:py-6">
+      <div class="mx-auto w-full max-w-[1680px]">
+        {% block content %}{% endblock %}
+      </div>
+    </main>
+  </div>
+</div>
+
+<dialog id="modal" class="modal" aria-modal="true">
+  <div class="modal-box max-w-xl" id="modal-body"></div>
+  <form method="dialog" class="modal-backdrop"><button aria-label="{{ _('Close') }}">{{ _("Close") }}</button></form>
+</dialog>
+{% endblock %}

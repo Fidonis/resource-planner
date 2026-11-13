@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _("Planning board") }} · {% endblock %}
+{% block head_scripts %}<script src="{{ asset_url('vendor/sortable.min.js') }}" defer></script>{% endblock %}
+{% block page_title %}{{ _("Planning board") }}{% endblock %}
+{% block page_actions %}
+<a class="btn btn-ghost btn-sm" href="/planning/export.csv?{{ carry_query }}" download>{{ icon("download") }} {{ _("Export CSV") }}</a>
+{% endblock %}
+
+{% block content %}
+{% include "planning/_board.html" %}
+{% endblock %}

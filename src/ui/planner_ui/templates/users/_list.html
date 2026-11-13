@@ -1,0 +1,63 @@
+{% from "macros.html" import pager, empty %}
+<div id="list">
+  {% if rows %}
+  <div class="overflow-x-auto rounded-box border border-base-300 bg-base-100">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>{{ _("Name") }}</th>
+          <th>{{ _("Roles") }}</th>
+          <th>{{ _("Member") }}</th>
+          <th>{{ _("Source") }}</th>
+          <th>{{ _("Status") }}</th>
+          <th>{{ _("Last sign-in") }}</th>
+          <th class="w-px"><span class="sr-only">{{ _("Actions") }}</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in rows %}
+        <tr>
+          <td>
+            <div class="font-medium">{{ user.display_name }}</div>
+            <div class="text-xs opacity-60">{{ user.username }}{% if user.email %} · {{ user.email }}{% endif %}</div>
+          </td>
+          <td>
+            <div class="flex max-w-xs flex-wrap gap-1">
+              {% for role in user.roles %}<span class="badge badge-outline badge-sm" title="{{ role.team_names|join(', ') }}">{{ role.role_name }}{% if role.team_names %} · {{ role.team_names|length }}{% endif %}</span>{% endfor %}
+              {% for external in user.external_roles %}<span class="badge badge-ghost badge-sm" title="{{ _('Role of the identity provider') }}">{{ external }}</span>{% endfor %}
+              {% if not user.roles and not user.external_roles %}<span class="opacity-40">—</span>{% endif %}
+            </div>
+          </td>
+          <td>{{ user.member_name or "—" }}</td>
+          <td>
+            {% if user.auth_provider == "local" %}<span class="badge badge-ghost badge-sm">{{ _("Local") }}</span>{% else %}<span class="badge badge-ghost badge-sm">{{ _("Single sign-on") }}</span>{% endif %}
+          </td>
+          <td>
+            <div class="flex flex-wrap gap-1">
+              {% if user.active %}<span class="badge badge-success badge-sm badge-outline">{{ _("Active") }}</span>{% else %}<span class="badge badge-ghost badge-sm">{{ _("Inactive") }}</span>{% endif %}
+              {% if user.locked %}<span class="badge badge-warning badge-sm">{{ _("Locked") }}</span>{% endif %}
+              {% if user.must_change_password %}<span class="badge badge-info badge-outline badge-sm">{{ _("Must choose a password") }}</span>{% endif %}
+            </div>
+          </td>
+          <td class="whitespace-nowrap text-sm">{% if user.last_login_at %}{{ user.last_login_at|datetime }}{% else %}<span class="opacity-40">—</span>{% endif %}</td>
+          <td>
+            <div class="flex justify-end gap-1">
+              <button type="button" class="btn btn-ghost btn-xs" hx-get="/users/{{ user.id }}/edit" hx-target="#modal-body" hx-swap="innerHTML" aria-label="{{ _('Edit %(name)s', name=user.display_name) }}">{{ icon("pencil") }}</button>
+              {% if user.auth_provider == "local" %}
+              <button type="button" class="btn btn-ghost btn-xs" hx-get="/users/{{ user.id }}/reset-password" hx-target="#modal-body" hx-swap="innerHTML" aria-label="{{ _('Reset the password of %(name)s', name=user.display_name) }}">{{ icon("key") }}</button>
+              {% endif %}
+              {% if user.id != me.user_id %}
+              <button type="button" class="btn btn-ghost btn-xs text-error" hx-get="/users/{{ user.id }}/delete" hx-target="#modal-body" hx-swap="innerHTML" aria-label="{{ _('Delete %(name)s', name=user.display_name) }}">{{ icon("trash") }}</button>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {{ pager(view) }}
+  {% else %}
+  {{ empty(_("No users found."), _("Change the filters, or add the first user.")) }}
+  {% endif %}
+</div>

@@ -1,0 +1,49 @@
+{% from "macros.html" import pager, row_actions, source_badge, status_badge, empty %}
+<div id="list">
+  {% if rows %}
+  <div class="overflow-x-auto rounded-box border border-base-300 bg-base-100">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>{{ _("Key") }}</th>
+          <th>{{ _("Title") }}</th>
+          <th>{{ _("Team") }}</th>
+          <th>{{ _("Status") }}</th>
+          <th>{{ _("Effort") }}</th>
+          <th class="min-w-32">{{ _("Planned") }}</th>
+          <th>{{ _("Source") }}</th>
+          <th class="w-px"><span class="sr-only">{{ _("Actions") }}</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for task in rows %}
+        <tr>
+          <td class="whitespace-nowrap font-mono text-sm">{{ task.key }}</td>
+          <td class="max-w-xs"><div class="truncate font-medium" title="{{ task.title }}">{{ task.title }}</div></td>
+          <td>{{ task.owner_team_name or "—" }}</td>
+          <td>{{ status_badge(task.status.value) }}</td>
+          <td>
+            <div class="flex max-w-sm flex-wrap gap-1">
+              {% for e in task.efforts %}
+              <span class="badge badge-sm {{ 'badge-warning' if e.overplanned else 'badge-outline' }}" title="{{ _('%(skill)s: %(assigned)s of %(effort)s person-days planned', skill=e.skill_name, assigned=e.assigned|days, effort=e.person_days|days) }}">{{ e.skill_key }} {{ e.assigned|days }}/{{ e.person_days|days }}</span>
+              {% else %}<span class="opacity-40">—</span>{% endfor %}
+            </div>
+          </td>
+          <td>
+            <div class="flex items-center gap-2">
+              <progress class="progress progress-secondary w-20" value="{{ task.planned_percent }}" max="100" aria-label="{{ _('Planned') }}"></progress>
+              <span class="text-xs tabular-nums opacity-70">{{ task.planned_percent|number(0) }} %</span>
+            </div>
+          </td>
+          <td>{{ source_badge(task) }}</td>
+          <td>{{ row_actions("tasks", task, task.key) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {{ pager(view) }}
+  {% else %}
+  {{ empty(_("No tasks found."), _("Change the filters, or add the first task.") if can("task:write") else none) }}
+  {% endif %}
+</div>

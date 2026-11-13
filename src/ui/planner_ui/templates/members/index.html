@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% from "macros.html" import search_input %}
+
+{% block title %}{{ _("Members") }} · {% endblock %}
+{% block page_title %}{{ _("Members") }}{% endblock %}
+{% block page_actions %}
+{% if can("member:write") %}
+<button type="button" class="btn btn-primary btn-sm" hx-get="/members/new" hx-target="#modal-body" hx-swap="innerHTML">{{ icon("plus") }} {{ _("New member") }}</button>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<form class="mb-4 flex flex-wrap items-center gap-3" role="search" hx-get="/members" hx-target="#list" hx-swap="outerHTML" hx-trigger="input delay:300ms, change, submit" hx-push-url="true">
+  {{ search_input(view.params.q) }}
+  <select name="team" class="select select-bordered" aria-label="{{ _('Team') }}">
+    <option value="">{{ _("All teams") }}</option>
+    {% for c in choices.teams %}<option value="{{ c.value }}"{% if view.params.team == c.value %} selected{% endif %}>{{ c.label }}</option>{% endfor %}
+  </select>
+  <select name="skill" class="select select-bordered" aria-label="{{ _('Skill') }}">
+    <option value="">{{ _("All skills") }}</option>
+    {% for c in choices.skills %}<option value="{{ c.value }}"{% if view.params.skill == c.value %} selected{% endif %}>{{ c.label }}</option>{% endfor %}
+  </select>
+  <select name="active" class="select select-bordered" aria-label="{{ _('Status') }}">
+    <option value="">{{ _("Active and inactive") }}</option>
+    <option value="yes"{% if view.params.active == "yes" %} selected{% endif %}>{{ _("Active only") }}</option>
+    <option value="no"{% if view.params.active == "no" %} selected{% endif %}>{{ _("Inactive only") }}</option>
+  </select>
+</form>
+{% include "members/_list.html" %}
+{% endblock %}

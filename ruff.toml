@@ -1,0 +1,11 @@
+line-length = 100
+target-version = "py312"
+src = ["src/api", "src/ui", "src/contracts", "tests"]
+extend-exclude = ["src/contracts/planner_client/models.py", "src/ui/node_modules"]
+
+[lint]
+select = ["E", "F", "I", "B", "UP", "N", "RET", "SIM", "ASYNC"]
+
+[lint.per-file-ignores]
+"tests/**" = ["B011"]
+"src/api/migrations/**" = ["N999"]

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _("Runs of %(name)s", name=row.name) }} · {% endblock %}
+{% block page_title %}{{ _("Runs of %(name)s", name=row.name) }}{% endblock %}
+{% block page_actions %}
+<a class="btn btn-ghost btn-sm" href="/integrations">{{ icon("chevron-left") }} {{ _("Integrations") }}</a>
+<button type="button" class="btn btn-primary btn-sm" hx-get="/integrations/{{ row.id }}/sync" hx-target="#modal-body" hx-swap="innerHTML">{{ icon("player-play") }} {{ _("Sync now") }}</button>
+{% endblock %}
+
+{% block content %}
+{% include "integrations/_runs.html" %}
+{% endblock %}

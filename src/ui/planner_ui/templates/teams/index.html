@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% from "macros.html" import search_input %}
+
+{% block title %}{{ _("Teams") }} · {% endblock %}
+{% block page_title %}{{ _("Teams") }}{% endblock %}
+{% block page_actions %}
+{% if can("team:write") %}
+<button type="button" class="btn btn-primary btn-sm" hx-get="/teams/new" hx-target="#modal-body" hx-swap="innerHTML">{{ icon("plus") }} {{ _("New team") }}</button>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<form class="mb-4" role="search" hx-get="/teams" hx-target="#list" hx-swap="outerHTML" hx-trigger="input delay:300ms, submit" hx-push-url="true">
+  {{ search_input(view.params.q) }}
+</form>
+{% include "teams/_list.html" %}
+{% endblock %}

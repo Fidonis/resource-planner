@@ -1,0 +1,36 @@
+{% extends "bare.html" %}
+
+{% block title %}{{ _("Sign in") }} · {% endblock %}
+
+{% block card %}
+<h1 class="font-brand text-xl font-bold">{{ _("Sign in") }}</h1>
+
+{% if error %}
+<div role="alert" class="alert alert-error mt-4 text-sm">{{ icon("alert-triangle") }}<span>{{ error }}</span></div>
+{% endif %}
+
+{% if config.oidc_enabled and config.oidc_login_url %}
+<a href="{{ config.oidc_login_url }}?{{ {'next': next_url}|urlencode }}" class="btn btn-primary mt-5 w-full">{{ icon("key") }} {{ _("Sign in with single sign-on") }}</a>
+{% endif %}
+
+{% if config.local_enabled %}
+{% if config.oidc_enabled and config.oidc_login_url %}
+<div class="divider text-xs opacity-60">{{ _("or with a local account") }}</div>
+{% endif %}
+<form method="post" action="/login" class="mt-5 space-y-4">
+  <input type="hidden" name="login_token" value="{{ login_token }}">
+  <input type="hidden" name="next" value="{{ next_url }}">
+  <div class="form-control">
+    <label class="label-text mb-1 font-medium" for="username">{{ _("User name") }}</label>
+    <input id="username" name="username" type="text" value="{{ username }}" class="input input-bordered w-full" autocomplete="username" autocapitalize="none" required autofocus>
+  </div>
+  <div class="form-control">
+    <label class="label-text mb-1 font-medium" for="password">{{ _("Password") }}</label>
+    <input id="password" name="password" type="password" class="input input-bordered w-full" autocomplete="current-password" required>
+  </div>
+  <button type="submit" class="btn btn-primary w-full">{{ _("Sign in") }}</button>
+</form>
+{% elif not (config.oidc_enabled and config.oidc_login_url) %}
+<p class="mt-4 text-sm opacity-70">{{ _("No way to sign in is switched on. Ask the administrator.") }}</p>
+{% endif %}
+{% endblock %}

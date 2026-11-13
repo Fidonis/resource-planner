@@ -1,0 +1,23 @@
+<form hx-post="/{{ kind.slug }}/import" hx-encoding="multipart/form-data" hx-target="#import-result" hx-swap="innerHTML" hx-disable-elt="find button[type=submit]" class="space-y-4" aria-labelledby="modal-title">
+  <h2 id="modal-title" class="font-brand text-lg font-bold">{{ title }}</h2>
+
+  <div class="form-control">
+    <label class="label-text mb-1 font-medium" for="import-file">{{ _("CSV file") }}</label>
+    <input type="file" id="import-file" name="file" accept=".csv,text/csv" class="file-input file-input-bordered w-full" required>
+    <p class="mt-1 text-xs opacity-60">{{ _("UTF-8, with a header line. The delimiter is a semicolon, comma or tab.") }}</p>
+  </div>
+  {% if kind.offers_skills %}
+  <label class="label cursor-pointer justify-start gap-3">
+    <input type="checkbox" name="create_skills" class="checkbox checkbox-sm">
+    <span class="label-text">{{ _("Create skills the file names and the planner does not know") }}</span>
+  </label>
+  {% endif %}
+
+  <div id="import-result" aria-live="polite"></div>
+
+  <div class="modal-action">
+    <button type="button" class="btn btn-ghost" data-action="close-modal">{{ _("Close") }}</button>
+    <button type="submit" name="mode" value="check" class="btn">{{ _("Check file") }}</button>
+    <button type="submit" name="mode" value="import" class="btn btn-primary">{{ _("Import") }}</button>
+  </div>
+</form>

@@ -1,0 +1,54 @@
+{% from "macros.html" import pager, empty %}
+<div id="list">
+  {% if rows %}
+  <div class="overflow-x-auto rounded-box border border-base-300 bg-base-100">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>{{ _("Role") }}</th>
+          <th>{{ _("Permissions") }}</th>
+          <th class="text-right">{{ _("Accounts") }}</th>
+          <th class="text-right">{{ _("Mapped roles") }}</th>
+          <th>{{ _("Type") }}</th>
+          <th class="w-px"><span class="sr-only">{{ _("Actions") }}</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for role in rows %}
+        <tr>
+          <td>
+            <div class="font-medium">{{ role.name }}</div>
+            <div class="font-mono text-xs opacity-60">{{ role.key }}</div>
+            {% if role.description %}<div class="text-xs opacity-60">{{ role.description }}</div>{% endif %}
+          </td>
+          <td>
+            <details>
+              <summary class="cursor-pointer text-sm">{{ _("%(count)s permissions", count=role.permissions|length) }}</summary>
+              <ul class="mt-1 space-y-0.5 font-mono text-xs">
+                {% for permission in role.permissions %}<li>{{ permission }}</li>{% endfor %}
+              </ul>
+            </details>
+          </td>
+          <td class="text-right tabular-nums">{{ role.user_count }}</td>
+          <td class="text-right tabular-nums">{{ role.mapping_count }}</td>
+          <td>
+            {% if role.builtin %}<span class="badge badge-ghost badge-sm inline-flex gap-1">{{ icon("lock", "h-3 w-3 shrink-0") }}{{ _("Built-in") }}</span>{% else %}<span class="badge badge-outline badge-sm">{{ _("Custom") }}</span>{% endif %}
+          </td>
+          <td>
+            {% if not role.builtin %}
+            <div class="flex justify-end gap-1">
+              <button type="button" class="btn btn-ghost btn-xs" hx-get="/roles/{{ role.id }}/edit" hx-target="#modal-body" hx-swap="innerHTML" aria-label="{{ _('Edit %(name)s', name=role.name) }}">{{ icon("pencil") }}</button>
+              <button type="button" class="btn btn-ghost btn-xs text-error" hx-get="/roles/{{ role.id }}/delete" hx-target="#modal-body" hx-swap="innerHTML" aria-label="{{ _('Delete %(name)s', name=role.name) }}">{{ icon("trash") }}</button>
+            </div>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {{ pager(view) }}
+  {% else %}
+  {{ empty(_("No roles found."), none) }}
+  {% endif %}
+</div>
