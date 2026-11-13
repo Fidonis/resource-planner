@@ -128,6 +128,12 @@ rows a change touched.
   for `updated >= "-<n>m"`, the minutes since the last run plus 30, which does not depend on the time
   zone of the Jira account; reading an issue twice changes nothing. Projects are queried in blocks
   of 100 ids, because Jira Cloud refuses a query without a bound.
+- Jira Cloud pages are followed by `nextPageToken` alone: `isLast` is documented but is not always
+  sent, so a missing one does not end the read. A token that comes again, or more than 10,000
+  pages, fails the run, because a read taken for complete too early would cancel tasks.
+- A provider gets its settings, not the mapping, so the Jira provider cannot see which fields
+  `customFieldSkills` names. They are listed again under *Effort fields* and handed over as
+  `custom_fields`, under the field's id, its names and the name typed in the setting.
 - A stored secret is used for loading choices only while the settings marked `x-connection` are
   unchanged; saving an integration with a changed address still keeps the stored secret, as before.
 - A source that is read completely lets the engine close what has disappeared (`missing` in the

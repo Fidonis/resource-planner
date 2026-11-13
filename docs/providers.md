@@ -72,9 +72,14 @@ source to the owning team) and `missing`.
 ## Jira (`jira`)
 
 Brings the issues of Jira Cloud or Jira Data Center / Server in as tasks, through version 2 of the
-REST API. The effort per skill is not taken from Jira: keep the mapping's `effortStrategy` at
-`MANUAL` (the default) and enter it in the planner; the other strategies work with the labels and
-use the story points as the estimate.
+REST API. By default the effort per skill is not taken from Jira: keep the mapping's
+`effortStrategy` at `MANUAL` (the default) and enter it in the planner. `EVEN_SPLIT` and
+`LABEL_ENCODED` work with the labels and use the story points as the estimate. For
+`CUSTOM_FIELDS`, name the Jira fields that hold an effort under *Effort fields* (id or name, for
+example `Effort Backend`) and assign them to skills in the mapping's `customFieldSkills`
+(`Backend=Effort Backend`). The mapping may use the field's id, its name or the name typed under
+*Effort fields*. Without *Effort fields* this strategy imports no effort, and the efforts of the
+new tasks still belong to Jira.
 
 **Signing in**
 
@@ -93,7 +98,9 @@ a year at the latest); a refused token makes the run fail with a message that sa
   `ALL` imports every project the account can see. A selected project that is no longer visible
   (removed, archived, no permission) is reported, and that run closes nothing.
 - *Issue types*: ticked types only; with none ticked, every standard type without epics and
-  sub-tasks, so that no work is counted twice.
+  sub-tasks, so that no work is counted twice. A ticked type that Jira no longer knows is
+  reported and left out, and that run closes nothing; when none of the ticked types is left,
+  nothing is read.
 - *Leave out issues done longer ago*: a complete read skips issues finished more than this many
   days ago (90 by default, 0 reads all). Runs that read changes see every issue that changed.
 - *Additional JQL* is added with `AND`, for example `labels = planning`.
@@ -112,9 +119,15 @@ a year at the latest); a refused token makes the run fail with a message that sa
 | Link | `<Jira URL>/browse/<key>` |
 
 **Test** reports the account, the number of visible projects and which fields were found for
-story points and the start date. A field that is set but does not exist stops the run; one that
+story points, the start date and the efforts, and fails for a selected project or a ticked issue
+type that Jira does not know. A field that is set but does not exist stops the run; one that
 is not found automatically is left empty. Jira asks to slow down with `429`; the provider waits
 and tries again up to four times.
+
+The pages of a query are followed until Jira sends no further page: on Jira Cloud until there is
+no `nextPageToken`, on Data Center until `total` is reached or a page is empty. A read that does
+not end (the same page token again, or more than 10,000 pages) stops the run as failed, so that
+it closes nothing.
 
 Assignee and reporter are personal data: they are stored as display names, shown to everybody who
 may read tasks, and removed with the task.

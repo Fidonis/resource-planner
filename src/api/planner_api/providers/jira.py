@@ -7,7 +7,8 @@ used on both, so that descriptions come as text and not as Atlassian Document Fo
 
 Issues become tasks with their planning attributes (due date, start date, original estimate,
 story points, priority, assignee, reporter). The effort per skill is not read from Jira: with the
-mapping's default strategy ``MANUAL`` it is entered in the planner.
+mapping's default strategy ``MANUAL`` it is entered in the planner. For ``CUSTOM_FIELDS`` the
+fields named under *Effort fields* are handed to the mapping.
 """
 
 from __future__ import annotations
@@ -15,7 +16,7 @@ from __future__ import annotations
 import asyncio
 import math
 import random
-from collections.abc import AsyncIterator, Iterable, Sequence
+from collections.abc import AsyncIterator, Iterable, Mapping, Sequence
 from contextlib import asynccontextmanager
 from datetime import UTC, date, datetime
 from decimal import Decimal, InvalidOperation
@@ -44,6 +45,9 @@ TIMEOUT = httpx.Timeout(30.0, connect=10.0)
 CHUNK = 100  # projects per query: Jira refuses a query without a bound, and very long ones
 RETRIES = 4
 MAX_WAIT = 30.0
+# Pages of one query at most: a guard against a Jira that keeps answering with more pages. A run
+# that hits it fails, so it closes nothing.
+MAX_PAGES = 10_000
 # Jira finds an issue a moment after it changed, so a run reads the minutes before the last one
 # again; reading an issue twice changes nothing.
 OVERLAP_MINUTES = 30
@@ -160,6 +164,13 @@ class JiraConfig(ConfigModel):
         title="Start date field",
         description="Id or name of the field. Empty: found by its name or type.",
     )
+    effort_fields: list[str] = Field(
+        default_factory=list,
+        max_length=50,
+        title="Effort fields",
+        description="Only for the effort strategy CUSTOM_FIELDS: ids or names of the fields that "
+        "hold an effort, for example Effort Backend. The mapping assigns them to skills.",
+    )
     verify_tls: bool = Field(
         default=True,
         title="Verify the certificate",
@@ -183,6 +194,18 @@ class JiraConfig(ConfigModel):
         selected = info.data.get("project_scope") == "SELECTED"
         if selected and not cleaned and not is_draft(info.context):
             raise ValueError("Choose at least one project, or import all projects.")
+        return cleaned
+
+    @field_validator("effort_fields")
+    @classmethod
+    def _named_fields(cls, value: list[str]) -> list[str]:
+        cleaned: list[str] = []
+        for item in value:
+            name = item.strip()
+            if len(name) > 200:
+                raise ValueError("A field name is longer than 200 characters.")
+            if name and name.lower() not in {c.lower() for c in cleaned}:
+                cleaned.append(name)
         return cleaned
 
     @property
@@ -235,13 +258,40 @@ def _name(value: Any) -> str | None:
     return None
 
 
+def _plain(value: Any) -> str | int | float | None:
+    """The value of a field as the mapping reads it: a number or a text, or ``None``."""
+    if isinstance(value, dict):  # a choice of a select list
+        value = value.get("value")
+    if isinstance(value, bool) or not isinstance(value, str | int | float):
+        return None
+    if isinstance(value, str) and not value.strip():
+        return None
+    return value
+
+
+def _custom_fields(
+    fields: dict[str, Any], effort_fields: Mapping[str, Sequence[str]]
+) -> dict[str, Any]:
+    """The effort fields of an issue under every name the mapping may use for them."""
+    found: dict[str, Any] = {}
+    for field_id, names in effort_fields.items():
+        value = _plain(fields.get(field_id))
+        if value is not None:
+            found.update(dict.fromkeys(names, value))
+    return found
+
+
 def issue_to_task(
     issue: dict[str, Any],
     site_url: str,
     story_point_fields: Sequence[str],
     start_date_fields: Sequence[str],
+    effort_fields: Mapping[str, Sequence[str]] | None = None,
 ) -> ExternalTask:
-    """One issue as a task. Raises ``ValueError`` for an issue that cannot be read."""
+    """One issue as a task. Raises ``ValueError`` for an issue that cannot be read.
+
+    ``effort_fields`` maps the id of a field to the names it is handed to the mapping under.
+    """
     key = str(issue.get("key") or "")
     fields: dict[str, Any] = issue.get("fields") or {}
     title = str(fields.get("summary") or "").strip()
@@ -284,6 +334,7 @@ def issue_to_task(
         labels=tuple(str(label) for label in fields.get("labels") or ()),
         estimate=points,
         estimate_unit="points" if points is not None else None,
+        custom_fields=_custom_fields(fields, effort_fields or {}),
         team_hint=(fields.get("project") or {}).get("key"),
         due_date=_date(fields.get("duedate"), "due date"),
         start_date=start,
@@ -343,6 +394,23 @@ def find_fields(
         if kind in types or label in names:
             found.append(str(row["id"]))
     return found
+
+
+def find_effort_fields(
+    fields: Iterable[dict[str, Any]], configured: Sequence[str]
+) -> dict[str, tuple[str, ...]]:
+    """The effort fields by id, each with the names the mapping may know it by.
+
+    Raises ``ProviderError`` for a field that Jira does not have, as for the story points field.
+    """
+    rows = list(fields)
+    found: dict[str, set[str]] = {}
+    for wanted in configured:
+        field_id = find_fields(rows, wanted, ())[0]
+        row = next(r for r in rows if str(r["id"]) == field_id)
+        names = {wanted, field_id, *(str(row.get(k) or "") for k in ("name", "untranslatedName"))}
+        found.setdefault(field_id, set()).update(n for n in names if n)
+    return {field_id: tuple(sorted(names)) for field_id, names in found.items()}
 
 
 def standard_types(types: Iterable[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -450,10 +518,15 @@ class _Jira:
         return [t for t in found if isinstance(t, dict) and t.get("id")]
 
     async def search(self, jql: str, fields: Sequence[str]) -> AsyncIterator[dict[str, Any]]:
+        """The issues of a query, page by page.
+
+        A read that cannot be finished raises ``ProviderError``: the run fails and closes nothing,
+        instead of taking the pages it got for the whole source.
+        """
         size = self.config.page_size
         if self.config.deployment == "DATA_CENTER":
             start = 0
-            while True:
+            for _ in range(MAX_PAGES):
                 page = await self.call(
                     "POST",
                     "search",
@@ -463,19 +536,29 @@ class _Jira:
                 for issue in issues:
                     yield issue
                 start += len(issues)
-                if not issues or start >= int(page.get("total") or 0):
+                total = page.get("total")
+                # Without a total, the pages end with an empty one.
+                if not issues or (total is not None and start >= int(total)):
                     return
+            raise ProviderError(f"Jira answered more than {MAX_PAGES} pages: the read was stopped.")
+        # Jira Cloud: the token decides. ``isLast`` is not always sent, so its absence does not end
+        # the read; a page without a token is the last one.
         token: str | None = None
-        while True:
+        seen: set[str] = set()
+        for _ in range(MAX_PAGES):
             body: dict[str, Any] = {"jql": jql, "fields": list(fields), "maxResults": size}
             if token:
                 body["nextPageToken"] = token
             page = await self.call("POST", "search/jql", json=body)
             for issue in page.get("issues") or []:
                 yield issue
-            token = page.get("nextPageToken")
-            if page.get("isLast", True) or not token:
+            token = page.get("nextPageToken") or None
+            if page.get("isLast") is True or token is None:
                 return
+            if token in seen:
+                raise ProviderError("Jira sent the same page again: the read was stopped.")
+            seen.add(token)
+        raise ProviderError(f"Jira answered more than {MAX_PAGES} pages: the read was stopped.")
 
 
 class JiraTaskSource(ProviderBase):
@@ -521,6 +604,11 @@ class JiraTaskSource(ProviderBase):
                 starts = find_fields(
                     fields, config.start_date_field, START_DATE_NAMES, START_DATE_TYPES
                 )
+                efforts = find_effort_fields(fields, config.effort_fields)
+                unknown_types: list[str] = []
+                if config.issue_types:
+                    known = {str(t["id"]) for t in await jira.issue_types()}
+                    unknown_types = [t for t in config.issue_types if t not in known]
         except ProviderError as exc:
             return TestResult(False, str(exc))
         who = me.get("displayName") or me.get("name") or "an account without a name"
@@ -531,14 +619,25 @@ class JiraTaskSource(ProviderBase):
         parts.append(
             f"Start date: {', '.join(starts)}." if starts else "Start date: no field found."
         )
-        details = {"projects": len(projects), "storyPoints": points, "startDate": starts}
+        if efforts:
+            parts.append(f"Effort fields: {', '.join(efforts)}.")
+        details = {
+            "projects": len(projects),
+            "storyPoints": points,
+            "startDate": starts,
+            "effortFields": list(efforts),
+        }
+        ok = True
         if config.project_scope == "SELECTED":
             visible = {str(p["id"]) for p in projects}
             hidden = [p for p in config.projects if p not in visible]
             if hidden:
                 parts.append(f"Not visible to the account: project {', '.join(hidden)}.")
-                return TestResult(False, " ".join(parts), details)
-        return TestResult(True, " ".join(parts), details)
+                ok = False
+        if unknown_types:
+            parts.append(f"Unknown to Jira: issue type {', '.join(unknown_types)}.")
+            ok = False
+        return TestResult(ok, " ".join(parts), details)
 
     async def field_options(self, config: BaseModel, field: str) -> list[FieldOption]:
         assert isinstance(config, JiraConfig)
@@ -572,6 +671,7 @@ class JiraTaskSource(ProviderBase):
             starts = find_fields(
                 fields, config.start_date_field, START_DATE_NAMES, START_DATE_TYPES
             )
+            efforts = find_effort_fields(fields, config.effort_fields)
             visible = [str(p["id"]) for p in await jira.projects()]
             if config.project_scope == "ALL":
                 wanted = visible
@@ -585,14 +685,27 @@ class JiraTaskSource(ProviderBase):
                         "The project is not visible to the account (removed, archived or no "
                         "permission).",
                     )
-            types = list(config.issue_types)
-            if not types:
-                types = [str(t["id"]) for t in standard_types(await jira.issue_types())]
+            all_types = await jira.issue_types()
+            if config.issue_types:
+                known = {str(t["id"]) for t in all_types}
+                types = [t for t in config.issue_types if t in known]
+                for gone in (t for t in config.issue_types if t not in known):
+                    # Reported like a hidden project: left out of the query, and this run closes
+                    # nothing.
+                    yield SourceProblem(
+                        f"issue type {gone}",
+                        "Jira does not know the issue type (removed, or not visible to the "
+                        "account).",
+                    )
+                if not types:
+                    return  # none of the ticked types is left: reading all of them is not meant
+            else:
+                types = [str(t["id"]) for t in standard_types(all_types)]
             minutes = None
             if since is not None:
                 elapsed = (datetime.now(UTC) - since).total_seconds() / 60
                 minutes = max(0, math.ceil(elapsed)) + OVERLAP_MINUTES
-            wanted_fields = [*BASE_FIELDS, *SYSTEM_FIELDS, *points, *starts]
+            wanted_fields = [*BASE_FIELDS, *SYSTEM_FIELDS, *points, *starts, *efforts]
             for block in range(0, len(wanted), CHUNK):
                 jql = build_jql(
                     wanted[block : block + CHUNK],
@@ -603,6 +716,6 @@ class JiraTaskSource(ProviderBase):
                 )
                 async for issue in jira.search(jql, wanted_fields):
                     try:
-                        yield issue_to_task(issue, config.site_url, points, starts)
+                        yield issue_to_task(issue, config.site_url, points, starts, efforts)
                     except ValueError as exc:
                         yield SourceProblem(str(issue.get("key") or issue.get("id")), str(exc))

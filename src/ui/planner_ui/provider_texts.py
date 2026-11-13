@@ -68,6 +68,11 @@ BUILT_IN_TEXTS: tuple[str, ...] = (
     N_("Id or name of the field, for example customfield_10016. Empty: found by its name."),
     N_("Start date field"),
     N_("Id or name of the field. Empty: found by its name or type."),
+    N_("Effort fields"),
+    N_(
+        "Only for the effort strategy CUSTOM_FIELDS: ids or names of the fields that hold an "
+        "effort, for example Effort Backend. The mapping assigns them to skills."
+    ),
     N_("CSV file (tasks)"),
     N_("Path of the CSV file below the import directory, for example tasks.csv."),
     N_("Effort strategy"),

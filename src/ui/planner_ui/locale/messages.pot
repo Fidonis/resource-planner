@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Resource Planner \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-13 19:06+0100\n"
+"POT-Creation-Date: 2026-11-13 20:49+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -472,6 +472,16 @@ msgstr ""
 
 #: provider_texts.py
 msgid "Id or name of the field. Empty: found by its name or type."
+msgstr ""
+
+#: provider_texts.py
+msgid "Effort fields"
+msgstr ""
+
+#: provider_texts.py
+msgid ""
+"Only for the effort strategy CUSTOM_FIELDS: ids or names of the fields that hold an effort, for "
+"example Effort Backend. The mapping assigns them to skills."
 msgstr ""
 
 #: provider_texts.py

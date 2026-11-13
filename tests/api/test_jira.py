@@ -23,6 +23,7 @@ from planner_api.providers.jira import (
     JiraConfig,
     JiraTaskSource,
     build_jql,
+    find_effort_fields,
     find_fields,
     issue_to_task,
     standard_types,
@@ -36,7 +37,7 @@ PROJECTS = [
     {"id": "10000", "key": "WEB", "name": "Web shop"},
     {"id": "10001", "key": "APP", "name": "App"},
 ]
-CLOUD_FIELDS = [
+CLOUD_FIELDS: list[dict[str, Any]] = [
     {"id": "summary", "name": "Summary", "custom": False, "schema": {"system": "summary"}},
     {
         "id": "customfield_10016",
@@ -51,6 +52,8 @@ CLOUD_FIELDS = [
         "custom": True,
         "schema": {"custom": "com.atlassian.jira.plugin.system.customfieldtypes:datepicker"},
     },
+    {"id": "customfield_10100", "name": "Aufwand Backend", "untranslatedName": "Effort Backend"},
+    {"id": "customfield_10101", "name": "Effort Frontend", "custom": True},
 ]
 DC_FIELDS = [
     {"id": "customfield_10002", "name": "Story Points", "custom": True, "schema": {}},
@@ -108,6 +111,10 @@ class FakeJira:
     page: int = 2  # fewer than asked for: the provider has to follow the pages
     busy: int = 0  # answers 429 that many times first
     anonymous: bool = False
+    # How Jira Cloud ends its pages: "isLast" as documented, "token" sends no isLast at all,
+    # "loop" sends the same token again and again with isLast false.
+    paging: str = "isLast"
+    send_total: bool = True  # Data Center: whether the answer has a total
     queries: list[dict[str, Any]] = field(default_factory=list)
 
     def authorised(self, request: httpx.Request) -> bool:
@@ -150,15 +157,20 @@ class FakeJira:
                 start = int(body.get("nextPageToken") or 0)
                 chunk = found[start : start + self.page]
                 more = start + self.page < len(found)
-                answer: dict[str, Any] = {"issues": chunk, "isLast": not more}
-                if more:
+                answer: dict[str, Any] = {"issues": chunk}
+                if self.paging == "loop":
+                    answer |= {"nextPageToken": "0", "isLast": False}
+                elif more:
                     answer["nextPageToken"] = str(start + self.page)
+                if self.paging == "isLast":
+                    answer["isLast"] = not more
                 return httpx.Response(200, json=answer, headers=headers)
             start = int(body["startAt"])
             chunk = found[start : start + self.page]
-            return httpx.Response(
-                200, json={"issues": chunk, "total": len(found), "startAt": start}
-            )
+            dc_answer: dict[str, Any] = {"issues": chunk, "startAt": start}
+            if self.send_total:
+                dc_answer["total"] = len(found)
+            return httpx.Response(200, json=dc_answer)
         return httpx.Response(404)
 
 
@@ -379,6 +391,88 @@ async def test_a_busy_jira_is_asked_again(
         await read(config())
 
 
+@pytest.mark.parametrize("paging", ["isLast", "token"])
+async def test_jira_cloud_pages_are_followed_by_their_token(
+    paging: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    fake = serve(monkeypatch, FakeJira(issues=[issue(n) for n in range(1, 6)], paging=paging))
+    tasks = await read(config())
+    assert [t.key for t in tasks] == [f"WEB-{n}" for n in range(1, 6)]
+    assert len(fake.queries) == 3
+
+
+async def test_data_center_pages_without_a_total_end_with_an_empty_page(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    fake = serve(
+        monkeypatch,
+        FakeJira("DATA_CENTER", issues=[issue(n) for n in range(1, 6)], send_total=False),
+    )
+    tasks = await read(config("DATA_CENTER"))
+    assert [t.key for t in tasks] == [f"WEB-{n}" for n in range(1, 6)]
+    assert [q["startAt"] for q in fake.queries] == [0, 2, 4, 5]
+
+
+@pytest.mark.parametrize("edition", ["CLOUD", "DATA_CENTER"])
+async def test_a_read_that_does_not_end_is_stopped(
+    edition: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    issues = [issue(n) for n in range(1, 6)]
+    if edition == "CLOUD":
+        serve(monkeypatch, FakeJira(issues=issues, paging="loop"))
+        with pytest.raises(ProviderError, match="same page again"):
+            await read(config())
+    monkeypatch.setattr(jira, "MAX_PAGES", 2)
+    serve(monkeypatch, FakeJira(edition, issues=issues))
+    with pytest.raises(ProviderError, match="more than 2 pages"):
+        await read(config(edition))
+
+
+def test_effort_fields_are_found_and_handed_over_under_their_names() -> None:
+    found = find_effort_fields(CLOUD_FIELDS, ["effort backend", "customfield_10101"])
+    assert found == {
+        "customfield_10100": (
+            "Aufwand Backend",
+            "Effort Backend",
+            "customfield_10100",
+            "effort backend",
+        ),
+        "customfield_10101": ("Effort Frontend", "customfield_10101"),
+    }
+    with pytest.raises(ProviderError, match="no field 'Effort QA'"):
+        find_effort_fields(CLOUD_FIELDS, ["Effort QA"])
+    raw = issue(1, customfield_10100=2.5, customfield_10101={"value": "1,5"})
+    task = issue_to_task(raw, SITE, [], [], found)
+    assert task.custom_fields["Effort Backend"] == 2.5
+    assert task.custom_fields["customfield_10100"] == 2.5
+    assert task.custom_fields["Effort Frontend"] == "1,5"
+    empty = issue_to_task(
+        issue(2, customfield_10100=None, customfield_10101=" "), SITE, [], [], found
+    )
+    assert dict(empty.custom_fields) == {}
+
+
+async def test_ticked_issue_types_that_jira_does_not_know_are_reported(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    fake = serve(monkeypatch, FakeJira(issues=[issue(1)]))
+    found = await read(config(issueTypes=["2", "77"]))
+    problems = [f for f in found if isinstance(f, SourceProblem)]
+    assert [p.reference for p in problems] == ["issue type 77"]
+    assert [f.key for f in found if not isinstance(f, SourceProblem)] == ["WEB-1"]
+    assert "issuetype in (2)" in fake.queries[-1]["jql"]
+
+    asked = len(fake.queries)
+    found = await read(config(issueTypes=["77"]))
+    assert [f.reference for f in found] == ["issue type 77"]  # nothing else read
+    assert len(fake.queries) == asked
+
+    result = await JiraTaskSource(Settings()).test_connection(
+        JiraConfig.model_validate(config(issueTypes=["1", "77"]))
+    )
+    assert result.ok is False and "issue type 77" in result.message
+
+
 async def test_projects_and_issue_types_are_offered_as_choices(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -500,6 +594,53 @@ async def test_a_sync_brings_in_issues_with_their_values_and_keeps_efforts_here(
     found = await tasks_by_key(admin)
     assert found["WEB-1"]["status"] == "cancelled" and found["APP-1"]["status"] == "open"
     assert found["WEB-1"]["efforts"][0]["personDays"] == 4
+
+
+async def test_custom_fields_bring_the_effort_per_skill(
+    sync_api: Api, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    serve(
+        monkeypatch,
+        FakeJira(issues=[issue(1, customfield_10100=2.5, customfield_10101=None)]),
+    )
+    admin = await sync_api.admin()
+    await admin.create("/api/v1/skills", {"key": "Backend", "name": "Backend"})
+    made = await admin.create(
+        INTEGRATIONS,
+        {
+            "name": "Jira",
+            "type": "task_source",
+            "providerKey": "jira",
+            "config": config(effortFields=["Effort Backend", "Effort Frontend"]),
+            "mapping": {
+                "effortStrategy": "CUSTOM_FIELDS",
+                "customFieldSkills": {"Backend": "effort backend", "Frontend": "Effort Frontend"},
+            },
+            "enabled": True,
+        },
+    )
+    run = await sync(admin, made["id"])
+    assert run["status"] == "success", run["log"]
+    web = (await tasks_by_key(admin))["WEB-1"]
+    assert [(e["skillKey"], e["personDays"]) for e in web["efforts"]] == [("Backend", 2.5)]
+    assert "efforts" in web["managedFields"]
+
+
+async def test_a_read_that_is_stopped_closes_nothing(
+    sync_api: Api, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    fake = serve(monkeypatch, FakeJira(issues=[issue(n) for n in range(1, 6)]))
+    admin = await sync_api.admin()
+    made = await jira_integration(admin)
+    first = await sync(admin, made["id"])
+    assert counts(first)[0] == 5
+
+    fake.paging = "loop"
+    stopped = await sync(admin, made["id"], full="true")
+    assert stopped["status"] == "failed"
+    assert any("same page again" in e["message"] for e in stopped["log"])
+    found = await tasks_by_key(admin)
+    assert {found[f"WEB-{n}"]["status"] for n in range(1, 6)} == {"open"}
 
 
 async def test_choices_come_from_jira_for_a_draft_and_a_stored_integration(

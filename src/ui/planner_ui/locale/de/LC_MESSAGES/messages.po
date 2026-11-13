@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Resource Planner \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-13 19:07+0100\n"
+"POT-Creation-Date: 2026-11-13 20:49+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Resource Planner contributors\n"
 "Language: de\n"
@@ -498,6 +498,18 @@ msgstr "Feld für das Startdatum"
 #: provider_texts.py
 msgid "Id or name of the field. Empty: found by its name or type."
 msgstr "ID oder Name des Felds. Leer: wird über Namen oder Typ gefunden."
+
+#: provider_texts.py
+msgid "Effort fields"
+msgstr "Aufwandsfelder"
+
+#: provider_texts.py
+msgid ""
+"Only for the effort strategy CUSTOM_FIELDS: ids or names of the fields that hold an effort, for "
+"example Effort Backend. The mapping assigns them to skills."
+msgstr ""
+"Nur für die Aufwandsstrategie CUSTOM_FIELDS: IDs oder Namen der Felder, die einen Aufwand "
+"enthalten, zum Beispiel Effort Backend. Das Mapping ordnet sie den Fähigkeiten zu."
 
 #: provider_texts.py
 msgid "CSV file (tasks)"
