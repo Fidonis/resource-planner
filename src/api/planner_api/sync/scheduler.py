@@ -82,7 +82,8 @@ class SyncScheduler:
 
     async def _run(self, integration_id: uuid.UUID) -> None:
         try:
-            await self.engine.run(integration_id, triggered_by="schedule")
+            full = await self.engine.full_due(integration_id)
+            await self.engine.run(integration_id, full=full, triggered_by="schedule")
         except ProblemError as exc:
             level = logging.INFO if exc.code == ErrorCode.SYNC_RUNNING else logging.WARNING
             log.log(level, "scheduled sync of %s skipped: %s", integration_id, exc.detail)

@@ -26,7 +26,7 @@
             {% if row.enabled %}<span class="badge badge-success badge-sm badge-outline">{{ _("Enabled") }}</span>
             {% else %}<span class="badge badge-ghost badge-sm">{{ _("Off") }}</span>{% endif %}
           </td>
-          <td class="whitespace-nowrap font-mono text-xs">{% if row.schedule %}{{ row.schedule }}{% else %}<span class="font-sans opacity-40">{{ _("manual") }}</span>{% endif %}</td>
+          <td class="whitespace-nowrap font-mono text-xs">{% if row.schedule and row.schedule in schedule_names %}<span class="font-sans">{{ _(schedule_names[row.schedule]) }}</span>{% elif row.schedule %}{{ row.schedule }}{% else %}<span class="font-sans opacity-40">{{ _("manual") }}</span>{% endif %}</td>
           <td class="whitespace-nowrap text-sm">
             {% if row.last_sync_at %}
             <span>{{ row.last_sync_at|datetime }}</span>

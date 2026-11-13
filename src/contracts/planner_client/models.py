@@ -649,6 +649,67 @@ class FieldError(BaseModel):
     message: Annotated[str, Field(title='Message')]
 
 
+class FieldOptionOut(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    label: Annotated[str, Field(description='What is shown.', title='Label')]
+    value: Annotated[
+        str,
+        Field(description='What is stored when the choice is selected.', title='Value'),
+    ]
+
+
+class Type(StrEnum):
+    task_source = 'task_source'
+    directory = 'directory'
+    absence_source = 'absence_source'
+
+
+class FieldOptionsIn(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    config: Annotated[
+        dict[str, Any],
+        Field(
+            description='The settings as the form has them now; they need not be complete.',
+            title='Config',
+        ),
+    ]
+    field: Annotated[
+        str,
+        Field(
+            description='The setting whose choices are wanted; its schema carries `x-remoteOptions`.',
+            examples=['projects'],
+            max_length=120,
+            title='Field',
+        ),
+    ]
+    integration_id: Annotated[
+        UUID | None,
+        Field(
+            alias='integrationId',
+            description='The integration being edited. Its stored secrets are used for secrets left empty in `config`, as long as the connection settings are unchanged.',
+            title='Integrationid',
+        ),
+    ] = None
+    provider_key: Annotated[
+        str,
+        Field(
+            alias='providerKey', examples=['jira'], max_length=64, title='Providerkey'
+        ),
+    ]
+    type: Annotated[Type, Field(title='Type')]
+
+
+class FieldOptionsOut(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    items: Annotated[list[FieldOptionOut], Field(title='Items')]
+
+
 class GrantOut(BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,
@@ -1011,12 +1072,6 @@ class Schedule(RootModel[str]):
             title='Schedule',
         ),
     ]
-
-
-class Type(StrEnum):
-    task_source = 'task_source'
-    directory = 'directory'
-    absence_source = 'absence_source'
 
 
 class IntegrationIn(BaseModel):

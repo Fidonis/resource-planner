@@ -51,6 +51,7 @@ PERMISSIONS: dict[str, str] = {
     "ingest_tasks": "ingest:write",
     "integrations_create": "integration:admin",
     "integrations_delete": "integration:admin",
+    "integrations_field_options": "integration:admin",
     "integrations_get": "integration:admin",
     "integrations_list": "integration:admin",
     "integrations_providers": "integration:admin",
@@ -700,6 +701,18 @@ class PlannerApi(ClientBase):
             creds,
             query={"detach": detach, "version": version},
             if_match=if_match,
+        )
+
+    async def integrations_field_options(
+        self, creds: Credentials, *, body: models.FieldOptionsIn
+    ) -> models.FieldOptionsOut:
+        """Load the choices of a setting from the source"""
+        return await self._fetch(
+            "POST",
+            "/api/v1/integrations/field-options",
+            creds,
+            body=body,
+            response=models.FieldOptionsOut,
         )
 
     async def integrations_get(

@@ -38,6 +38,33 @@ class ProviderList(ApiModel):
     items: list[ProviderInfo]
 
 
+class FieldOptionsIn(ApiModel):
+    type: IntegrationType
+    provider_key: str = Field(max_length=64, examples=["jira"])
+    integration_id: uuid.UUID | None = Field(
+        default=None,
+        description="The integration being edited. Its stored secrets are used for secrets left "
+        "empty in `config`, as long as the connection settings are unchanged.",
+    )
+    config: dict[str, Any] = Field(
+        description="The settings as the form has them now; they need not be complete."
+    )
+    field: str = Field(
+        max_length=120,
+        description="The setting whose choices are wanted; its schema carries `x-remoteOptions`.",
+        examples=["projects"],
+    )
+
+
+class FieldOptionOut(ApiModel):
+    value: str = Field(description="What is stored when the choice is selected.")
+    label: str = Field(description="What is shown.")
+
+
+class FieldOptionsOut(ApiModel):
+    items: list[FieldOptionOut]
+
+
 class IntegrationIn(ApiModel):
     name: Name
     type: IntegrationType

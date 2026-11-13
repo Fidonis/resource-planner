@@ -2169,6 +2169,99 @@
         "title": "FieldError",
         "type": "object"
       },
+      "FieldOptionOut": {
+        "properties": {
+          "label": {
+            "description": "What is shown.",
+            "title": "Label",
+            "type": "string"
+          },
+          "value": {
+            "description": "What is stored when the choice is selected.",
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "value",
+          "label"
+        ],
+        "title": "FieldOptionOut",
+        "type": "object"
+      },
+      "FieldOptionsIn": {
+        "properties": {
+          "config": {
+            "additionalProperties": true,
+            "description": "The settings as the form has them now; they need not be complete.",
+            "title": "Config",
+            "type": "object"
+          },
+          "field": {
+            "description": "The setting whose choices are wanted; its schema carries `x-remoteOptions`.",
+            "examples": [
+              "projects"
+            ],
+            "maxLength": 120,
+            "title": "Field",
+            "type": "string"
+          },
+          "integrationId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The integration being edited. Its stored secrets are used for secrets left empty in `config`, as long as the connection settings are unchanged.",
+            "title": "Integrationid"
+          },
+          "providerKey": {
+            "examples": [
+              "jira"
+            ],
+            "maxLength": 64,
+            "title": "Providerkey",
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "task_source",
+              "directory",
+              "absence_source"
+            ],
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "providerKey",
+          "config",
+          "field"
+        ],
+        "title": "FieldOptionsIn",
+        "type": "object"
+      },
+      "FieldOptionsOut": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/FieldOptionOut"
+            },
+            "title": "Items",
+            "type": "array"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "FieldOptionsOut",
+        "type": "object"
+      },
       "GrantOut": {
         "properties": {
           "permission": {
@@ -12249,6 +12342,117 @@
           }
         ],
         "summary": "Create an integration",
+        "tags": [
+          "integrations"
+        ],
+        "x-permission": "integration:admin"
+      }
+    },
+    "/api/v1/integrations/field-options": {
+      "post": {
+        "description": "For a setting whose schema carries `x-remoteOptions` (for example the projects of a tracker): the provider reads the choices with the settings given, which may be a draft that is not saved yet. Errors of the source come back as `PROVIDER_ERROR`; when the connection settings of an existing integration were changed, its stored secret is not used (`secret_needed`).",
+        "operationId": "integrations_field_options",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FieldOptionsIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FieldOptionsOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Authentication is missing or invalid."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The permission is missing, or the CSRF check failed."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The resource does not exist."
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The change conflicts with the current state."
+          },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The If-Match version is out of date."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request is not valid."
+          },
+          "428": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "An If-Match version is required."
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Load the choices of a setting from the source",
         "tags": [
           "integrations"
         ],

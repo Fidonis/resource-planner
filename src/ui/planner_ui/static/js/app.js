@@ -121,6 +121,29 @@
     target.hidden = !open;
   }
 
+  // Fields shown only while another input has a value (data-show-when / data-show-value).
+  function applyShowWhen(root) {
+    var scope = root && root.querySelectorAll ? root : document;
+    var fields = scope.querySelectorAll("[data-show-when]");
+    if (scope.matches && scope.matches("[data-show-when]")) fields = [scope].concat([].slice.call(fields));
+    [].forEach.call(fields, function (field) {
+      var form = field.closest("form") || document;
+      var control = form.querySelector('[name="' + field.getAttribute("data-show-when") + '"]');
+      if (!control) return;
+      field.hidden = control.value !== field.getAttribute("data-show-value");
+    });
+  }
+
+  // A search box over a list of check boxes (the choices loaded from a source).
+  function filterChoices(input) {
+    var list = document.getElementById(input.getAttribute("aria-controls") || "");
+    if (!list) return;
+    var wanted = input.value.trim().toLowerCase();
+    [].forEach.call(list.querySelectorAll("[data-choice]"), function (choice) {
+      choice.hidden = wanted !== "" && choice.textContent.toLowerCase().indexOf(wanted) < 0;
+    });
+  }
+
   // A row of a repeating form (the role mapping) that the user does not want any more.
   function removeRow(button) {
     var row = button.closest("[data-row]");
@@ -158,6 +181,22 @@
       default:
         break;
     }
+  });
+
+  document.addEventListener("change", function (event) {
+    var name = event.target && event.target.getAttribute && event.target.getAttribute("name");
+    if (name && event.target.form) applyShowWhen(event.target.form);
+  });
+  document.addEventListener("input", function (event) {
+    if (event.target && event.target.hasAttribute && event.target.hasAttribute("data-filter-choices")) {
+      filterChoices(event.target);
+    }
+  });
+  document.addEventListener("htmx:load", function (event) {
+    applyShowWhen(event.detail && event.detail.elt);
+  });
+  document.addEventListener("DOMContentLoaded", function () {
+    applyShowWhen(document);
   });
 
   document.addEventListener("htmx:afterSwap", function (event) {

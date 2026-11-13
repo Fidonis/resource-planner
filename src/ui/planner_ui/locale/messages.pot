@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Resource Planner \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-13 18:49+0100\n"
+"POT-Creation-Date: 2026-11-13 19:00+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -1036,6 +1036,34 @@ msgid "Running"
 msgstr ""
 
 #: routes/integrations.py
+msgid "Only when started by hand"
+msgstr ""
+
+#: routes/integrations.py
+msgid "Every 15 minutes"
+msgstr ""
+
+#: routes/integrations.py
+msgid "Every 30 minutes"
+msgstr ""
+
+#: routes/integrations.py
+msgid "Every hour"
+msgstr ""
+
+#: routes/integrations.py
+msgid "Every 4 hours"
+msgstr ""
+
+#: routes/integrations.py
+msgid "Every day at 05:00 UTC"
+msgstr ""
+
+#: routes/integrations.py
+msgid "Workdays at 05:00 UTC"
+msgstr ""
+
+#: routes/integrations.py
 msgid "teams"
 msgstr ""
 
@@ -1045,6 +1073,10 @@ msgstr ""
 
 #: routes/integrations.py templates/integrations/_choose.html templates/integrations/index.html
 msgid "New integration"
+msgstr ""
+
+#: routes/integrations.py
+msgid "The choices cannot be loaded for this setting."
 msgstr ""
 
 #: routes/planning.py
@@ -1660,6 +1692,26 @@ msgstr ""
 msgid "Copy"
 msgstr ""
 
+#: templates/integrations/_choices.html
+msgid "Filter"
+msgstr ""
+
+#: templates/integrations/_choices.html
+msgid "Filter the choices"
+msgstr ""
+
+#: templates/integrations/_choices.html
+msgid "not found in the source"
+msgstr ""
+
+#: templates/integrations/_choices.html
+msgid "The source has no choices for this setting."
+msgstr ""
+
+#: templates/integrations/_choices.html
+msgid "Nothing selected yet. Load the choices from the source."
+msgstr ""
+
 #: templates/integrations/_choose.html
 msgid "What do you want to bring in, and from where?"
 msgstr ""
@@ -1691,6 +1743,10 @@ msgid "The tasks, people and absences stay and can be edited by hand from then o
 msgstr ""
 
 #: templates/integrations/_fields.html
+msgid "Load the choices from the source"
+msgstr ""
+
+#: templates/integrations/_fields.html
 msgid "Set. Leave empty to keep it."
 msgstr ""
 
@@ -1700,6 +1756,14 @@ msgstr ""
 
 #: templates/integrations/_form.html templates/integrations/_list.html
 msgid "Schedule"
+msgstr ""
+
+#: templates/integrations/_form.html
+msgid "Custom cron line"
+msgstr ""
+
+#: templates/integrations/_form.html
+msgid "Cron line"
 msgstr ""
 
 #: templates/integrations/_form.html

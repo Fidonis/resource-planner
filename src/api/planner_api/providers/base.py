@@ -126,6 +126,30 @@ class ExternalAbsence:
     note: str | None = None
 
 
+@dataclass(frozen=True, slots=True)
+class FieldOption:
+    """One choice of a setting whose choices come from the source (``x-remoteOptions``)."""
+
+    value: str
+    label: str
+
+
+# Markers a settings model may put on a field with ``json_schema_extra``:
+# - REMOTE_OPTIONS: a list of strings whose choices the provider loads with ``field_options``.
+# - SHOW_WHEN: {"field": "<alias>", "equals": "<value>"}: the form shows the field only then.
+# - CONNECTION: the field decides where a secret is sent; a stored secret is not used for loading
+#   choices while such a field differs from what is stored.
+REMOTE_OPTIONS = "x-remoteOptions"
+SHOW_WHEN = "x-showWhen"
+CONNECTION = "x-connection"
+# Validation context of a draft: checks that only matter for saving may be skipped.
+DRAFT = "draft"
+
+
+def is_draft(context: Any) -> bool:
+    return isinstance(context, Mapping) and bool(context.get(DRAFT))
+
+
 @runtime_checkable
 class Provider(Protocol):
     """What every provider is, whatever it reads."""
@@ -162,6 +186,13 @@ class AbsenceSourceProvider(Provider, Protocol):
     def fetch_absences(
         self, config: BaseModel, start: date, end: date
     ) -> AsyncIterator[ExternalAbsence | SourceProblem]: ...
+
+
+@runtime_checkable
+class OptionSource(Protocol):
+    """A provider that can list the choices of a setting marked ``x-remoteOptions``."""
+
+    async def field_options(self, config: BaseModel, field: str) -> list[FieldOption]: ...
 
 
 class ProviderBase:
