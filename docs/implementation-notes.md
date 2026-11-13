@@ -12,7 +12,7 @@ specification differ, this file describes what the code does.
 | P1b Planning core | built |
 | P1c OIDC and roles | built |
 | P2a Provider framework (sync engine, ingest API, CSV providers) | built |
-| P2b Jira | **not built** (the provider interface is ready for it) |
+| P2b Jira | built (Jira Cloud and Data Center, REST API version 2) |
 | P2c Keycloak directory import | built |
 | P2d SAP absence source | **not built** (a CSV absence provider covers the file-based case) |
 | P2e MCP server | **not built**, the API is prepared for it (see [mcp-preparation.md](mcp-preparation.md)) |
@@ -25,6 +25,7 @@ specification differ, this file describes what the code does.
 | 1 License | MIT. |
 | 2 Identity of the MCP user | Open. The API accepts the user's own bearer token and API tokens; see [mcp-preparation.md](mcp-preparation.md). |
 | 3 OIDC flow | The API handles the flow and sets the session cookie (the default of the specification). It also accepts a bearer token (FR-AUTH-05) when `OIDC_API_AUDIENCES` is set. |
+| 4 Effort strategy for Jira | `MANUAL`: the effort per skill is entered in the planner; Jira supplies the planning attributes. The other strategies stay available. |
 | 5 Keycloak people without a mapped group | They go to the **default team** of the mapping. The team must exist; without a default team these people are reported and not imported. |
 | 6 Half days in P1 | Built. An absence has a start part and an end part (`FULL`, `AM`, `PM`). |
 | 7 Multi-tenancy | Out of scope, as specified. |
@@ -50,6 +51,13 @@ specification differ, this file describes what the code does.
 - JSON is camelCase, SQL is snake_case. Person-days travel as JSON numbers, are computed with
   `Decimal` and stored with two decimals.
 
+- **Planning attributes of a task** beyond §3.1: `due_date`, `start_date`,
+  `original_estimate_hours`, `story_points`, `priority`, `assignee`, `reporter`. They are written by
+  integrations and the ingest API only and are read-only in the planner; manual tasks leave them
+  empty. A task key may contain `_`, as Jira keys can.
+- **States** are mapped by name (the mapping, then the usual names) and then by the category the
+  source gives (`todo`, `in_progress`, `done`).
+
 ### API
 
 Endpoints beyond section 7.1, added because the web interface needs them:
@@ -61,6 +69,7 @@ Endpoints beyond section 7.1, added because the web interface needs them:
 | `PUT /auth/me/preferences` | Language and theme of the signed-in account |
 | `GET /integrations/providers` | Providers found, with the schemas of their settings and mapping (`{"items": [...]}`) |
 | `GET /integrations/{id}/runs/{runId}` | The log of one run (the list is `GET /integrations/{id}/runs`) |
+| `POST /integrations/field-options` | The choices of a setting, loaded from the source, also for a form that is not saved |
 | `GET /assignments/export-csv`, `/tasks/export-csv`, `/absences/export-csv`, `/overview/export-csv` | CSV export |
 | `POST /demo-data` | Loads the demo data into an empty installation (needs `ENABLE_DEMO_SEED`) |
 | `GET /roles/permissions` | The permission catalogue, for the role editor |
@@ -111,6 +120,16 @@ rows a change touched.
   `aborted`.
 - The scheduler runs inside the API process. Keep `SCHEDULER_ENABLED=true` on exactly one API
   instance.
+- For a provider that reads only what changed, a scheduled run is complete when the last complete
+  run (a run with errors counts) is older than `SYNC_FULL_INTERVAL_HOURS`. The first run of such an
+  integration and the first one after its settings or mapping changed are complete as well.
+- The Jira provider signs in with an API token (Cloud) or a personal access token (Data Center);
+  OAuth 2.0 (3LO), which §9.3 names as an alternative, is not built. A run that reads changes asks
+  for `updated >= "-<n>m"`, the minutes since the last run plus 30, which does not depend on the time
+  zone of the Jira account; reading an issue twice changes nothing. Projects are queried in blocks
+  of 100 ids, because Jira Cloud refuses a query without a bound.
+- A stored secret is used for loading choices only while the settings marked `x-connection` are
+  unchanged; saving an integration with a changed address still keeps the stored secret, as before.
 - A source that is read completely lets the engine close what has disappeared (`missing` in the
   mapping). A provider that supports `since` returns changes only, so nothing is closed after such a
   run.
@@ -126,7 +145,11 @@ rows a change touched.
 
 ## Not done, not verified
 
-- Jira and SAP providers, the MCP server and P3 are not built.
+- The SAP provider, the MCP server and P3 are not built.
+- The Jira provider was tested against a simulated Jira (the request and answer shapes of the
+  Atlassian documentation), not against a live Cloud or Data Center instance in the test suite.
+- The planning attributes have no CSV columns in `csv-tasks`; the ingest API carries them. Assignees
+  are not matched to members.
 - Several API workers are not supported (sessions and the login limiter are fine; the limiter keeps
   its counters in memory, and the scheduler would run twice).
 - Real TLS operation, touch input, screen readers and measured colour contrast were not tried.

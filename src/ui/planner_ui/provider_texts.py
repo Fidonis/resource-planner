@@ -34,6 +34,40 @@ BUILT_IN_TEXTS: tuple[str, ...] = (
         "the mapping's 'include roles'. Needs the right view-realm."
     ),
     N_("Page size"),
+    N_("Jira"),
+    N_("Jira edition"),
+    N_("CLOUD: Jira Cloud (atlassian.net). DATA_CENTER: Jira Data Center or Server."),
+    N_("Jira URL"),
+    N_(
+        "Address of Jira, for example https://example.atlassian.net. Links to the issues point "
+        "there."
+    ),
+    N_("API URL"),
+    N_(
+        "Only for a scoped API token of Jira Cloud: https://api.atlassian.com/ex/jira/<cloud id>. "
+        "Empty: the Jira URL."
+    ),
+    N_("E-mail address"),
+    N_("Jira Cloud: the account the API token belongs to. Empty for Data Center."),
+    N_("API token"),
+    N_("Jira Cloud: an API token of the account. Data Center: a personal access token."),
+    N_("Projects"),
+    N_("SELECTED: only the projects chosen below. ALL: every project the account can see."),
+    N_("Selected projects"),
+    N_("Load the projects from Jira and tick the ones to import."),
+    N_("Issue types"),
+    N_(
+        "Only issues of the ticked types. None ticked: every standard type, without epics and "
+        "sub-tasks, so that no work is counted twice."
+    ),
+    N_("Leave out issues done longer ago (days)"),
+    N_("A complete read skips issues finished more than this many days ago. 0: read them all."),
+    N_("Additional JQL"),
+    N_("Added to the query with AND, for example labels = planning."),
+    N_("Story points field"),
+    N_("Id or name of the field, for example customfield_10016. Empty: found by its name."),
+    N_("Start date field"),
+    N_("Id or name of the field. Empty: found by its name or type."),
     N_("CSV file (tasks)"),
     N_("Path of the CSV file below the import directory, for example tasks.csv."),
     N_("Effort strategy"),

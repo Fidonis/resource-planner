@@ -96,4 +96,5 @@ forbidden_modules = [
     "planner_api.providers.csv_tasks",
     "planner_api.providers.csv_absences",
     "planner_api.providers.csv_members",
+    "planner_api.providers.jira",
 ]

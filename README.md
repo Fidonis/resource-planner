@@ -13,12 +13,15 @@ task in which week, and where are the over-bookings and skill bottlenecks.
   an icon, not only with colour.
 - **Overview** – demand, planned work and utilisation per skill and team.
 - **Master data** – teams, skills, members, absence types, absences with a calendar.
-- **Tasks** – entered by hand, imported from CSV, or synchronised from a source.
+- **Tasks** – entered by hand, imported from CSV, or synchronised from a source such as Jira,
+  with the due date, start date, estimate, story points, priority and people of the source shown
+  next to the effort per skill that is planned here.
 - **Sign-in** – local accounts or OpenID Connect (Keycloak is the reference), roles with
   permissions, roles limited to teams, API tokens, audit log.
-- **Integrations** – a provider framework with a sync engine, a run log, a machine-to-machine
-  ingest API, CSV providers for tasks, members and absences, and a Keycloak directory import.
-  Jira and SAP providers are not part of this version.
+- **Integrations** – a provider framework with a sync engine, a run log, schedules, a
+  machine-to-machine ingest API, a Jira task source (Cloud and Data Center), CSV providers for
+  tasks, members and absences, and a Keycloak directory import. A SAP provider is not part of this
+  version.
 - **English and German**, light and dark theme.
 
 The specification is [ressource-planner.md](ressource-planner.md); what the implementation does
@@ -84,14 +87,15 @@ is the one place that decides what a user may do.
 
 Everything is set through environment variables, listed with comments in
 [.env.example](.env.example). Nothing secret is stored in the repository. Secrets that integrations
-store (a Keycloak client secret, for example) are encrypted with `APP_ENCRYPTION_KEY`.
+store (a Keycloak client secret or a Jira token, for example) are encrypted with
+`APP_ENCRYPTION_KEY`.
 
 ## Documentation
 
 | | |
 |---|---|
 | [docs/architecture.md](docs/architecture.md) | Components, layers, data flow, security |
-| [docs/providers.md](docs/providers.md) | Integrations: the CSV formats, the Keycloak import, writing your own provider |
+| [docs/providers.md](docs/providers.md) | Integrations: Jira, the CSV formats, the Keycloak import, writing your own provider |
 | [docs/mcp-preparation.md](docs/mcp-preparation.md) | How the API is prepared for a later MCP server |
 | [docs/implementation-notes.md](docs/implementation-notes.md) | Decisions, deviations, what is not done |
 | `GET /openapi.json` | The API contract; the snapshot is `src/contracts/openapi.json` |

@@ -6,17 +6,17 @@ data maps to the planner's, and when it runs. Administrators manage them under *
 
 | Kind | Brings in | Providers in this version |
 |---|---|---|
-| Task source | Tasks with an effort per skill | `csv-tasks` |
+| Task source | Tasks with an effort per skill | `jira`, `csv-tasks` |
 | Directory | People as members, with team and skills | `keycloak`, `csv-members` |
 | Absence source | Absences (read only) | `csv-absences` |
 
-Jira and SAP providers are not part of this version; the interface below is what they would
-implement.
+A SAP provider is not part of this version; the interface below is what it would implement.
 
 ## Using an integration
 
 1. *Integrations → New integration*, choose the provider, give the integration a name, fill in
-   the settings and the mapping, and optionally a schedule (a cron expression, evaluated in UTC).
+   the settings and the mapping, and optionally a schedule: a preset (every 15 or 30 minutes, every
+   hour, every 4 hours, daily or on workdays at 05:00) or a cron line of your own. Times are UTC.
 2. **Test** checks that the source can be reached and read.
 3. **Sync now** offers a **preview**: the whole run is done and then rolled back, and the result
    shows what would be created, updated, closed or skipped.
@@ -28,9 +28,19 @@ Things to know:
 - A run with no changes writes nothing; running twice changes nothing the second time.
 - A record that cannot be read or written is noted in the log and the run goes on; the run then
   has the status *partial*. A source that cannot be reached at all gives *failed*.
-- What the source owns is read-only in the planner: the title, status and efforts of an imported
-  task (shown with a lock; the API answers `FIELD_LOCKED`). For members, a local change is kept
-  until the source changes the value again.
+- What the source owns is read-only in the planner: the title and status of an imported task,
+  and its efforts when the mapping imports them (the title shows a lock; the API answers
+  `FIELD_LOCKED`). Which fields the source owns is decided when the task is first imported; a later
+  change of the effort strategy does not change it for tasks that exist already. For members, a
+  local change is kept until the source changes the value again.
+- The planning attributes a source knows (due date, start date, original estimate, story points,
+  priority, assignee, reporter) are shown in the task list and, with an expandable row, in full;
+  they cannot be edited in the planner. An attribute the source could not read in a run is left as
+  it is.
+- A provider that can read only what changed (Jira) does so on scheduled runs. Once every
+  `SYNC_FULL_INTERVAL_HOURS` (24 by default), on its first run, on the first run after its settings
+  were changed, and when *Sync now* is started with the full option, it reads the whole source;
+  only such a run closes what has disappeared.
 - What disappears from a completely read source is closed (tasks become *cancelled*, members and
   absences are deactivated or removed) when the mapping says `missing: CLOSE`, which is the
   default; `KEEP` leaves them.
@@ -58,6 +68,56 @@ Other settings: `unitFactor` (person-days per unit of the estimate; hours / 8 is
 `labelSkills` (label to skill key), `unknownLabels` (`IGNORE`, `CREATE_SKILL`, `REPORT`),
 `statusMap` (state of the source to `open`, `done` or `cancelled`), `teamMap` (team hint of the
 source to the owning team) and `missing`.
+
+## Jira (`jira`)
+
+Brings the issues of Jira Cloud or Jira Data Center / Server in as tasks, through version 2 of the
+REST API. The effort per skill is not taken from Jira: keep the mapping's `effortStrategy` at
+`MANUAL` (the default) and enter it in the planner; the other strategies work with the labels and
+use the story points as the estimate.
+
+**Signing in**
+
+| Edition | Settings |
+|---|---|
+| Jira Cloud | *Jira URL* `https://<site>.atlassian.net`, the *e-mail address* of the account and an *API token* created for it (Atlassian account → Security → API tokens). For a token with scopes, also the *API URL* `https://api.atlassian.com/ex/jira/<cloud id>`; it needs read access to projects, issues, fields and issue types. |
+| Jira Data Center / Server | *Jira URL* as the API reaches it, and a *personal access token* in the *API token* field (Jira 8.14 or later); no e-mail address. |
+
+The account needs the right to browse the projects to import. Tokens expire (on Jira Cloud after
+a year at the latest); a refused token makes the run fail with a message that says so.
+
+**What is imported**
+
+- *Projects*: `SELECTED` imports the projects ticked in the list, which *Load the choices from
+  the source* fills from Jira (the projects are stored by id, so a renamed key does not matter);
+  `ALL` imports every project the account can see. A selected project that is no longer visible
+  (removed, archived, no permission) is reported, and that run closes nothing.
+- *Issue types*: ticked types only; with none ticked, every standard type without epics and
+  sub-tasks, so that no work is counted twice.
+- *Leave out issues done longer ago*: a complete read skips issues finished more than this many
+  days ago (90 by default, 0 reads all). Runs that read changes see every issue that changed.
+- *Additional JQL* is added with `AND`, for example `labels = planning`.
+
+**How an issue becomes a task**
+
+| Task | From Jira |
+|---|---|
+| Key, title, description | Issue key, summary, description (as text) |
+| Status | The mapping's `statusMap` by status name first, then the usual names, then the status category: *To Do* and *In Progress* are open, *Done* is done. Localised names such as "Fertig" therefore work without a mapping. |
+| Owner team | The project key through the mapping's `teamMap` (`WEB=Team Web`) |
+| Due date, priority, assignee, reporter | The fields of the same name (people by display name) |
+| Original estimate | The original time estimate, in hours |
+| Story points | The field named "Story Points" or "Story point estimate", or the one set under *Story points field* |
+| Start date | The field named "Start date" or "Target start", or the one set under *Start date field* |
+| Link | `<Jira URL>/browse/<key>` |
+
+**Test** reports the account, the number of visible projects and which fields were found for
+story points and the start date. A field that is set but does not exist stops the run; one that
+is not found automatically is left empty. Jira asks to slow down with `429`; the provider waits
+and tries again up to four times.
+
+Assignee and reporter are personal data: they are stored as display names, shown to everybody who
+may read tasks, and removed with the task.
 
 ## CSV files
 
@@ -191,6 +251,18 @@ Rules:
 - Mark secrets `writeOnly` in `json_schema_extra`. The form of the interface is drawn from the
   schema of the settings model (and of the mapping), including field titles, descriptions,
   defaults, choices, lists and `Key=Value` lines, so no interface code is needed.
+- Optional markers in `json_schema_extra` (constants in `planner_api.providers.base`):
+  `x-showWhen` (`{"field": "<alias>", "equals": "<value>"}`) shows a setting only while another one
+  has that value; `x-remoteOptions` on a `list[str]` setting draws check boxes whose choices come
+  from the provider's `field_options(config, field)` (protocol `OptionSource`, returning
+  `FieldOption(value, label)`); `x-connection` marks the settings that decide where a secret is
+  sent, so that a stored secret is not used to load choices from another address. Checks that only
+  matter for saving can be skipped for the draft a form loads choices with:
+  `is_draft(info.context)` in a validator.
+- Fill `TASK_ATTRIBUTES` of `ExternalTask` (due date, start date, original estimate in hours, story
+  points, priority, assignee, reporter) where the source has them, `status_category` (`todo`,
+  `in_progress`, `done`) where it groups its states, and `unknown_attributes` with the attributes
+  it could not read this time.
 - Set `supports_since = True` only if `since` really narrows the result. After a run that did not
   see the whole source nothing is closed.
 - Directories also provide `fetch_groups`; absence sources provide `fetch_absences(config, start,

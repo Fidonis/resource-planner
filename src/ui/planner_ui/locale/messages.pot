@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Resource Planner \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-13 19:00+0100\n"
+"POT-Creation-Date: 2026-11-13 19:06+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -132,7 +132,7 @@ msgstr ""
 msgid "New API token"
 msgstr ""
 
-#: admin_resources.py
+#: admin_resources.py provider_texts.py
 msgid "API token"
 msgstr ""
 
@@ -372,6 +372,106 @@ msgstr ""
 
 #: provider_texts.py
 msgid "Page size"
+msgstr ""
+
+#: provider_texts.py
+msgid "Jira"
+msgstr ""
+
+#: provider_texts.py
+msgid "Jira edition"
+msgstr ""
+
+#: provider_texts.py
+msgid "CLOUD: Jira Cloud (atlassian.net). DATA_CENTER: Jira Data Center or Server."
+msgstr ""
+
+#: provider_texts.py
+msgid "Jira URL"
+msgstr ""
+
+#: provider_texts.py
+msgid "Address of Jira, for example https://example.atlassian.net. Links to the issues point there."
+msgstr ""
+
+#: provider_texts.py
+msgid "API URL"
+msgstr ""
+
+#: provider_texts.py
+msgid ""
+"Only for a scoped API token of Jira Cloud: https://api.atlassian.com/ex/jira/<cloud id>. Empty: "
+"the Jira URL."
+msgstr ""
+
+#: provider_texts.py
+msgid "E-mail address"
+msgstr ""
+
+#: provider_texts.py
+msgid "Jira Cloud: the account the API token belongs to. Empty for Data Center."
+msgstr ""
+
+#: provider_texts.py
+msgid "Jira Cloud: an API token of the account. Data Center: a personal access token."
+msgstr ""
+
+#: provider_texts.py
+msgid "Projects"
+msgstr ""
+
+#: provider_texts.py
+msgid "SELECTED: only the projects chosen below. ALL: every project the account can see."
+msgstr ""
+
+#: provider_texts.py
+msgid "Selected projects"
+msgstr ""
+
+#: provider_texts.py
+msgid "Load the projects from Jira and tick the ones to import."
+msgstr ""
+
+#: provider_texts.py
+msgid "Issue types"
+msgstr ""
+
+#: provider_texts.py
+msgid ""
+"Only issues of the ticked types. None ticked: every standard type, without epics and sub-tasks, "
+"so that no work is counted twice."
+msgstr ""
+
+#: provider_texts.py
+msgid "Leave out issues done longer ago (days)"
+msgstr ""
+
+#: provider_texts.py
+msgid "A complete read skips issues finished more than this many days ago. 0: read them all."
+msgstr ""
+
+#: provider_texts.py
+msgid "Additional JQL"
+msgstr ""
+
+#: provider_texts.py
+msgid "Added to the query with AND, for example labels = planning."
+msgstr ""
+
+#: provider_texts.py
+msgid "Story points field"
+msgstr ""
+
+#: provider_texts.py
+msgid "Id or name of the field, for example customfield_10016. Empty: found by its name."
+msgstr ""
+
+#: provider_texts.py
+msgid "Start date field"
+msgstr ""
+
+#: provider_texts.py
+msgid "Id or name of the field. Empty: found by its name or type."
 msgstr ""
 
 #: provider_texts.py

@@ -29,6 +29,7 @@ csv-tasks = "planner_api.providers.csv_tasks:CsvTaskSource"
 csv-absences = "planner_api.providers.csv_absences:CsvAbsenceSource"
 csv-members = "planner_api.providers.csv_members:CsvDirectory"
 keycloak = "planner_api.providers.keycloak:KeycloakDirectory"
+jira = "planner_api.providers.jira:JiraTaskSource"
 
 [build-system]
 requires = ["hatchling"]
