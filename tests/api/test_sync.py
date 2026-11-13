@@ -20,6 +20,15 @@ TASK_FILE = (
     "SHOP-3;Invoices;Open;Backend:2,5;;\r\n"
 )
 LABELS = {"effortStrategy": "LABEL_ENCODED"}
+PLANNING_ATTRIBUTES = (
+    "dueDate",
+    "startDate",
+    "originalEstimateHours",
+    "storyPoints",
+    "priority",
+    "assignee",
+    "reporter",
+)
 
 
 async def seeded(api: Api) -> Any:
@@ -506,6 +515,33 @@ async def test_an_integration_with_data_is_deleted_only_when_detached(
         {"version": kept["version"], "key": "SHOP-1", "title": "Mine now", "status": "open"},
     )
     assert editable.status_code == 200, editable.text
+
+
+async def test_a_detached_task_keeps_no_planning_attributes_of_its_source(sync_api: Api) -> None:
+    admin = await seeded(sync_api)
+    made = await admin.create(
+        INTEGRATIONS,
+        {
+            "name": "Tracker",
+            "type": "task_source",
+            "providerKey": "fake",
+            "config": {"count": 1, "attributes": True},
+            "mapping": {},
+        },
+    )
+    await sync(admin, made["id"])
+    imported = (await tasks_by_key(admin))["FAKE-0"]
+    assert imported["dueDate"] == "2026-12-18" and imported["priority"] == "High"
+
+    gone = await admin.delete(
+        f"{INTEGRATIONS}/{made['id']}", params={"version": made["version"], "detach": "true"}
+    )
+    assert gone.status_code == 204
+    kept = (await tasks_by_key(admin))["FAKE-0"]
+    assert kept["externalSource"] is None and kept["sourceName"] is None
+    # A manual task has no planning attributes: nothing stays behind that the planner cannot edit.
+    for name in PLANNING_ATTRIBUTES:
+        assert kept[name] is None, name
 
 
 async def test_the_audit_log_names_the_sync_as_the_actor(sync_api: Api, imports_dir: Path) -> None:
