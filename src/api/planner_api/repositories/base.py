@@ -21,14 +21,14 @@ def like(text: str) -> str:
 
 async def page_rows(
     session: AsyncSession,
-    stmt: Select[Any],
+    stmt: Select[*tuple[Any, ...]],
     *,
     page: int,
     page_size: int,
     sort: str | None,
     sorts: Mapping[str, ColumnElement[Any] | QueryableAttribute[Any]],
     default_sort: str,
-) -> tuple[Sequence[Row[Any]], int]:
+) -> tuple[Sequence[Row[*tuple[Any, ...]]], int]:
     """Like :func:`page_of` for a statement that selects several columns or entities."""
     total = (
         await session.execute(select(func.count()).select_from(stmt.order_by(None).subquery()))
@@ -46,7 +46,7 @@ async def page_rows(
 
 async def page_of[T](
     session: AsyncSession,
-    stmt: Select[tuple[T]],
+    stmt: Select[T],
     *,
     page: int,
     page_size: int,
