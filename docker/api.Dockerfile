@@ -2,7 +2,7 @@
 # Build from the repository root:  docker build -f docker/api.Dockerfile .
 
 # ---- builder: install the locked dependencies and the API package into a venv ----
-FROM python:3.12-slim AS builder
+FROM python:3.15-slim AS builder
 
 # Pinned uv release so resolution is reproducible across rebuilds.
 COPY --from=ghcr.io/astral-sh/uv:0.9.24 /uv /usr/local/bin/uv
@@ -26,7 +26,7 @@ COPY src/api/planner_api src/api/planner_api
 RUN uv sync --frozen --no-dev --no-editable --package planner-api
 
 # ---- runtime ----
-FROM python:3.12-slim AS runtime
+FROM python:3.15-slim AS runtime
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
