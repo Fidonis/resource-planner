@@ -6,6 +6,8 @@ All notable changes are listed here. The format follows
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-11-13
+
 First version of the implementation of the specification (phases P1a to P1c, P2a and P2c).
 
 ### Added
@@ -29,3 +31,6 @@ First version of the implementation of the specification (phases P1a to P1c, P2a
 
 - Jira and SAP providers, the MCP server and the P3 items of the specification.
   See [`docs/implementation-notes.md`](docs/implementation-notes.md).
+
+[Unreleased]: https://github.com/Fidonis/resource-planner/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/Fidonis/resource-planner/releases/tag/v0.1.0
