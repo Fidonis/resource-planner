@@ -13,7 +13,7 @@ const target = join(root, "planner_ui", "static");
 const ICONS = [
   "alert-triangle", "arrow-right", "arrows-sort", "ban", "calendar", "calendar-off", "certificate",
   "check", "chevron-down", "chevron-left", "chevron-right", "circle-check", "circle-x",
-  "clipboard-list", "dots-vertical", "download", "edit", "history", "info-circle", "key",
+  "clipboard-list", "copy", "dots-vertical", "download", "edit", "history", "info-circle", "key",
   "language", "layout-dashboard", "layout-kanban", "layout-sidebar-left-collapse",
   "layout-sidebar-left-expand", "list-check", "lock", "logout", "menu-2", "moon", "pencil",
   "player-play", "plug-connected", "plus", "refresh", "search", "settings", "shield-lock", "sun",
