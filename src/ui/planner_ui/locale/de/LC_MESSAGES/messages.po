@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Resource Planner \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-13 19:00+0100\n"
+"POT-Creation-Date: 2026-11-13 20:49+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Resource Planner contributors\n"
 "Language: de\n"
@@ -141,7 +141,7 @@ msgstr "API-Token"
 msgid "New API token"
 msgstr "Neues API-Token"
 
-#: admin_resources.py
+#: admin_resources.py provider_texts.py
 msgid "API token"
 msgstr "API-Token"
 
@@ -390,6 +390,126 @@ msgstr ""
 #: provider_texts.py
 msgid "Page size"
 msgstr "Seitengröße"
+
+#: provider_texts.py
+msgid "Jira"
+msgstr "Jira"
+
+#: provider_texts.py
+msgid "Jira edition"
+msgstr "Jira-Variante"
+
+#: provider_texts.py
+msgid "CLOUD: Jira Cloud (atlassian.net). DATA_CENTER: Jira Data Center or Server."
+msgstr "CLOUD: Jira Cloud (atlassian.net). DATA_CENTER: Jira Data Center oder Server."
+
+#: provider_texts.py
+msgid "Jira URL"
+msgstr "Jira-URL"
+
+#: provider_texts.py
+msgid "Address of Jira, for example https://example.atlassian.net. Links to the issues point there."
+msgstr ""
+"Adresse von Jira, zum Beispiel https://example.atlassian.net. Links zu den Vorgängen zeigen "
+"dorthin."
+
+#: provider_texts.py
+msgid "API URL"
+msgstr "API-URL"
+
+#: provider_texts.py
+msgid ""
+"Only for a scoped API token of Jira Cloud: https://api.atlassian.com/ex/jira/<cloud id>. Empty: "
+"the Jira URL."
+msgstr ""
+"Nur für ein API-Token von Jira Cloud mit Bereichen (scoped): "
+"https://api.atlassian.com/ex/jira/<cloud id>. Leer: die Jira-URL."
+
+#: provider_texts.py
+msgid "E-mail address"
+msgstr "E-Mail-Adresse"
+
+#: provider_texts.py
+msgid "Jira Cloud: the account the API token belongs to. Empty for Data Center."
+msgstr "Jira Cloud: das Konto, zu dem das API-Token gehört. Leer bei Data Center."
+
+#: provider_texts.py
+msgid "Jira Cloud: an API token of the account. Data Center: a personal access token."
+msgstr "Jira Cloud: ein API-Token des Kontos. Data Center: ein persönliches Zugriffstoken."
+
+#: provider_texts.py
+msgid "Projects"
+msgstr "Projekte"
+
+#: provider_texts.py
+msgid "SELECTED: only the projects chosen below. ALL: every project the account can see."
+msgstr "SELECTED: nur die unten gewählten Projekte. ALL: alle Projekte, die das Konto sehen darf."
+
+#: provider_texts.py
+msgid "Selected projects"
+msgstr "Ausgewählte Projekte"
+
+#: provider_texts.py
+msgid "Load the projects from Jira and tick the ones to import."
+msgstr "Laden Sie die Projekte aus Jira und haken Sie die an, die importiert werden sollen."
+
+#: provider_texts.py
+msgid "Issue types"
+msgstr "Vorgangstypen"
+
+#: provider_texts.py
+msgid ""
+"Only issues of the ticked types. None ticked: every standard type, without epics and sub-tasks, "
+"so that no work is counted twice."
+msgstr ""
+"Nur Vorgänge der angehakten Typen. Keiner angehakt: alle Standardtypen ohne Epics und "
+"Unteraufgaben, damit keine Arbeit doppelt zählt."
+
+#: provider_texts.py
+msgid "Leave out issues done longer ago (days)"
+msgstr "Länger erledigte Vorgänge auslassen (Tage)"
+
+#: provider_texts.py
+msgid "A complete read skips issues finished more than this many days ago. 0: read them all."
+msgstr ""
+"Ein vollständiges Lesen überspringt Vorgänge, die vor mehr als so vielen Tagen erledigt wurden. "
+"0: alle lesen."
+
+#: provider_texts.py
+msgid "Additional JQL"
+msgstr "Zusätzliches JQL"
+
+#: provider_texts.py
+msgid "Added to the query with AND, for example labels = planning."
+msgstr "Wird mit AND an die Abfrage angehängt, zum Beispiel labels = planning."
+
+#: provider_texts.py
+msgid "Story points field"
+msgstr "Feld für Story Points"
+
+#: provider_texts.py
+msgid "Id or name of the field, for example customfield_10016. Empty: found by its name."
+msgstr "ID oder Name des Felds, zum Beispiel customfield_10016. Leer: wird über den Namen gefunden."
+
+#: provider_texts.py
+msgid "Start date field"
+msgstr "Feld für das Startdatum"
+
+#: provider_texts.py
+msgid "Id or name of the field. Empty: found by its name or type."
+msgstr "ID oder Name des Felds. Leer: wird über Namen oder Typ gefunden."
+
+#: provider_texts.py
+msgid "Effort fields"
+msgstr "Aufwandsfelder"
+
+#: provider_texts.py
+msgid ""
+"Only for the effort strategy CUSTOM_FIELDS: ids or names of the fields that hold an effort, for "
+"example Effort Backend. The mapping assigns them to skills."
+msgstr ""
+"Nur für die Aufwandsstrategie CUSTOM_FIELDS: IDs oder Namen der Felder, die einen Aufwand "
+"enthalten, zum Beispiel Effort Backend. Das Mapping ordnet sie den Fähigkeiten zu."
 
 #: provider_texts.py
 msgid "CSV file (tasks)"

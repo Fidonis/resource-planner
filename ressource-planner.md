@@ -1,6 +1,6 @@
 # Resource Planner — Requirements & Feature Specification
 
-Status: Draft v2, implemented except P2b, P2d (SAP) and P2e · Language: English · License: MIT
+Status: Draft v2, implemented except P2d (SAP) and P2e · Language: English · License: MIT
 
 This document specifies an open-source, browser-based **resource planning tool** for agile teams. It is written so that it can be implemented step by step, phase by phase (§12). Requirement keywords **MUST**, **SHOULD**, **MAY** follow RFC 2119. Every requirement has an ID (e.g. `FR-TASK-03`) that can be referenced in issues, commits and tests.
 
@@ -8,7 +8,7 @@ The single-file prototype `index.html` in this repository is the **behavioural r
 
 The static mock-up `ressource-planner-mockup.html` (to be moved to `/docs/mockup/`) is the **visual reference**: the UI follows the design of the papaia-manager web interface (§2.2, FR-UI-06). The mock-up adds up numbers in the browser only so that its screens behave plausibly; in the product every figure comes from the API.
 
-> **Implementation status.** Phases P1a–P1c, P2a and P2c are built. The Jira provider (P2b), a SAP provider (P2d) and the MCP server (P2e) are not; the API is prepared for the MCP server (`docs/mcp-preparation.md`). Where the implementation differs from this text, or settles a point left open here, `docs/implementation-notes.md` says so. The open decisions of §14 are marked there.
+> **Implementation status.** Phases P1a–P1c and P2a–P2c are built, including the Jira provider (P2b). A SAP provider (P2d) and the MCP server (P2e) are not; the API is prepared for the MCP server (`docs/mcp-preparation.md`). Where the implementation differs from this text, or settles a point left open here, `docs/implementation-notes.md` says so. The open decisions of §14 are marked there.
 
 ---
 
@@ -573,7 +573,7 @@ A Model Context Protocol (MCP) server lets MCP clients read the plan and, if ena
 1. ~~Final license (Apache-2.0 vs. MIT vs. AGPL).~~ **Decided: MIT.**
 2. How the identity of the acting user reaches the API from the MCP server (FR-MCP-02): OAuth 2.0 token exchange (RFC 8693) where the identity provider supports it, or a dedicated service identity that passes the user's subject along, or user-created API tokens only. A token issued to the MCP server is never forwarded unchanged. **Open**; the API accepts bearer tokens and API tokens today (`docs/mcp-preparation.md`).
 3. ~~OIDC flow ownership.~~ **Decided: API-handled session cookie, forwarded by the UI.** Bearer tokens (FR-AUTH-05) are accepted as well, when `OIDC_API_AUDIENCES` is set.
-4. Default effort mapping strategy for the Jira provider (depends on how estimates and labels are used in the team's Jira). **Open**; the Jira provider is not built. The generic task mapping defaults to `MANUAL`.
+4. ~~Default effort mapping strategy for the Jira provider.~~ **Decided: `MANUAL`**; the effort per skill is entered in the planner, Jira supplies the planning attributes of the task.
 5. ~~Behaviour for imported Keycloak persons without a mapped group.~~ **Decided: the default team of the mapping, which must exist; without one they are reported and not imported.**
 6. ~~Whether half-day absences are required in P1.~~ **Decided: built in P1.**
 7. Whether multi-tenancy (several organisations in one instance) is ever needed — currently **out of scope**; the data model has no tenant column.

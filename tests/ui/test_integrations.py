@@ -410,7 +410,7 @@ async def test_every_text_of_the_built_in_providers_is_listed_for_translation(
     admin = await sync_api.admin()
     providers = (await admin.get(f"{INTEGRATIONS}/providers")).json()["items"]
     built_in = [p for p in providers if p["key"] != "fake"]
-    assert {p["key"] for p in built_in} == {"csv", "keycloak"}
+    assert {p["key"] for p in built_in} == {"csv", "keycloak", "jira"}
     wanted: set[str] = set()
     for provider in built_in:
         wanted.add(provider["title"])
