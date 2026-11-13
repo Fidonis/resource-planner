@@ -13,12 +13,12 @@ import pytest
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import make_url
 
-
-def pytest_asyncio_loop_factories(config: Any, item: Any) -> dict[str, Any] | None:
-    """psycopg's async driver cannot run on the Proactor loop that Windows uses by default."""
-    if sys.platform == "win32":
+if sys.platform == "win32":
+    # pytest-asyncio rejects an implementation of this hook that returns nothing, so it is only
+    # defined where it is needed; elsewhere the default loop is used.
+    def pytest_asyncio_loop_factories(config: Any, item: Any) -> dict[str, Any]:
+        """psycopg's async driver cannot run on the Proactor loop that Windows uses by default."""
         return {"selector": asyncio.SelectorEventLoop}
-    return None
 
 
 @pytest.fixture(scope="session")

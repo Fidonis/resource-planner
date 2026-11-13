@@ -2,7 +2,7 @@
 # Build from the repository root:  docker build -f docker/ui.Dockerfile .
 
 # ---- assets: compile the stylesheet and copy the vendored browser files (Node only at build time) ----
-FROM node:22-slim AS assets
+FROM node:25-slim AS assets
 
 WORKDIR /build
 COPY src/ui/package.json src/ui/package-lock.json ./
@@ -16,7 +16,7 @@ COPY src/ui/planner_ui/static/js ./planner_ui/static/js
 RUN npm run build
 
 # ---- builder: install the locked dependencies and the packages into a venv ----
-FROM python:3.12-slim AS builder
+FROM python:3.15-slim AS builder
 
 COPY --from=ghcr.io/astral-sh/uv:0.9.24 /uv /usr/local/bin/uv
 
@@ -40,7 +40,7 @@ COPY --from=assets /build/planner_ui/icons src/ui/planner_ui/icons
 RUN uv sync --frozen --no-dev --no-editable --package planner-ui
 
 # ---- runtime ----
-FROM python:3.12-slim AS runtime
+FROM python:3.15-slim AS runtime
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
