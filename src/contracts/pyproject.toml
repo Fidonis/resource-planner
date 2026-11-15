@@ -1,6 +1,6 @@
 [project]
 name = "planner-client"
-version = "0.1.0"
+version = "0.2.0"
 description = "Typed client for the Resource Planner HTTP API, generated from openapi.json"
 requires-python = ">=3.12"
 license = { text = "MIT" }

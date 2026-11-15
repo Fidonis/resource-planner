@@ -7285,7 +7285,7 @@
   "info": {
     "description": "Planning of person-days per skill, member and week.\n\nEvery operation has a stable `operationId`. Errors are `application/problem+json` documents with\na stable `code`. Changing calls need the current `version` of the record in `If-Match` (or in the\nbody). Planning calls accept `dryRun=true` to see their effect without saving it.\n\nAuthenticate with the session cookie (send the CSRF token in `X-CSRF-Token`), with an API token\n(`Authorization: Bearer rpt_...`) or, when the server accepts them, with a bearer token of the\nidentity provider. Name your program in `X-Client-Name`; the audit log records it.",
     "title": "Resource Planner API",
-    "version": "0.1.0"
+    "version": "0.2.0"
   },
   "openapi": "3.1.0",
   "paths": {
