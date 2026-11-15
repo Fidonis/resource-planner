@@ -7,7 +7,7 @@ import uuid
 from pydantic import Field
 
 from planner_api.schemas.common import ApiModel
-from planner_api.schemas.settings import Locale
+from planner_api.schemas.settings import Locale, PoolTaskFields
 
 
 class AuthConfig(ApiModel):
@@ -39,6 +39,10 @@ class Me(ApiModel):
     email: str | None = None
     auth_provider: str
     locale: str | None
+    pool_task_fields: PoolTaskFields | None = Field(
+        description="What the board shows with each task to plan, as chosen by the account; "
+        "null follows `poolTaskFields` of the settings."
+    )
     must_change_password: bool
     member_id: uuid.UUID | None
     permissions: list[str]
@@ -59,6 +63,14 @@ class ChangePasswordRequest(ApiModel):
 class PreferencesRequest(ApiModel):
     locale: Locale | None = Field(
         default=None, description="Interface language; null follows the server default."
+    )
+
+
+class PoolTaskFieldsRequest(ApiModel):
+    fields: PoolTaskFields | None = Field(
+        description="The account's own choice, kept in the board's order; an empty list shows "
+        "nothing, null goes back to the default of the settings.",
+        examples=[["due_date", "priority", "assignee"]],
     )
 
 

@@ -11,14 +11,14 @@ const target = join(root, "planner_ui", "static");
 
 // Tabler outline icons used by the interface (the names are the file names).
 const ICONS = [
-  "alert-triangle", "arrow-right", "arrows-sort", "ban", "calendar", "calendar-off", "certificate",
-  "check", "chevron-down", "chevron-left", "chevron-right", "circle-check", "circle-x",
-  "clipboard-list", "copy", "dots-vertical", "download", "edit", "external-link", "history",
-  "info-circle", "key",
+  "alert-triangle", "arrow-right", "arrows-sort", "ban", "calendar", "calendar-due",
+  "calendar-event", "calendar-off", "certificate", "check", "chevron-down", "chevron-left",
+  "chevron-right", "circle-check", "circle-x", "clipboard-list", "clock", "copy", "dots-vertical",
+  "download", "edit", "external-link", "flag", "history", "hourglass", "info-circle", "key",
   "language", "layout-dashboard", "layout-kanban", "layout-sidebar-left-collapse",
   "layout-sidebar-left-expand", "list-check", "lock", "logout", "menu-2", "moon", "pencil",
   "player-play", "plug-connected", "plus", "refresh", "search", "settings", "shield-lock", "sun",
-  "trash", "upload", "user", "user-circle", "users", "users-group", "x",
+  "trash", "upload", "user", "user-circle", "user-edit", "users", "users-group", "x",
 ];
 
 const FILES = [

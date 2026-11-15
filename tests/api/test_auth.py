@@ -188,6 +188,33 @@ async def test_preferences_change_the_language_of_the_account(api: Api) -> None:
     assert unknown.status_code == 422
 
 
+async def test_an_account_chooses_its_own_fields_for_the_tasks_to_plan(api: Api) -> None:
+    caller = await api.as_role("viewer")
+    assert (await caller.get("/api/v1/auth/me")).json()["poolTaskFields"] is None
+
+    path = "/api/v1/auth/me/pool-task-fields"
+    chosen = await caller.put(path, {"fields": ["assignee", "due_date"]})
+    assert chosen.status_code == 200, chosen.text
+    assert chosen.json()["poolTaskFields"] == ["due_date", "assignee"]
+    assert (await caller.get("/api/v1/auth/me")).json()["poolTaskFields"] == [
+        "due_date",
+        "assignee",
+    ]
+
+    # changing the language keeps the choice
+    await caller.put("/api/v1/auth/me/preferences", {"locale": "de"})
+    assert (await caller.get("/api/v1/auth/me")).json()["poolTaskFields"] == [
+        "due_date",
+        "assignee",
+    ]
+
+    nothing = await caller.put(path, {"fields": []})
+    assert nothing.json()["poolTaskFields"] == []
+    back = await caller.put(path, {"fields": None})
+    assert back.json()["poolTaskFields"] is None
+    assert (await caller.put(path, {"fields": ["colour"]})).status_code == 422
+
+
 async def _token(api: Api, owner: str, permissions: list[str], **changes: object) -> str:
     plain = f"rpt_{uuid.uuid4().hex}"
     async with api.factory() as session:

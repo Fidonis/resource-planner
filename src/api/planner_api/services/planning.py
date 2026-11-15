@@ -23,6 +23,8 @@ from planner_api.domain.planning import (
 )
 from planner_api.errors import not_found
 from planner_api.models import Task, Team
+from planner_api.repositories import integrations as integrations_repo
+from planner_api.repositories import org as org_repo
 from planner_api.repositories import planning as repo
 from planner_api.repositories import settings as settings_repo
 from planner_api.schemas.planning import (
@@ -171,6 +173,12 @@ async def planning(
         )
         statuses = await _statuses(ctx, [r.id for r in rows]) if wanted_tasks else {}
         skills = await repo.skill_refs(session, {s for r in rows for s in r.efforts})
+        team_names = await org_repo.team_names(
+            session, {r.owner_team_id for r in rows if r.owner_team_id}
+        )
+        sources = await integrations_repo.integration_names(
+            session, {r.external_source for r in rows if r.external_source}
+        )
         for row in rows:
             efforts: list[PoolEffort] = []
             pairs: list[tuple[Decimal, Decimal]] = []
@@ -207,6 +215,20 @@ async def planning(
                     title=row.title,
                     status=statuses.get(row.id, row.status),
                     owner_team_id=row.owner_team_id,
+                    owner_team_name=team_names.get(row.owner_team_id)
+                    if row.owner_team_id
+                    else None,
+                    source_name=sources.get(row.external_source, row.external_source)
+                    if row.external_source
+                    else None,
+                    external_url=row.external_url,
+                    due_date=row.due_date,
+                    start_date=row.start_date,
+                    original_estimate_hours=row.original_estimate_hours,
+                    story_points=row.story_points,
+                    priority=row.priority,
+                    assignee=row.assignee,
+                    reporter=row.reporter,
                     efforts=efforts,
                     total_effort=round2(total_effort),
                     total_open=round2(total_open),

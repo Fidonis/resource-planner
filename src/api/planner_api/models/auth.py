@@ -94,6 +94,9 @@ class AppUser(IdMixin, TimestampMixin, VersionedMixin, Base):
         Boolean, default=False, server_default="false"
     )
     locale: Mapped[str | None] = mapped_column(String(8))
+    # The account's own choice of what the board shows with a task to plan; NULL follows the
+    # settings, an empty list shows nothing.
+    pool_task_fields: Mapped[list[str] | None] = mapped_column(JSONB)
     failed_attempts: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
     locked_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     # Roles of the identity provider as seen at the last sign-in. Permissions are resolved from

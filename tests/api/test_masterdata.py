@@ -451,6 +451,7 @@ async def test_settings_can_be_read_by_anyone_signed_in_and_written_by_admins(ap
         "planningHorizonWeeks": 4,
         "defaultAllocationPercent": 80,
         "locale": "en",
+        "poolTaskFields": [],
         "authLocalEnabled": True,
         "authOidcEnabled": False,
         "demoSeedEnabled": True,
@@ -463,6 +464,25 @@ async def test_settings_can_be_read_by_anyone_signed_in_and_written_by_admins(ap
     assert (
         await admin.put("/api/v1/settings", {**new, "planningHorizonWeeks": 40})
     ).status_code == 422
+
+
+async def test_the_fields_shown_with_the_tasks_to_plan_are_kept_in_the_boards_order(
+    api: Api,
+) -> None:
+    admin = await api.admin()
+    base = {"planningHorizonWeeks": 4, "defaultAllocationPercent": 80, "locale": "en"}
+    chosen = ["source", "story_points", "due_date", "story_points"]
+    saved = await admin.put("/api/v1/settings", {**base, "poolTaskFields": chosen})
+    assert saved.status_code == 200, saved.text
+    assert saved.json()["poolTaskFields"] == ["due_date", "story_points", "source"]
+    viewer = await api.as_role("viewer")
+    read = (await viewer.get("/api/v1/settings")).json()
+    assert read["poolTaskFields"] == ["due_date", "story_points", "source"]
+
+    unknown = await admin.put("/api/v1/settings", {**base, "poolTaskFields": ["colour"]})
+    assert unknown.status_code == 422
+    # a client that does not know the field yet leaves nothing chosen
+    assert (await admin.put("/api/v1/settings", base)).json()["poolTaskFields"] == []
 
 
 async def test_every_change_is_audited_with_the_calling_client(api: Api) -> None:

@@ -10,7 +10,9 @@ task in which week, and where are the over-bookings and skill bottlenecks.
 - **Planning board** – tasks with an effort per skill on the left, members and weeks as a grid;
   drag a skill onto a week to book it, or use the *Assign…* dialog. Capacity follows part-time
   shares and absences (including half days); full and over-booked weeks are marked with text and
-  an icon, not only with colour.
+  an icon, not only with colour. Which values of a task (due date, story points, priority, …)
+  appear in the list of tasks to plan is chosen in the settings, and each account can choose its
+  own.
 - **Overview** – demand, planned work and utilisation per skill and team.
 - **Master data** – teams, skills, members, absence types, absences with a calendar.
 - **Tasks** – entered by hand, imported from CSV, or synchronised from a source such as Jira,

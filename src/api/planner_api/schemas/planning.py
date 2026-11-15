@@ -352,6 +352,24 @@ class PoolTask(ApiModel):
     title: str
     status: TaskStatus
     owner_team_id: uuid.UUID | None
+    owner_team_name: str | None
+    source_name: str | None = Field(
+        description="Name of the integration or ingest source the task comes from; empty for "
+        "manual tasks.",
+        examples=["Jira"],
+    )
+    external_url: str | None = Field(description="Where the task is in its source system.")
+    due_date: date | None = Field(
+        description="Planning attributes of the source, as in the task list; empty for manual "
+        "tasks. Which of them a client shows is up to `poolTaskFields`.",
+        examples=["2026-12-18"],
+    )
+    start_date: date | None
+    original_estimate_hours: Amount | None
+    story_points: Amount | None
+    priority: str | None
+    assignee: str | None
+    reporter: str | None
     efforts: list[PoolEffort]
     total_effort: PersonDays
     total_open: PersonDays
