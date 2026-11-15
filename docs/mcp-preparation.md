@@ -43,6 +43,8 @@ curl -H "Authorization: Bearer $TOKEN" -H "X-Client-Name: my-script" \
   "http://localhost:8080/api/v1/availability?skillId=<id>&weeks=4"
 ```
 
-(The address is the proxy of `docker/docker-compose.dev.yml`; behind your own proxy use its address.)
+(The address is the proxy of `docker/docker-compose.dev.yml`; behind your own proxy use its address.
+How a Keycloak of your own puts the audience into the token is in
+[keycloak.md](keycloak.md#7-programs-with-bearer-tokens-optional).)
 The caller has exactly the permissions of the internal role that the token's roles map to. The
 automated tests of this path are in `tests/api/test_oidc.py`.

@@ -18,8 +18,9 @@ task in which week, and where are the over-bookings and skill bottlenecks.
 - **Tasks** – entered by hand, imported from CSV, or synchronised from a source such as Jira,
   with the due date, start date, estimate, story points, priority and people of the source shown
   next to the effort per skill that is planned here.
-- **Sign-in** – local accounts or OpenID Connect (Keycloak is the reference), roles with
-  permissions, roles limited to teams, API tokens, audit log.
+- **Sign-in** – local accounts or OpenID Connect (Keycloak is the reference, see
+  [docs/keycloak.md](docs/keycloak.md)), roles with permissions, roles limited to teams, API
+  tokens, audit log.
 - **Integrations** – a provider framework with a sync engine, a run log, schedules, a
   machine-to-machine ingest API, a Jira task source (Cloud and Data Center), CSV providers for
   tasks, members and absences, and a Keycloak directory import. A SAP provider is not part of this
@@ -70,7 +71,8 @@ docker compose -f docker-compose.yml -f docker/docker-compose.dev.yml --profile 
 ```
 
 The settings that connect the planner to that Keycloak are listed in [.env.example](.env.example).
-It is a development aid: development mode, no TLS.
+It is a development aid: development mode, no TLS. To connect the planner to a Keycloak you run,
+follow [docs/keycloak.md](docs/keycloak.md).
 
 ### Services
 
@@ -97,6 +99,7 @@ store (a Keycloak client secret or a Jira token, for example) are encrypted with
 | | |
 |---|---|
 | [docs/architecture.md](docs/architecture.md) | Components, layers, data flow, security |
+| [docs/keycloak.md](docs/keycloak.md) | Single sign-on with Keycloak: client, roles, settings, troubleshooting |
 | [docs/providers.md](docs/providers.md) | Integrations: Jira, the CSV formats, the Keycloak import, writing your own provider |
 | [docs/mcp-preparation.md](docs/mcp-preparation.md) | How the API is prepared for a later MCP server |
 | [docs/implementation-notes.md](docs/implementation-notes.md) | Decisions, deviations, what is not done |
