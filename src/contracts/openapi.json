@@ -3440,6 +3440,33 @@
             "title": "Permissions",
             "type": "array"
           },
+          "poolTaskFields": {
+            "anyOf": [
+              {
+                "items": {
+                  "enum": [
+                    "due_date",
+                    "start_date",
+                    "original_estimate_hours",
+                    "story_points",
+                    "priority",
+                    "assignee",
+                    "reporter",
+                    "owner_team",
+                    "source",
+                    "open_effort"
+                  ],
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "What the board shows with each task to plan, as chosen by the account; null follows `poolTaskFields` of the settings.",
+            "title": "Pooltaskfields"
+          },
           "userId": {
             "anyOf": [
               {
@@ -3468,6 +3495,7 @@
           "email",
           "authProvider",
           "locale",
+          "poolTaskFields",
           "mustChangePassword",
           "memberId",
           "permissions",
@@ -4640,12 +4668,51 @@
       },
       "PoolTask": {
         "properties": {
+          "assignee": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Assignee"
+          },
+          "dueDate": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Planning attributes of the source, as in the task list; empty for manual tasks. Which of them a client shows is up to `poolTaskFields`.",
+            "examples": [
+              "2026-12-18"
+            ],
+            "title": "Duedate"
+          },
           "efforts": {
             "items": {
               "$ref": "#/components/schemas/PoolEffort"
             },
             "title": "Efforts",
             "type": "array"
+          },
+          "externalUrl": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Where the task is in its source system.",
+            "title": "Externalurl"
           },
           "id": {
             "format": "uuid",
@@ -4655,6 +4722,17 @@
           "key": {
             "title": "Key",
             "type": "string"
+          },
+          "originalEstimateHours": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Originalestimatehours"
           },
           "ownerTeamId": {
             "anyOf": [
@@ -4668,9 +4746,69 @@
             ],
             "title": "Ownerteamid"
           },
+          "ownerTeamName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ownerteamname"
+          },
           "plannedPercent": {
             "title": "Plannedpercent",
             "type": "number"
+          },
+          "priority": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Priority"
+          },
+          "reporter": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reporter"
+          },
+          "sourceName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Name of the integration or ingest source the task comes from; empty for manual tasks.",
+            "examples": [
+              "Jira"
+            ],
+            "title": "Sourcename"
+          },
+          "startDate": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Startdate"
           },
           "status": {
             "enum": [
@@ -4680,6 +4818,17 @@
             ],
             "title": "Status",
             "type": "string"
+          },
+          "storyPoints": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Storypoints"
           },
           "title": {
             "title": "Title",
@@ -4713,12 +4862,65 @@
           "title",
           "status",
           "ownerTeamId",
+          "ownerTeamName",
+          "sourceName",
+          "externalUrl",
+          "dueDate",
+          "startDate",
+          "originalEstimateHours",
+          "storyPoints",
+          "priority",
+          "assignee",
+          "reporter",
           "efforts",
           "totalEffort",
           "totalOpen",
           "plannedPercent"
         ],
         "title": "PoolTask",
+        "type": "object"
+      },
+      "PoolTaskFieldsRequest": {
+        "properties": {
+          "fields": {
+            "anyOf": [
+              {
+                "items": {
+                  "enum": [
+                    "due_date",
+                    "start_date",
+                    "original_estimate_hours",
+                    "story_points",
+                    "priority",
+                    "assignee",
+                    "reporter",
+                    "owner_team",
+                    "source",
+                    "open_effort"
+                  ],
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The account's own choice, kept in the board's order; an empty list shows nothing, null goes back to the default of the settings.",
+            "examples": [
+              [
+                "due_date",
+                "priority",
+                "assignee"
+              ]
+            ],
+            "title": "Fields"
+          }
+        },
+        "required": [
+          "fields"
+        ],
+        "title": "PoolTaskFieldsRequest",
         "type": "object"
       },
       "PreferencesRequest": {
@@ -5093,6 +5295,33 @@
             "minimum": 1.0,
             "title": "Planninghorizonweeks",
             "type": "integer"
+          },
+          "poolTaskFields": {
+            "default": [],
+            "description": "Attributes the board shows with each task to plan, for accounts that have not chosen their own. Kept in the board's order; a field listed twice counts once.",
+            "examples": [
+              [
+                "due_date",
+                "story_points"
+              ]
+            ],
+            "items": {
+              "enum": [
+                "due_date",
+                "start_date",
+                "original_estimate_hours",
+                "story_points",
+                "priority",
+                "assignee",
+                "reporter",
+                "owner_team",
+                "source",
+                "open_effort"
+              ],
+              "type": "string"
+            },
+            "title": "Pooltaskfields",
+            "type": "array"
           }
         },
         "required": [
@@ -5142,12 +5371,40 @@
             "minimum": 1.0,
             "title": "Planninghorizonweeks",
             "type": "integer"
+          },
+          "poolTaskFields": {
+            "default": [],
+            "description": "Attributes the board shows with each task to plan, for accounts that have not chosen their own. Kept in the board's order; a field listed twice counts once.",
+            "examples": [
+              [
+                "due_date",
+                "story_points"
+              ]
+            ],
+            "items": {
+              "enum": [
+                "due_date",
+                "start_date",
+                "original_estimate_hours",
+                "story_points",
+                "priority",
+                "assignee",
+                "reporter",
+                "owner_team",
+                "source",
+                "open_effort"
+              ],
+              "type": "string"
+            },
+            "title": "Pooltaskfields",
+            "type": "array"
           }
         },
         "required": [
           "planningHorizonWeeks",
           "defaultAllocationPercent",
           "locale",
+          "poolTaskFields",
           "authLocalEnabled",
           "authOidcEnabled",
           "demoSeedEnabled"
@@ -11066,6 +11323,117 @@
           }
         ],
         "summary": "The signed-in user and their permissions",
+        "tags": [
+          "auth"
+        ],
+        "x-permission": "authenticated"
+      }
+    },
+    "/api/v1/auth/me/pool-task-fields": {
+      "put": {
+        "description": "For the signed-in account only. Null goes back to the default of the settings.",
+        "operationId": "auth_update_pool_task_fields",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PoolTaskFieldsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Me"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Authentication is missing or invalid."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The permission is missing, or the CSRF check failed."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The resource does not exist."
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The change conflicts with the current state."
+          },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The If-Match version is out of date."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request is not valid."
+          },
+          "428": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "An If-Match version is required."
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Choose what the board shows with each task to plan",
         "tags": [
           "auth"
         ],

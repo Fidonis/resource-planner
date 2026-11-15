@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from tests.api.support import Api, Caller
-from tests.api.world import ABSENCES, MEMBERS, TASKS, audit_count, skill, team
+from tests.api.world import ABSENCES, MEMBERS, TASKS, audit_count, plan, skill, team
 
 from planner_api.auth.permissions import INGEST_WRITE
 
@@ -197,6 +197,35 @@ PLANNING = {
     "assignee": "Alex Example",
     "reporter": "Sam Example",
 }
+
+
+async def test_the_pool_of_the_board_carries_the_attributes_of_the_source(api: Api) -> None:
+    admin = await api.admin()
+    await skill(admin, "Backend")
+    await team(admin, "Web")
+    push = await pusher(api)
+    body = tasks()
+    body["tasks"][0].update(PLANNING, team="Web")
+    body["tasks"].append(
+        {
+            "externalId": "10003",
+            "key": "WEB-3",
+            "title": "Basket",
+            "efforts": [{"skill": "Backend", "personDays": 1}],
+        }
+    )
+    assert (await push.post(f"{INGEST}/tasks", body)).json()["created"] == 3
+
+    pool = {t["key"]: t for t in (await plan(admin))["tasks"]}
+    assert set(pool) == {"WEB-1", "WEB-3"}  # WEB-2 is done
+    for name, value in PLANNING.items():
+        assert pool["WEB-1"][name] == value, name
+    assert pool["WEB-1"]["ownerTeamName"] == "Web"
+    assert pool["WEB-1"]["sourceName"] == "jira-eu"
+    assert pool["WEB-1"]["externalUrl"] == "https://tracker.test/WEB-1"
+    bare = pool["WEB-3"]
+    assert bare["dueDate"] is None and bare["storyPoints"] is None
+    assert bare["ownerTeamName"] is None and bare["externalUrl"] is None
 
 
 async def test_planning_attributes_are_kept_and_shown_read_only(api: Api) -> None:

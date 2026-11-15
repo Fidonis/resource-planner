@@ -43,6 +43,16 @@ class TaskRow:
     status: str
     owner_team_id: uuid.UUID | None
     efforts: dict[uuid.UUID, Decimal]  # skill id -> person-days
+    # Where the task comes from and what its source knows about it, for the pool of the board.
+    external_source: str | None = None
+    external_url: str | None = None
+    due_date: date | None = None
+    start_date: date | None = None
+    original_estimate_hours: Decimal | None = None
+    story_points: Decimal | None = None
+    priority: str | None = None
+    assignee: str | None = None
+    reporter: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -274,7 +284,23 @@ async def load_tasks(
         )
     tasks = (
         await session.execute(
-            select(Task.id, Task.version, Task.key, Task.title, Task.status, Task.owner_team_id)
+            select(
+                Task.id,
+                Task.version,
+                Task.key,
+                Task.title,
+                Task.status,
+                Task.owner_team_id,
+                Task.external_source,
+                Task.external_url,
+                Task.due_date,
+                Task.start_date,
+                Task.original_estimate_hours,
+                Task.story_points,
+                Task.priority,
+                Task.assignee,
+                Task.reporter,
+            )
             .where(*conditions)
             .order_by(Task.key, Task.id)
         )
@@ -289,7 +315,24 @@ async def load_tasks(
         for task_id, effort_skill, person_days in rows.all():
             efforts[task_id][effort_skill] = person_days
     return [
-        TaskRow(t.id, t.version, t.key, t.title, t.status, t.owner_team_id, efforts[t.id])
+        TaskRow(
+            id=t.id,
+            version=t.version,
+            key=t.key,
+            title=t.title,
+            status=t.status,
+            owner_team_id=t.owner_team_id,
+            efforts=efforts[t.id],
+            external_source=t.external_source,
+            external_url=t.external_url,
+            due_date=t.due_date,
+            start_date=t.start_date,
+            original_estimate_hours=t.original_estimate_hours,
+            story_points=t.story_points,
+            priority=t.priority,
+            assignee=t.assignee,
+            reporter=t.reporter,
+        )
         for t in tasks
     ]
 

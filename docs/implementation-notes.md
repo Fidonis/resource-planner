@@ -67,6 +67,7 @@ Endpoints beyond section 7.1, added because the web interface needs them:
 | `GET /absences/calendar` | Absences laid out per day for the calendar page |
 | `POST /auth/change-password` | Forced and voluntary password change |
 | `PUT /auth/me/preferences` | Language and theme of the signed-in account |
+| `PUT /auth/me/pool-task-fields` | The account's own choice of the fields shown with the tasks to plan; a separate operation, because a client sends the whole preferences body and would otherwise reset it when changing the language |
 | `GET /integrations/providers` | Providers found, with the schemas of their settings and mapping (`{"items": [...]}`) |
 | `GET /integrations/{id}/runs/{runId}` | The log of one run (the list is `GET /integrations/{id}/runs`) |
 | `POST /integrations/field-options` | The choices of a setting, loaded from the source, also for a form that is not saved |

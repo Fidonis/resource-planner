@@ -403,6 +403,22 @@
 
   // ── Alpine components (CSP build: names only, no expressions in the markup) ──────────────
   document.addEventListener("alpine:init", function () {
+    // The own choice of the fields shown with the tasks to plan can only be ticked while the
+    // account does not follow the default of the settings.
+    window.Alpine.data("ownChoice", function () {
+      return {
+        init: function () {
+          var form = this.$el;
+          var list = this.$refs.list;
+          function sync() {
+            var own = form.querySelector('input[name="mode"][value="own"]');
+            list.disabled = !(own && own.checked);
+          }
+          form.addEventListener("change", sync);
+          sync();
+        },
+      };
+    });
     // A colour input and a text input that show the same value.
     window.Alpine.data("colorField", function () {
       return {

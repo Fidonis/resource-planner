@@ -14,6 +14,9 @@
       <dd>{{ _("Local account") if me.auth_provider == "local" else _("Single sign-on") }}</dd>
     </dl>
   </section>
+  {% if can("assignment:read") %}
+  {% include "account/_pool_fields.html" %}
+  {% endif %}
   <section class="rounded-box border border-base-300 bg-base-100 p-6">
     <h2 class="font-brand text-base font-bold">{{ _("What you may do") }}</h2>
     {% if permissions %}

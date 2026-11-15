@@ -24,11 +24,13 @@ from planner_api.schemas.auth import (
     LoginRequest,
     LogoutResult,
     Me,
+    PoolTaskFieldsRequest,
     PreferencesRequest,
 )
 from planner_api.schemas.common import ErrorResponses
 from planner_api.services import accounts
 from planner_api.services import oidc as flow
+from planner_api.services.settings import known_pool_fields
 
 log = logging.getLogger("planner_api.auth")
 
@@ -44,7 +46,12 @@ def _limit_login_attempts(request: Request) -> None:
 
 
 def me_from_principal(
-    principal: Principal, *, auth_provider: str, email: str | None, via: str
+    principal: Principal,
+    *,
+    auth_provider: str,
+    email: str | None,
+    via: str,
+    pool_task_fields: list[str] | None,
 ) -> Me:
     grants = [
         GrantOut(
@@ -60,6 +67,7 @@ def me_from_principal(
         email=email,
         auth_provider=auth_provider,
         locale=principal.locale,
+        pool_task_fields=None if pool_task_fields is None else known_pool_fields(pool_task_fields),
         must_change_password=principal.must_change_password,
         member_id=principal.member_id,
         permissions=sorted(principal.grants),
@@ -119,7 +127,11 @@ async def login(body: LoginRequest, response: Response, settings: SettingsDep, u
     principal = await accounts.build_principal(session, settings, user, csrf=row.csrf_token)
     session.add(accounts.login_event(user, via="session"))
     result = me_from_principal(
-        principal, auth_provider=user.auth_provider, email=user.email, via="session"
+        principal,
+        auth_provider=user.auth_provider,
+        email=user.email,
+        via="session",
+        pool_task_fields=user.pool_task_fields,
     )
     await uow.finish()
     set_session_cookie(response, settings, token)
@@ -266,6 +278,7 @@ async def me(ctx: CtxDep) -> Me:
         auth_provider=user.auth_provider if user else "system",
         email=user.email if user else None,
         via=ctx.via,
+        pool_task_fields=user.pool_task_fields if user else None,
     )
 
 
@@ -322,6 +335,33 @@ async def update_preferences(body: PreferencesRequest, ctx: CtxDep) -> Me:
         auth_provider=user.auth_provider,
         email=user.email,
         via=ctx.via,
+        pool_task_fields=user.pool_task_fields,
+    )
+    await ctx.uow.finish()
+    return result
+
+
+@router.put(
+    "/me/pool-task-fields",
+    operation_id="auth_update_pool_task_fields",
+    summary="Choose what the board shows with each task to plan",
+    description="For the signed-in account only. Null goes back to the default of the settings.",
+    response_model=Me,
+    openapi_extra=perm("authenticated"),
+)
+async def update_pool_task_fields(body: PoolTaskFieldsRequest, ctx: CtxDep) -> Me:
+    if ctx.principal.user_id is None:
+        raise ProblemError(403, ErrorCode.PERMISSION_DENIED, "This caller has no account.")
+    user = await auth_repo.get_user(ctx.session, ctx.principal.user_id)
+    if user is None:
+        raise ProblemError(401, ErrorCode.AUTH_REQUIRED, "Sign in again.")
+    user.pool_task_fields = None if body.fields is None else list(body.fields)
+    result = me_from_principal(
+        ctx.principal,
+        auth_provider=user.auth_provider,
+        email=user.email,
+        via=ctx.via,
+        pool_task_fields=user.pool_task_fields,
     )
     await ctx.uow.finish()
     return result

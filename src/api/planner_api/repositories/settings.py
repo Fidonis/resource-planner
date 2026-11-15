@@ -14,6 +14,7 @@ DEFAULTS: dict[str, Any] = {
     "planning_horizon_weeks": 4,
     "default_allocation_percent": 80,
     "locale": "en",
+    "pool_task_fields": [],
 }
 
 

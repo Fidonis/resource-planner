@@ -1281,6 +1281,19 @@ class MappingsOut(BaseModel):
     ]
 
 
+class PoolTaskField(StrEnum):
+    due_date = 'due_date'
+    start_date = 'start_date'
+    original_estimate_hours = 'original_estimate_hours'
+    story_points = 'story_points'
+    priority = 'priority'
+    assignee = 'assignee'
+    reporter = 'reporter'
+    owner_team = 'owner_team'
+    source = 'source'
+    open_effort = 'open_effort'
+
+
 class Me(BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,
@@ -1303,6 +1316,14 @@ class Me(BaseModel):
         bool, Field(alias='mustChangePassword', title='Mustchangepassword')
     ]
     permissions: Annotated[list[str], Field(title='Permissions')]
+    pool_task_fields: Annotated[
+        list[PoolTaskField] | None,
+        Field(
+            alias='poolTaskFields',
+            description='What the board shows with each task to plan, as chosen by the account; null follows `poolTaskFields` of the settings.',
+            title='Pooltaskfields',
+        ),
+    ]
     user_id: Annotated[UUID | None, Field(alias='userId', title='Userid')]
     username: Annotated[str, Field(title='Username')]
     via: Annotated[str, Field(title='Via')]
@@ -1713,16 +1734,58 @@ class PoolTask(BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,
     )
+    assignee: Annotated[str | None, Field(title='Assignee')]
+    due_date: Annotated[
+        date_aliased | None,
+        Field(
+            alias='dueDate',
+            description='Planning attributes of the source, as in the task list; empty for manual tasks. Which of them a client shows is up to `poolTaskFields`.',
+            examples=['2026-12-18'],
+            title='Duedate',
+        ),
+    ]
     efforts: Annotated[list[PoolEffort], Field(title='Efforts')]
+    external_url: Annotated[
+        str | None,
+        Field(
+            alias='externalUrl',
+            description='Where the task is in its source system.',
+            title='Externalurl',
+        ),
+    ]
     id: Annotated[UUID, Field(title='Id')]
     key: Annotated[str, Field(title='Key')]
+    original_estimate_hours: Annotated[
+        float | None,
+        Field(alias='originalEstimateHours', title='Originalestimatehours'),
+    ]
     owner_team_id: Annotated[
         UUID | None, Field(alias='ownerTeamId', title='Ownerteamid')
+    ]
+    owner_team_name: Annotated[
+        str | None, Field(alias='ownerTeamName', title='Ownerteamname')
     ]
     planned_percent: Annotated[
         float, Field(alias='plannedPercent', title='Plannedpercent')
     ]
+    priority: Annotated[str | None, Field(title='Priority')]
+    reporter: Annotated[str | None, Field(title='Reporter')]
+    source_name: Annotated[
+        str | None,
+        Field(
+            alias='sourceName',
+            description='Name of the integration or ingest source the task comes from; empty for manual tasks.',
+            examples=['Jira'],
+            title='Sourcename',
+        ),
+    ]
+    start_date: Annotated[
+        date_aliased | None, Field(alias='startDate', title='Startdate')
+    ]
     status: Annotated[Status2, Field(title='Status')]
+    story_points: Annotated[
+        float | None, Field(alias='storyPoints', title='Storypoints')
+    ]
     title: Annotated[str, Field(title='Title')]
     total_effort: Annotated[
         float,
@@ -1735,6 +1798,20 @@ class PoolTask(BaseModel):
         Field(alias='totalOpen', examples=[1.5], multiple_of=0.01, title='Totalopen'),
     ]
     version: Annotated[int, Field(title='Version')]
+
+
+class PoolTaskFieldsRequest(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    fields: Annotated[
+        list[PoolTaskField] | None,
+        Field(
+            description="The account's own choice, kept in the board's order; an empty list shows nothing, null goes back to the default of the settings.",
+            examples=[['due_date', 'priority', 'assignee']],
+            title='Fields',
+        ),
+    ]
 
 
 class Locale(StrEnum):
@@ -1941,6 +2018,15 @@ class SettingsIn(BaseModel):
             title='Planninghorizonweeks',
         ),
     ]
+    pool_task_fields: Annotated[
+        list[PoolTaskField],
+        Field(
+            alias='poolTaskFields',
+            description="Attributes the board shows with each task to plan, for accounts that have not chosen their own. Kept in the board's order; a field listed twice counts once.",
+            examples=[['due_date', 'story_points']],
+            title='Pooltaskfields',
+        ),
+    ] = []
 
 
 class SettingsOut(BaseModel):
@@ -1996,6 +2082,15 @@ class SettingsOut(BaseModel):
             ge=1,
             le=12,
             title='Planninghorizonweeks',
+        ),
+    ]
+    pool_task_fields: Annotated[
+        list[PoolTaskField],
+        Field(
+            alias='poolTaskFields',
+            description="Attributes the board shows with each task to plan, for accounts that have not chosen their own. Kept in the board's order; a field listed twice counts once.",
+            examples=[['due_date', 'story_points']],
+            title='Pooltaskfields',
         ),
     ]
 

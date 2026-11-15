@@ -41,6 +41,7 @@ PERMISSIONS: dict[str, str] = {
     "auth_me": "authenticated",
     "auth_oidc_callback": "public",
     "auth_oidc_login": "public",
+    "auth_update_pool_task_fields": "authenticated",
     "auth_update_preferences": "authenticated",
     "availability_get": "assignment:read",
     "demo_seed": "settings:admin",
@@ -575,6 +576,18 @@ class PlannerApi(ClientBase):
             "/api/v1/auth/oidc/login",
             creds,
             query={"next": next},
+        )
+
+    async def auth_update_pool_task_fields(
+        self, creds: Credentials, *, body: models.PoolTaskFieldsRequest
+    ) -> models.Me:
+        """Choose what the board shows with each task to plan"""
+        return await self._fetch(
+            "PUT",
+            "/api/v1/auth/me/pool-task-fields",
+            creds,
+            body=body,
+            response=models.Me,
         )
 
     async def auth_update_preferences(

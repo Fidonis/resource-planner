@@ -1,4 +1,25 @@
 {% from "macros.html" import empty %}
+{# One value of a task to plan, as chosen in the settings or by the account; nothing when empty. #}
+{% macro pool_value(t, f) %}
+{% if f.id == "due_date" %}{% set value = t.due_date|date %}
+{% elif f.id == "start_date" %}{% set value = t.start_date|date %}
+{% elif f.id == "original_estimate_hours" %}{% set value = _("%(hours)s h", hours=t.original_estimate_hours|days) if t.original_estimate_hours is not none else "" %}
+{% elif f.id == "story_points" %}{% set value = _("%(points)s SP", points=t.story_points|days) if t.story_points is not none else "" %}
+{% elif f.id == "priority" %}{% set value = t.priority or "" %}
+{% elif f.id == "assignee" %}{% set value = t.assignee or "" %}
+{% elif f.id == "reporter" %}{% set value = t.reporter or "" %}
+{% elif f.id == "owner_team" %}{% set value = t.owner_team_name or "" %}
+{% elif f.id == "source" %}{% set value = t.source_name or "" %}
+{% elif f.id == "open_effort" %}{% set value = _("%(days)s PD open", days=t.total_open|days) %}
+{% else %}{% set value = "" %}{% endif %}
+{% if value %}
+<li class="inline-flex min-w-0 items-center gap-1" title="{{ f.label }}: {{ value }}" data-pool-field="{{ f.id }}">
+  {% if f.icon %}{{ icon(f.icon, "h-3.5 w-3.5 shrink-0 opacity-60") }}{% endif %}
+  <span class="sr-only">{{ f.label }}:</span>
+  <span class="truncate">{{ value }}</span>
+</li>
+{% endif %}
+{% endmacro %}
 <div id="board" class="space-y-4" data-from="{{ plan.start.isoformat() }}" data-weeks="{{ count }}" data-team="{{ filters.team }}" data-skill="{{ filters.skill }}"{% if can_write %} data-drag-enabled{% endif %}>
 
   <div class="flex flex-wrap items-end justify-between gap-3">
@@ -44,10 +65,20 @@
         {% for t in plan.tasks %}
         <li class="px-4 py-3" data-task="{{ t.key }}">
           <div class="flex items-center justify-between gap-2">
+            {% if t.external_url and pool_fields|selectattr("id", "equalto", "source")|list %}
+            <a class="link link-hover inline-flex items-center gap-1 font-mono text-xs" href="{{ t.external_url }}" target="_blank" rel="noopener noreferrer" title="{{ _('Open %(key)s in the source', key=t.key) }}">{{ t.key }} {{ icon("external-link", "h-3.5 w-3.5 shrink-0 opacity-60") }}</a>
+            {% else %}
             <span class="font-mono text-xs">{{ t.key }}</span>
+            {% endif %}
             <span class="text-xs tabular-nums opacity-70">{{ t.planned_percent|number(0) }} %</span>
           </div>
           <p class="truncate text-sm font-medium" title="{{ t.title }}">{{ t.title }}</p>
+          {% set meta %}{% for f in pool_fields %}{{ pool_value(t, f) }}{% endfor %}{% endset %}
+          {% if meta|trim %}
+          <ul class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs opacity-80" aria-label="{{ _('Details of %(key)s', key=t.key) }}" data-pool-meta>
+            {{ meta }}
+          </ul>
+          {% endif %}
           <ul class="mt-2 space-y-1"{% if can_write %} data-pool-list{% endif %}>
             {% for e in t.efforts %}
             <li class="flex items-center justify-between gap-2 text-sm{% if e.done %} opacity-60{% endif %}" data-effort="{{ e.skill_key }}"{% if can_write and not e.done %} data-drag data-task-id="{{ t.id }}" data-skill-id="{{ e.skill_id }}" data-skill-key="{{ e.skill_key }}"{% endif %}>

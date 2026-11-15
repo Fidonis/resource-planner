@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Resource Planner \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-13 20:49+0100\n"
+"POT-Creation-Date: 2026-11-15 08:28+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -220,8 +220,8 @@ msgstr ""
 msgid "Deleted."
 msgstr ""
 
-#: crud.py routes/integrations.py templates/planning/_edit.html templates/roles/_mappings.html
-#: templates/settings/_form.html
+#: crud.py routes/integrations.py templates/account/_pool_fields.html templates/planning/_edit.html
+#: templates/roles/_mappings.html templates/settings/_form.html
 msgid "Save"
 msgstr ""
 
@@ -233,7 +233,7 @@ msgstr ""
 msgid "Somebody else changed this entry in the meantime. Load the current values to continue."
 msgstr ""
 
-#: crud.py routes/admin.py routes/integrations.py routes/planning.py
+#: crud.py routes/admin.py routes/integrations.py routes/pages.py routes/planning.py
 msgid "Saved."
 msgstr ""
 
@@ -302,6 +302,50 @@ msgstr ""
 
 #: nav.py templates/settings/index.html
 msgid "Settings"
+msgstr ""
+
+#: pool_fields.py templates/tasks/_details.html
+msgid "Due date"
+msgstr ""
+
+#: pool_fields.py templates/tasks/_details.html
+msgid "Start date"
+msgstr ""
+
+#: pool_fields.py templates/tasks/_details.html
+msgid "Original estimate"
+msgstr ""
+
+#: pool_fields.py templates/tasks/_details.html templates/tasks/_list.html
+msgid "Story points"
+msgstr ""
+
+#: pool_fields.py templates/tasks/_details.html templates/tasks/_list.html
+msgid "Priority"
+msgstr ""
+
+#: pool_fields.py templates/tasks/_details.html templates/tasks/_list.html
+msgid "Assignee"
+msgstr ""
+
+#: pool_fields.py templates/tasks/_details.html
+msgid "Reporter"
+msgstr ""
+
+#: pool_fields.py resources.py templates/absences/calendar.html templates/members/_list.html
+#: templates/members/index.html templates/overview.html templates/planning/_board.html
+#: templates/tasks/_list.html templates/tasks/index.html work_resources.py
+msgid "Team"
+msgstr ""
+
+#: pool_fields.py templates/absences/_list.html templates/members/_list.html
+#: templates/skills/_list.html templates/tasks/_list.html templates/teams/_list.html
+#: templates/users/_list.html templates/users/index.html
+msgid "Source"
+msgstr ""
+
+#: pool_fields.py
+msgid "Open effort"
 msgstr ""
 
 #: provider_texts.py
@@ -708,12 +752,6 @@ msgstr ""
 msgid "Delete member"
 msgstr ""
 
-#: resources.py templates/absences/calendar.html templates/members/_list.html
-#: templates/members/index.html templates/overview.html templates/planning/_board.html
-#: templates/tasks/_list.html templates/tasks/index.html work_resources.py
-msgid "Team"
-msgstr ""
-
 #: resources.py
 msgid "Availability for planned work (%)"
 msgstr ""
@@ -1115,6 +1153,16 @@ msgstr ""
 
 #: routes/admin.py
 msgid "Language of accounts without a preference"
+msgstr ""
+
+#: routes/admin.py
+msgid "Shown with the tasks to plan"
+msgstr ""
+
+#: routes/admin.py
+msgid ""
+"What the planning board shows below the title of each task to plan. Each account can choose its "
+"own on its account page."
 msgstr ""
 
 #: routes/auth.py
@@ -1541,12 +1589,6 @@ msgstr ""
 msgid "Working days"
 msgstr ""
 
-#: templates/absences/_list.html templates/members/_list.html templates/skills/_list.html
-#: templates/tasks/_list.html templates/teams/_list.html templates/users/_list.html
-#: templates/users/index.html
-msgid "Source"
-msgstr ""
-
 #: templates/absences/_list.html
 msgid "Everybody"
 msgstr ""
@@ -1616,6 +1658,31 @@ msgstr ""
 
 #: templates/absences/index.html
 msgid "Starts on or before"
+msgstr ""
+
+#: templates/account/_pool_fields.html
+msgid "Tasks to plan on the board"
+msgstr ""
+
+#: templates/account/_pool_fields.html
+msgid "What the planning board shows below the title of each task to plan."
+msgstr ""
+
+#: templates/account/_pool_fields.html
+#, python-format
+msgid "Use the default of the settings: %(fields)s"
+msgstr ""
+
+#: templates/account/_pool_fields.html
+msgid "nothing"
+msgstr ""
+
+#: templates/account/_pool_fields.html
+msgid "Choose my own"
+msgstr ""
+
+#: templates/account/_pool_fields.html
+msgid "My own choice"
 msgstr ""
 
 #: templates/api_tokens/_list.html
@@ -2102,6 +2169,21 @@ msgstr ""
 msgid "Assign"
 msgstr ""
 
+#: templates/planning/_board.html templates/tasks/_details.html
+#, python-format
+msgid "%(hours)s h"
+msgstr ""
+
+#: templates/planning/_board.html
+#, python-format
+msgid "%(points)s SP"
+msgstr ""
+
+#: templates/planning/_board.html
+#, python-format
+msgid "%(days)s PD open"
+msgstr ""
+
 #: templates/planning/_board.html
 msgid "Board settings"
 msgstr ""
@@ -2120,6 +2202,16 @@ msgstr ""
 
 #: templates/planning/_board.html
 msgid "Drag a skill onto a member's week, or use its Assign… button."
+msgstr ""
+
+#: templates/planning/_board.html templates/tasks/_details.html templates/tasks/_list.html
+#, python-format
+msgid "Open %(key)s in the source"
+msgstr ""
+
+#: templates/planning/_board.html
+#, python-format
+msgid "Details of %(key)s"
 msgstr ""
 
 #: templates/planning/_board.html
@@ -2294,44 +2386,6 @@ msgstr ""
 #: templates/tasks/_details.html
 #, python-format
 msgid "From %(source)s, read only."
-msgstr ""
-
-#: templates/tasks/_details.html templates/tasks/_list.html
-#, python-format
-msgid "Open %(key)s in the source"
-msgstr ""
-
-#: templates/tasks/_details.html
-msgid "Due date"
-msgstr ""
-
-#: templates/tasks/_details.html
-msgid "Start date"
-msgstr ""
-
-#: templates/tasks/_details.html
-msgid "Original estimate"
-msgstr ""
-
-#: templates/tasks/_details.html
-#, python-format
-msgid "%(hours)s h"
-msgstr ""
-
-#: templates/tasks/_details.html templates/tasks/_list.html
-msgid "Story points"
-msgstr ""
-
-#: templates/tasks/_details.html templates/tasks/_list.html
-msgid "Priority"
-msgstr ""
-
-#: templates/tasks/_details.html templates/tasks/_list.html
-msgid "Assignee"
-msgstr ""
-
-#: templates/tasks/_details.html
-msgid "Reporter"
 msgstr ""
 
 #: templates/tasks/_details.html

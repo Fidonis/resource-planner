@@ -13,6 +13,7 @@ from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse, Response
 
 from planner_client import ApiError, models
+from planner_ui import pool_fields
 from planner_ui.i18n import gettext_
 from planner_ui.resource_helpers import date_or_none, days, id_or_none
 from planner_ui.session import CtxDep, UiContext
@@ -167,6 +168,9 @@ async def board_response(
     )
     teams = await ctx.api.teams_list(ctx.creds, page_size=200)
     skills = await ctx.api.skills_list(ctx.creds, page_size=200)
+    chosen = ctx.me.pool_task_fields
+    if chosen is None:
+        chosen = (await ctx.api.settings_get(ctx.creds)).pool_task_fields
     count = len(plan.weeks)
     filters = {"team": team or "", "skill": skill or ""}
     carry = {"from": plan.start.isoformat(), "weeks": str(count)}
@@ -197,6 +201,7 @@ async def board_response(
         assign_url=assign_url,
         edit_url=edit_url,
         can_write=ctx.can("assignment:write"),
+        pool_fields=pool_fields.shown(chosen),
     )
 
 

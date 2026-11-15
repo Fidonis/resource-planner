@@ -1,0 +1,29 @@
+{# The account's own choice of what the board shows with each task to plan. #}
+<form id="pool-fields-form" hx-put="/account/pool-fields" hx-target="#pool-fields-form" hx-swap="outerHTML" hx-disable-elt="find button[type=submit]" class="space-y-3 rounded-box border border-base-300 bg-base-100 p-6" x-data="ownChoice">
+  <div>
+    <h2 class="font-brand text-base font-bold">{{ _("Tasks to plan on the board") }}</h2>
+    <p class="mt-1 text-sm opacity-70">{{ _("What the planning board shows below the title of each task to plan.") }}</p>
+  </div>
+  <div role="radiogroup" aria-label="{{ _('Tasks to plan on the board') }}">
+    <label class="label cursor-pointer justify-start gap-3">
+      <input type="radio" name="mode" value="default" class="radio radio-sm"{% if following %} checked{% endif %}>
+      <span class="label-text">{{ _("Use the default of the settings: %(fields)s", fields=default_labels|join(", ") if default_labels else _("nothing")) }}</span>
+    </label>
+    <label class="label cursor-pointer justify-start gap-3">
+      <input type="radio" name="mode" value="own" class="radio radio-sm"{% if not following %} checked{% endif %}>
+      <span class="label-text">{{ _("Choose my own") }}</span>
+    </label>
+  </div>
+  <fieldset x-ref="list" class="grid gap-x-4 rounded-lg border border-base-300 p-2 sm:grid-cols-2 disabled:opacity-60"{% if following %} disabled{% endif %}>
+    <legend class="sr-only">{{ _("My own choice") }}</legend>
+    {% for c in choices %}
+    <label class="label cursor-pointer justify-start gap-3 py-1">
+      <input type="checkbox" name="fields" value="{{ c.value }}" class="checkbox checkbox-sm"{% if c.value in checked %} checked{% endif %}>
+      <span class="label-text">{{ c.label }}</span>
+    </label>
+    {% endfor %}
+  </fieldset>
+  <div class="flex justify-end">
+    <button type="submit" class="btn btn-primary">{{ _("Save") }}</button>
+  </div>
+</form>
