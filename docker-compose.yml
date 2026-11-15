@@ -63,6 +63,7 @@ services:
       ENABLE_DEMO_SEED: ${ENABLE_DEMO_SEED:-false}
       IMPORT_DIR: /data/imports
       SCHEDULER_ENABLED: ${SCHEDULER_ENABLED:-true}
+      SYNC_FULL_INTERVAL_HOURS: ${SYNC_FULL_INTERVAL_HOURS:-24}
     volumes:
       - imports:/data/imports
     ports:
