@@ -1314,7 +1314,7 @@ wheels = [
 
 [[package]]
 name = "planner-api"
-version = "0.1.0"
+version = "0.2.0"
 source = { editable = "src/api" }
 dependencies = [
     { name = "alembic" },
@@ -1351,7 +1351,7 @@ requires-dist = [
 
 [[package]]
 name = "planner-client"
-version = "0.1.0"
+version = "0.2.0"
 source = { editable = "src/contracts" }
 dependencies = [
     { name = "httpx" },
@@ -1366,7 +1366,7 @@ requires-dist = [
 
 [[package]]
 name = "planner-ui"
-version = "0.1.0"
+version = "0.2.0"
 source = { editable = "src/ui" }
 dependencies = [
     { name = "babel" },
@@ -1828,7 +1828,7 @@ wheels = [
 
 [[package]]
 name = "resource-planner"
-version = "0.1.0"
+version = "0.2.0"
 source = { virtual = "." }
 
 [package.dev-dependencies]
