@@ -1,6 +1,6 @@
 [project]
 name = "planner-api"
-version = "0.1.0"
+version = "0.2.0"
 description = "Resource Planner HTTP API"
 requires-python = ">=3.12"
 license = { text = "MIT" }
@@ -29,6 +29,7 @@ csv-tasks = "planner_api.providers.csv_tasks:CsvTaskSource"
 csv-absences = "planner_api.providers.csv_absences:CsvAbsenceSource"
 csv-members = "planner_api.providers.csv_members:CsvDirectory"
 keycloak = "planner_api.providers.keycloak:KeycloakDirectory"
+jira = "planner_api.providers.jira:JiraTaskSource"
 
 [build-system]
 requires = ["hatchling"]

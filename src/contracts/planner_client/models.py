@@ -649,6 +649,67 @@ class FieldError(BaseModel):
     message: Annotated[str, Field(title='Message')]
 
 
+class FieldOptionOut(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    label: Annotated[str, Field(description='What is shown.', title='Label')]
+    value: Annotated[
+        str,
+        Field(description='What is stored when the choice is selected.', title='Value'),
+    ]
+
+
+class Type(StrEnum):
+    task_source = 'task_source'
+    directory = 'directory'
+    absence_source = 'absence_source'
+
+
+class FieldOptionsIn(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    config: Annotated[
+        dict[str, Any],
+        Field(
+            description='The settings as the form has them now; they need not be complete.',
+            title='Config',
+        ),
+    ]
+    field: Annotated[
+        str,
+        Field(
+            description='The setting whose choices are wanted; its schema carries `x-remoteOptions`.',
+            examples=['projects'],
+            max_length=120,
+            title='Field',
+        ),
+    ]
+    integration_id: Annotated[
+        UUID | None,
+        Field(
+            alias='integrationId',
+            description='The integration being edited. Its stored secrets are used for secrets left empty in `config`, as long as the connection settings are unchanged.',
+            title='Integrationid',
+        ),
+    ] = None
+    provider_key: Annotated[
+        str,
+        Field(
+            alias='providerKey', examples=['jira'], max_length=64, title='Providerkey'
+        ),
+    ]
+    type: Annotated[Type, Field(title='Type')]
+
+
+class FieldOptionsOut(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    items: Annotated[list[FieldOptionOut], Field(title='Items')]
+
+
 class GrantOut(BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,
@@ -853,6 +914,34 @@ class IngestMembersIn(BaseModel):
     ]
 
 
+class Assignee(RootModel[str]):
+    root: Annotated[
+        str,
+        Field(
+            description='Name of the assigned person.',
+            examples=['Alex Example'],
+            max_length=160,
+            title='Assignee',
+        ),
+    ]
+
+
+class Priority(RootModel[str]):
+    root: Annotated[str, Field(examples=['High'], max_length=64, title='Priority')]
+
+
+class Reporter(RootModel[str]):
+    root: Annotated[
+        str,
+        Field(
+            description='Name of the person who created the task.',
+            examples=['Sam Example'],
+            max_length=160,
+            title='Reporter',
+        ),
+    ]
+
+
 class Status2(StrEnum):
     open = 'open'
     done = 'done'
@@ -878,7 +967,24 @@ class IngestTask(BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,
     )
+    assignee: Annotated[
+        Assignee | None,
+        Field(
+            description='Name of the assigned person.',
+            examples=['Alex Example'],
+            title='Assignee',
+        ),
+    ] = None
     description: Annotated[str | None, Field(title='Description')] = None
+    due_date: Annotated[
+        date_aliased | None,
+        Field(
+            alias='dueDate',
+            description='Due date. This and the other planning attributes below are shown with the task and cannot be edited in the planner; one that is left out stays as it is, null empties it.',
+            examples=['2026-12-18'],
+            title='Duedate',
+        ),
+    ] = None
     efforts: Annotated[
         list[IngestEffort] | None,
         Field(
@@ -890,7 +996,34 @@ class IngestTask(BaseModel):
         str, Field(alias='externalId', max_length=255, min_length=1, title='Externalid')
     ]
     key: Annotated[str, Field(max_length=64, min_length=1, title='Key')]
+    original_estimate_hours: Annotated[
+        float | None,
+        Field(
+            alias='originalEstimateHours',
+            description='Time estimate in hours.',
+            examples=[16],
+            title='Originalestimatehours',
+        ),
+    ] = None
+    priority: Annotated[Priority | None, Field(examples=['High'], title='Priority')] = (
+        None
+    )
+    reporter: Annotated[
+        Reporter | None,
+        Field(
+            description='Name of the person who created the task.',
+            examples=['Sam Example'],
+            title='Reporter',
+        ),
+    ] = None
+    start_date: Annotated[
+        date_aliased | None,
+        Field(alias='startDate', examples=['2026-12-01'], title='Startdate'),
+    ] = None
     status: Annotated[Status2, Field(title='Status')] = Status2.open
+    story_points: Annotated[
+        float | None, Field(alias='storyPoints', examples=[5], title='Storypoints')
+    ] = None
     team: Annotated[
         Team1 | None,
         Field(
@@ -939,12 +1072,6 @@ class Schedule(RootModel[str]):
             title='Schedule',
         ),
     ]
-
-
-class Type(StrEnum):
-    task_source = 'task_source'
-    directory = 'directory'
-    absence_source = 'absence_source'
 
 
 class IntegrationIn(BaseModel):
@@ -1154,6 +1281,19 @@ class MappingsOut(BaseModel):
     ]
 
 
+class PoolTaskField(StrEnum):
+    due_date = 'due_date'
+    start_date = 'start_date'
+    original_estimate_hours = 'original_estimate_hours'
+    story_points = 'story_points'
+    priority = 'priority'
+    assignee = 'assignee'
+    reporter = 'reporter'
+    owner_team = 'owner_team'
+    source = 'source'
+    open_effort = 'open_effort'
+
+
 class Me(BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,
@@ -1176,6 +1316,14 @@ class Me(BaseModel):
         bool, Field(alias='mustChangePassword', title='Mustchangepassword')
     ]
     permissions: Annotated[list[str], Field(title='Permissions')]
+    pool_task_fields: Annotated[
+        list[PoolTaskField] | None,
+        Field(
+            alias='poolTaskFields',
+            description='What the board shows with each task to plan, as chosen by the account; null follows `poolTaskFields` of the settings.',
+            title='Pooltaskfields',
+        ),
+    ]
     user_id: Annotated[UUID | None, Field(alias='userId', title='Userid')]
     username: Annotated[str, Field(title='Username')]
     via: Annotated[str, Field(title='Via')]
@@ -1586,16 +1734,58 @@ class PoolTask(BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,
     )
+    assignee: Annotated[str | None, Field(title='Assignee')]
+    due_date: Annotated[
+        date_aliased | None,
+        Field(
+            alias='dueDate',
+            description='Planning attributes of the source, as in the task list; empty for manual tasks. Which of them a client shows is up to `poolTaskFields`.',
+            examples=['2026-12-18'],
+            title='Duedate',
+        ),
+    ]
     efforts: Annotated[list[PoolEffort], Field(title='Efforts')]
+    external_url: Annotated[
+        str | None,
+        Field(
+            alias='externalUrl',
+            description='Where the task is in its source system.',
+            title='Externalurl',
+        ),
+    ]
     id: Annotated[UUID, Field(title='Id')]
     key: Annotated[str, Field(title='Key')]
+    original_estimate_hours: Annotated[
+        float | None,
+        Field(alias='originalEstimateHours', title='Originalestimatehours'),
+    ]
     owner_team_id: Annotated[
         UUID | None, Field(alias='ownerTeamId', title='Ownerteamid')
+    ]
+    owner_team_name: Annotated[
+        str | None, Field(alias='ownerTeamName', title='Ownerteamname')
     ]
     planned_percent: Annotated[
         float, Field(alias='plannedPercent', title='Plannedpercent')
     ]
+    priority: Annotated[str | None, Field(title='Priority')]
+    reporter: Annotated[str | None, Field(title='Reporter')]
+    source_name: Annotated[
+        str | None,
+        Field(
+            alias='sourceName',
+            description='Name of the integration or ingest source the task comes from; empty for manual tasks.',
+            examples=['Jira'],
+            title='Sourcename',
+        ),
+    ]
+    start_date: Annotated[
+        date_aliased | None, Field(alias='startDate', title='Startdate')
+    ]
     status: Annotated[Status2, Field(title='Status')]
+    story_points: Annotated[
+        float | None, Field(alias='storyPoints', title='Storypoints')
+    ]
     title: Annotated[str, Field(title='Title')]
     total_effort: Annotated[
         float,
@@ -1608,6 +1798,20 @@ class PoolTask(BaseModel):
         Field(alias='totalOpen', examples=[1.5], multiple_of=0.01, title='Totalopen'),
     ]
     version: Annotated[int, Field(title='Version')]
+
+
+class PoolTaskFieldsRequest(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    fields: Annotated[
+        list[PoolTaskField] | None,
+        Field(
+            description="The account's own choice, kept in the board's order; an empty list shows nothing, null goes back to the default of the settings.",
+            examples=[['due_date', 'priority', 'assignee']],
+            title='Fields',
+        ),
+    ]
 
 
 class Locale(StrEnum):
@@ -1814,6 +2018,15 @@ class SettingsIn(BaseModel):
             title='Planninghorizonweeks',
         ),
     ]
+    pool_task_fields: Annotated[
+        list[PoolTaskField],
+        Field(
+            alias='poolTaskFields',
+            description="Attributes the board shows with each task to plan, for accounts that have not chosen their own. Kept in the board's order; a field listed twice counts once.",
+            examples=[['due_date', 'story_points']],
+            title='Pooltaskfields',
+        ),
+    ] = []
 
 
 class SettingsOut(BaseModel):
@@ -1869,6 +2082,15 @@ class SettingsOut(BaseModel):
             ge=1,
             le=12,
             title='Planninghorizonweeks',
+        ),
+    ]
+    pool_task_fields: Annotated[
+        list[PoolTaskField],
+        Field(
+            alias='poolTaskFields',
+            description="Attributes the board shows with each task to plan, for accounts that have not chosen their own. Kept in the board's order; a field listed twice counts once.",
+            examples=[['due_date', 'story_points']],
+            title='Pooltaskfields',
         ),
     ]
 
@@ -2088,7 +2310,7 @@ class TaskCreate(BaseModel):
         Field(
             description='Human key, unique among manual tasks.',
             examples=['SHOP-101'],
-            pattern='^[A-Za-z0-9][A-Za-z0-9._:/#-]{0,63}$',
+            pattern='^[A-Za-z0-9][A-Za-z0-9._:/#_-]{0,63}$',
             title='Key',
         ),
     ]
@@ -2113,8 +2335,25 @@ class TaskOut(BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,
     )
+    assignee: Annotated[
+        str | None,
+        Field(
+            description='Name of the person the source has assigned the task to.',
+            examples=['Alex Example'],
+            title='Assignee',
+        ),
+    ]
     created_at: Annotated[AwareDatetime, Field(alias='createdAt', title='Createdat')]
     description: Annotated[str | None, Field(title='Description')]
+    due_date: Annotated[
+        date_aliased | None,
+        Field(
+            alias='dueDate',
+            description='Due date in the source system. Like the other planning attributes below it is written by the source only and empty for manual tasks.',
+            examples=['2026-12-18'],
+            title='Duedate',
+        ),
+    ]
     efforts: Annotated[list[EffortOut], Field(title='Efforts')]
     external_id: Annotated[str | None, Field(alias='externalId', title='Externalid')]
     external_source: Annotated[
@@ -2127,9 +2366,20 @@ class TaskOut(BaseModel):
     ]
     external_updated_at: Annotated[
         AwareDatetime | None,
-        Field(alias='externalUpdatedAt', title='Externalupdatedat'),
+        Field(
+            alias='externalUpdatedAt',
+            description='When the source system last changed the task.',
+            title='Externalupdatedat',
+        ),
     ]
-    external_url: Annotated[str | None, Field(alias='externalUrl', title='Externalurl')]
+    external_url: Annotated[
+        str | None,
+        Field(
+            alias='externalUrl',
+            description='Where the task is in its source system.',
+            title='Externalurl',
+        ),
+    ]
     id: Annotated[UUID, Field(title='Id')]
     key: Annotated[str, Field(title='Key')]
     locked_fields: Annotated[
@@ -2141,6 +2391,15 @@ class TaskOut(BaseModel):
             alias='managedFields',
             description='Fields the source system owns; they are read-only here.',
             title='Managedfields',
+        ),
+    ]
+    original_estimate_hours: Annotated[
+        float | None,
+        Field(
+            alias='originalEstimateHours',
+            description='Original time estimate of the source system, in hours.',
+            examples=[16],
+            title='Originalestimatehours',
         ),
     ]
     overplanned: Annotated[bool, Field(title='Overplanned')]
@@ -2158,7 +2417,50 @@ class TaskOut(BaseModel):
             title='Plannedpercent',
         ),
     ]
+    priority: Annotated[
+        str | None,
+        Field(
+            description='Priority as the source names it.',
+            examples=['High'],
+            title='Priority',
+        ),
+    ]
+    reporter: Annotated[
+        str | None,
+        Field(
+            description='Name of the person who created the task in the source.',
+            examples=['Sam Example'],
+            title='Reporter',
+        ),
+    ]
+    source_name: Annotated[
+        str | None,
+        Field(
+            alias='sourceName',
+            description='Name of the integration that imported the task, or the source that sent it through the ingest API.',
+            examples=['Jira'],
+            title='Sourcename',
+        ),
+    ]
+    start_date: Annotated[
+        date_aliased | None,
+        Field(
+            alias='startDate',
+            description='Planned start in the source system.',
+            examples=['2026-12-01'],
+            title='Startdate',
+        ),
+    ]
     status: Annotated[Status2, Field(title='Status')]
+    story_points: Annotated[
+        float | None,
+        Field(
+            alias='storyPoints',
+            description='Story points of the source.',
+            examples=[5],
+            title='Storypoints',
+        ),
+    ]
     title: Annotated[str, Field(title='Title')]
     total_assigned: Annotated[
         float,
@@ -2227,7 +2529,7 @@ class TaskUpdate(BaseModel):
         Field(
             description='Human key, unique among manual tasks.',
             examples=['SHOP-101'],
-            pattern='^[A-Za-z0-9][A-Za-z0-9._:/#-]{0,63}$',
+            pattern='^[A-Za-z0-9][A-Za-z0-9._:/#_-]{0,63}$',
             title='Key',
         ),
     ]

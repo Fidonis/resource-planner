@@ -158,3 +158,47 @@ def test_the_form_comes_back_as_it_was_typed() -> None:
     shown = shown_from_form(SCHEMA, typed, "config")
     assert shown["pageSize"] == "many" and shown["teams"] == "x" and shown["verifyTls"] is True
     assert shown["clientSecret"] == "" and shown["roles"] == ""
+
+
+OPTIONS_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "required": ["scope", "projects"],
+    "properties": {
+        "scope": {"enum": ["ALL", "SELECTED"], "type": "string", "default": "SELECTED"},
+        "projects": {
+            "type": "array",
+            "items": {"type": "string"},
+            "x-remoteOptions": True,
+            "x-showWhen": {"field": "scope", "equals": "SELECTED"},
+        },
+    },
+}
+
+
+def test_choices_from_the_source_are_check_boxes_shown_for_one_value() -> None:
+    fields = {
+        f.key: f
+        for f in build_fields(
+            OPTIONS_SCHEMA, shown_values(OPTIONS_SCHEMA, {"projects": ["10001"]}), "config"
+        )
+    }
+    projects = fields["projects"]
+    assert projects.kind == "options"
+    assert projects.value == ["10001"] and projects.choices == [("10001", "10001")]
+    assert projects.show_when == ("config.scope", "SELECTED")
+    assert projects.required is False  # it may be hidden, the API checks it
+    assert fields["scope"].show_when is None and fields["scope"].required is True
+
+
+def test_ticked_choices_are_read_back_as_a_list() -> None:
+    form = FormData(
+        [("config.scope", "SELECTED"), ("config.projects", "10001"), ("config.projects", "10002")]
+    )
+    shown = shown_from_form(OPTIONS_SCHEMA, form, "config")
+    assert shown["projects"] == ["10001", "10002"]
+    values, errors = parse(OPTIONS_SCHEMA, shown, "config")
+    assert values == {"scope": "SELECTED", "projects": ["10001", "10002"]} and errors == {}
+    nothing = parse(
+        OPTIONS_SCHEMA, shown_from_form(OPTIONS_SCHEMA, FormData([]), "config"), "config"
+    )
+    assert nothing[0]["projects"] == []

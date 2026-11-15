@@ -28,8 +28,16 @@
   </div>
 
   <div class="form-control">
-    <label class="label-text mb-1 font-medium" for="f-schedule">{{ _("Schedule") }}</label>
-    <input type="text" id="f-schedule" name="schedule" value="{{ schedule }}" maxlength="120" autocomplete="off" spellcheck="false" placeholder="0 6 * * 1-5" class="input input-bordered w-full font-mono{% if schedule_error %} input-error{% endif %}"{% if schedule_error %} aria-invalid="true" aria-describedby="f-schedule-err"{% else %} aria-describedby="f-schedule-help"{% endif %}>
+    <label class="label-text mb-1 font-medium" for="f-schedule-preset">{{ _("Schedule") }}</label>
+    <select id="f-schedule-preset" name="schedule_preset" class="select select-bordered w-full">
+      {% for value, label in schedule_presets %}<option value="{{ value }}"{% if schedule_preset == value %} selected{% endif %}>{{ _(label) }}</option>{% endfor %}
+      <option value="custom"{% if schedule_preset == "custom" %} selected{% endif %}>{{ _("Custom cron line") }}</option>
+    </select>
+  </div>
+
+  <div class="form-control" data-show-when="schedule_preset" data-show-value="custom">
+    <label class="label-text mb-1 font-medium" for="f-schedule">{{ _("Cron line") }}</label>
+    <input type="text" id="f-schedule" name="schedule" value="{{ schedule_custom }}" maxlength="120" autocomplete="off" spellcheck="false" placeholder="0 6 * * 1-5" class="input input-bordered w-full font-mono{% if schedule_error %} input-error{% endif %}"{% if schedule_error %} aria-invalid="true" aria-describedby="f-schedule-err"{% else %} aria-describedby="f-schedule-help"{% endif %}>
     {% if schedule_error %}<p id="f-schedule-err" class="mt-1 text-xs text-error" role="alert">{{ schedule_error }}</p>
     {% else %}<p id="f-schedule-help" class="mt-1 text-xs opacity-60">{{ _("A cron line of five fields in UTC, for example 0 6 * * 1-5 for weekdays at 6:00. Empty: only when you start it.") }}</p>{% endif %}
   </div>

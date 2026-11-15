@@ -17,6 +17,14 @@ PersonDays = Annotated[
     WithJsonSchema({"type": "number", "multipleOf": 0.01, "examples": [1.5]}),
 ]
 
+# Any other amount with two decimals (hours, story points), a plain number on the wire as well.
+# The schema stays bare, so that an optional amount is a plain optional number for the clients.
+Amount = Annotated[
+    Decimal,
+    PlainSerializer(lambda value: float(value), return_type=float, when_used="json"),
+    WithJsonSchema({"type": "number"}),
+]
+
 HexColor = Annotated[str, Field(pattern=r"^#[0-9a-fA-F]{6}$", examples=["#1b5e8c"])]
 
 

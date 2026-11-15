@@ -6,7 +6,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
-from pydantic import field_validator, model_validator
+from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -59,6 +59,9 @@ class Settings(BaseSettings):
     # Scheduler for integrations. Run one API worker or accept that every worker schedules; the
     # advisory lock still keeps a single run per integration.
     scheduler_enabled: bool = True
+    # A scheduled run of a provider that can read only what changed reads the whole source when
+    # the last complete read is older than this; only such a run closes what has disappeared.
+    sync_full_interval_hours: int = Field(default=24, ge=1, le=24 * 30)
 
     @field_validator("public_base_url")
     @classmethod

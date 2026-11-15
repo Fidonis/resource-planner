@@ -1,6 +1,6 @@
 # Resource Planner — Requirements & Feature Specification
 
-Status: Draft v2, implemented except P2b, P2d (SAP) and P2e · Language: English · License: MIT
+Status: Draft v2, implemented except P2d (SAP) and P2e · Language: English · License: MIT
 
 This document specifies an open-source, browser-based **resource planning tool** for agile teams. It is written so that it can be implemented step by step, phase by phase (§12). Requirement keywords **MUST**, **SHOULD**, **MAY** follow RFC 2119. Every requirement has an ID (e.g. `FR-TASK-03`) that can be referenced in issues, commits and tests.
 
@@ -8,7 +8,7 @@ The single-file prototype `index.html` in this repository is the **behavioural r
 
 The static mock-up `ressource-planner-mockup.html` (to be moved to `/docs/mockup/`) is the **visual reference**: the UI follows the design of the papaia-manager web interface (§2.2, FR-UI-06). The mock-up adds up numbers in the browser only so that its screens behave plausibly; in the product every figure comes from the API.
 
-> **Implementation status.** Phases P1a–P1c, P2a and P2c are built. The Jira provider (P2b), a SAP provider (P2d) and the MCP server (P2e) are not; the API is prepared for the MCP server (`docs/mcp-preparation.md`). Where the implementation differs from this text, or settles a point left open here, `docs/implementation-notes.md` says so. The open decisions of §14 are marked there.
+> **Implementation status.** Phases P1a–P1c and P2a–P2c are built, including the Jira provider (P2b). A SAP provider (P2d) and the MCP server (P2e) are not; the API is prepared for the MCP server (`docs/mcp-preparation.md`). Where the implementation differs from this text, or settles a point left open here, `docs/implementation-notes.md` says so. The open decisions of §14 are marked there.
 
 ---
 
@@ -161,7 +161,7 @@ All tables use `uuid` primary keys, `created_at`, `updated_at`, and an integer `
 Unique `(task_id, skill_id, member_id, week_start)` (merge instead of duplicate).
 
 **app_user**
-`id`, `username` (unique), `display_name`, `email`, `auth_provider` (`local` | `oidc:<provider-id>`), `password_hash` (nullable, argon2id, only for local), `external_subject` (OIDC `sub`, unique per issuer), `active`, `last_login_at`.
+`id`, `username` (unique), `display_name`, `email`, `auth_provider` (`local` | `oidc:<provider-id>`), `password_hash` (nullable, argon2id, only for local), `external_subject` (OIDC `sub`, unique per issuer), `active`, `last_login_at`, `pool_task_fields` (nullable jsonb: the account's own choice for the pool panel; null follows the setting).
 
 **role / permission model** — see §8: `role(id, key, name, builtin)`, `role_permission(role_id, permission)`, `user_role(user_id, role_id)`, `external_role_mapping(provider_id, external_role, role_id)`.
 
@@ -175,7 +175,7 @@ Unique `(task_id, skill_id, member_id, week_start)` (merge instead of duplicate)
 `id`, `at`, `actor_user_id`, `via` (`session` | `api-token` | `bearer` | `system`), `client_name` (nullable; taken from the `X-Client-Name` request header, e.g. `planner-ui`, `planner-mcp`), `action`, `entity_type`, `entity_id`, `before` (jsonb), `after` (jsonb).
 
 **app_setting**
-Key/value (jsonb): `planning_horizon_weeks` (default 4), `default_allocation_percent` (80), `locale`.
+Key/value (jsonb): `planning_horizon_weeks` (default 4), `default_allocation_percent` (80), `locale`, `pool_task_fields` (default empty: the fields shown with each task in the pool panel, see FR-PLAN-02).
 
 ### 3.2 Integrity rules
 
@@ -217,7 +217,7 @@ Phase tags: **P1** = first release (manual data entry, local or OIDC login), **P
 | ID | Requirement |
 |---|---|
 | FR-PLAN-01 | The board shows a **planning horizon** of N consecutive weeks (default 4, from `planning_horizon_weeks`), starting at a selectable Monday. Prev/next buttons shift by one week; a "today" button jumps to the current week. |
-| FR-PLAN-02 | The board has a **pool panel** listing tasks with their open effort per skill, and a **grid** with members (grouped by team) as rows and weeks as columns. |
+| FR-PLAN-02 | The board has a **pool panel** listing tasks with their open effort per skill, and a **grid** with members (grouped by team) as rows and weeks as columns. Below the title of each task the pool shows the fields chosen in the settings (`pool_task_fields`) or, if the account chose its own on its account page, those: due date, start date, original estimate, story points, priority, assignee, reporter, owner team, source (the key then links to the task in its source) and the open effort in total. They form one compact line in a fixed order, empty values are left out, and every value carries a text label for screen readers. Nothing is chosen by default. |
 | FR-PLAN-03 | Each grid cell shows `booked / capacity PD`, the number of absent days, and its assignments as chips (`TASK-KEY · Skill · PD`). Cells are visually marked as **full** (≥ capacity) and **overbooked** (> capacity); the marking **MUST NOT** rely on colour alone (icon/text as well). |
 | FR-PLAN-04 | The user creates an assignment by **dragging a (task, skill) item from the pool onto a member-week cell**. Valid targets (member has the skill) are highlighted while dragging; invalid cells are dimmed and reject the drop. The proposed amount follows rule 10 of §4. Implementation: pool items and cells are Sortable.js lists, a cell accepts an item only if the member has its skill, and the drop is sent to the API, which answers with the refreshed fragments (NFR-UI-07). |
 | FR-PLAN-05 | An existing assignment can be **dragged to another cell** (changes member and/or week). The skill constraint (DM-02) applies. |
@@ -279,7 +279,7 @@ Phase tags: **P1** = first release (manual data entry, local or OIDC login), **P
 | FR-ADM-01 | **User management** (local users): create, deactivate, reset password, assign roles, link to a member. |
 | FR-ADM-02 | **Role management**: list built-in roles, create custom roles from a permission list, map external (OIDC) roles to internal roles. |
 | FR-ADM-03 | **Integration management** (P2): create/enable/test/sync integrations, view sync runs and errors. |
-| FR-ADM-04 | **Settings**: planning horizon, default allocation %, auth modes (local/OIDC), UI default language. |
+| FR-ADM-04 | **Settings**: planning horizon, default allocation %, auth modes (local/OIDC), UI default language, the fields shown with the tasks in the pool panel (FR-PLAN-02). |
 | FR-ADM-05 | **Audit log** view (read-only) with filters (actor, entity, time). |
 | FR-ADM-06 | JSON export/import of the complete planning data (members, teams, skills, tasks, assignments, absences) for backup/migration (P2). |
 
@@ -573,7 +573,7 @@ A Model Context Protocol (MCP) server lets MCP clients read the plan and, if ena
 1. ~~Final license (Apache-2.0 vs. MIT vs. AGPL).~~ **Decided: MIT.**
 2. How the identity of the acting user reaches the API from the MCP server (FR-MCP-02): OAuth 2.0 token exchange (RFC 8693) where the identity provider supports it, or a dedicated service identity that passes the user's subject along, or user-created API tokens only. A token issued to the MCP server is never forwarded unchanged. **Open**; the API accepts bearer tokens and API tokens today (`docs/mcp-preparation.md`).
 3. ~~OIDC flow ownership.~~ **Decided: API-handled session cookie, forwarded by the UI.** Bearer tokens (FR-AUTH-05) are accepted as well, when `OIDC_API_AUDIENCES` is set.
-4. Default effort mapping strategy for the Jira provider (depends on how estimates and labels are used in the team's Jira). **Open**; the Jira provider is not built. The generic task mapping defaults to `MANUAL`.
+4. ~~Default effort mapping strategy for the Jira provider.~~ **Decided: `MANUAL`**; the effort per skill is entered in the planner, Jira supplies the planning attributes of the task.
 5. ~~Behaviour for imported Keycloak persons without a mapped group.~~ **Decided: the default team of the mapping, which must exist; without one they are reported and not imported.**
 6. ~~Whether half-day absences are required in P1.~~ **Decided: built in P1.**
 7. Whether multi-tenancy (several organisations in one instance) is ever needed — currently **out of scope**; the data model has no tenant column.

@@ -56,6 +56,14 @@ class Task(IdMixin, TimestampMixin, VersionedMixin, Base):
     locked_fields: Mapped[list[str]] = mapped_column(
         JSONB, default=list, server_default=text("'[]'::jsonb")
     )
+    # What the source system knows about the task besides its effort. Only sources write these.
+    due_date: Mapped[date | None] = mapped_column(Date)
+    start_date: Mapped[date | None] = mapped_column(Date)
+    original_estimate_hours: Mapped[Decimal | None] = mapped_column(Numeric(8, 2))
+    story_points: Mapped[Decimal | None] = mapped_column(Numeric(8, 2))
+    priority: Mapped[str | None] = mapped_column(String(64))
+    assignee: Mapped[str | None] = mapped_column(String(160))
+    reporter: Mapped[str | None] = mapped_column(String(160))
 
     efforts: Mapped[list[TaskEffort]] = relationship(cascade="all, delete-orphan", lazy="raise")
 

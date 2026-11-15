@@ -12,7 +12,7 @@ from fastapi.responses import HTMLResponse, Response
 from pydantic import ValidationError
 
 from planner_client import ApiError, models
-from planner_ui import i18n
+from planner_ui import i18n, pool_fields
 from planner_ui.crud import (
     Choice,
     FormField,
@@ -247,18 +247,32 @@ SETTINGS_SPECS: tuple[Spec, ...] = (
         required=True,
         choices="locales",
     ),
+    Spec(
+        "pool_task_fields",
+        N_("Shown with the tasks to plan"),
+        kind="multiselect",
+        choices="pool_fields",
+        help=N_(
+            "What the planning board shows below the title of each task to plan. "
+            "Each account can choose its own on its account page."
+        ),
+    ),
 )
 
 
 def _settings_fields(values: dict[str, Any], errors: dict[str, str]) -> list[FormField]:
-    locales = [Choice(c.code, c.name) for c in i18n.get_catalogs().locales]
+    choices = {
+        "locales": [Choice(c.code, c.name) for c in i18n.get_catalogs().locales],
+        "pool_fields": pool_fields.choices(),
+    }
     return [
         FormField(
             spec=spec,
             label=gettext_(spec.label),
             value="" if values.get(spec.name) is None else values[spec.name],
             error=errors.get(spec.name),
-            choices=locales if spec.choices == "locales" else [],
+            choices=choices.get(spec.choices or "", []),
+            help=gettext_(spec.help) if spec.help else None,
         )
         for spec in SETTINGS_SPECS
     ]
@@ -292,6 +306,7 @@ def _settings_values(current: models.SettingsOut) -> dict[str, Any]:
         "default_allocation_percent": current.default_allocation_percent,
         "planning_horizon_weeks": current.planning_horizon_weeks,
         "locale": str(current.locale.value),
+        "pool_task_fields": pool_fields.ids(current.pool_task_fields),
     }
 
 
@@ -306,7 +321,10 @@ async def settings_save(request: Request, ctx: CtxDep) -> HTMLResponse:
     current = await ctx.api.settings_get(ctx.creds)
     form = await request.form()
     values: dict[str, Any] = {
-        spec.name: str(form.get(spec.name) or "").strip() for spec in SETTINGS_SPECS
+        spec.name: [str(v) for v in form.getlist(spec.name) if str(v)]
+        if spec.kind == "multiselect"
+        else str(form.get(spec.name) or "").strip()
+        for spec in SETTINGS_SPECS
     }
     try:
         body = models.SettingsIn(**values)

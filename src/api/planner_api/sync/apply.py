@@ -33,6 +33,7 @@ from planner_api.models import (
     Team,
 )
 from planner_api.models.base import touch
+from planner_api.providers.base import TASK_ATTRIBUTES
 from planner_api.repositories import settings as settings_repo
 from planner_api.schemas.planning import AbsenceIn
 from planner_api.services import absences as absences_service
@@ -44,6 +45,12 @@ from planner_api.sync.mapping import AbsenceRecord, MemberRecord, TaskRecord
 MAX_LOG = 500
 SKILL_KEY = re.compile(r"^[A-Za-z0-9][A-Za-z0-9 ._:/+#-]{0,63}$")
 STATUSES = ("open", "done", "cancelled")
+# The longest description a task can be saved with from the task dialog (TaskIn).
+MAX_DESCRIPTION = 20000
+# Columns of numeric(8, 2) and the text columns of the task's planning attributes.
+MAX_AMOUNT = Decimal("999999.99")
+ATTRIBUTE_TEXT = {"priority": 64, "assignee": 160, "reporter": 160}
+ATTRIBUTE_AMOUNTS = ("original_estimate_hours", "story_points")
 
 
 class RecordError(Exception):
@@ -92,6 +99,15 @@ def _text(value: str | None, limit: int, name: str) -> str | None:
     if cleaned is not None and len(cleaned) > limit:
         raise RecordError(f"{name} is longer than {limit} characters.")
     return cleaned
+
+
+def _amount(value: Decimal | None) -> Decimal | None:
+    """Two decimals, as the column keeps them, so that an unchanged value compares equal."""
+    if value is None:
+        return None
+    if not value.is_finite() or value < 0 or value > MAX_AMOUNT:
+        raise ValueError(str(value))
+    return value.quantize(Decimal("0.01"))
 
 
 class Applier:
@@ -166,7 +182,13 @@ class Applier:
         for note in rec.notes:
             self.tally.warn(rec.key, note)
         description = (rec.description or "").strip() or None
+        if description is not None and len(description) > MAX_DESCRIPTION:
+            description = description[:MAX_DESCRIPTION]
+            self.tally.note(
+                "info", f"The description was shortened to {MAX_DESCRIPTION} characters.", rec.key
+            )
         updated = _aware(rec.updated_at)
+        attributes = self._attributes(rec)
         for name in rec.create_skills:
             if name.lower() not in self._skills:
                 await self._create_skill(name)
@@ -201,6 +223,7 @@ class Applier:
                 external_updated_at=updated,
                 locked_fields=list(rec.owned),
                 efforts=[TaskEffort(skill_id=s, person_days=d) for s, d in (wanted or {}).items()],
+                **attributes,
             )
             ctx.session.add(task)
             await ctx.uow.flush()
@@ -218,6 +241,7 @@ class Applier:
             ("description", description),
             ("external_url", url),
             ("external_updated_at", updated),
+            *attributes.items(),
         ):
             if getattr(task, attr) != value:
                 setattr(task, attr, value)
@@ -245,6 +269,27 @@ class Applier:
             "update", "task", task.id, before, tasks_service.audit_after(task), note=self.note
         )
         self.tally.updated += 1
+
+    def _attributes(self, rec: TaskRecord) -> dict[str, Any]:
+        """The planning attributes the source knows, cleaned; a bad value is noted and left out."""
+        found: dict[str, Any] = {}
+        for name in TASK_ATTRIBUTES:
+            if name in rec.unknown_attributes:
+                continue
+            value = getattr(rec, name)
+            if name in ATTRIBUTE_AMOUNTS:
+                try:
+                    value = _amount(value)
+                except ValueError:
+                    self.tally.warn(
+                        rec.key, f"The value '{value}' of {name.replace('_', ' ')} was left empty."
+                    )
+                    value = None
+            elif name in ATTRIBUTE_TEXT:
+                # Display names may be longer in the source; a shortened name is still useful.
+                value = (value or "").strip()[: ATTRIBUTE_TEXT[name]].strip() or None
+            found[name] = value
+        return found
 
     async def close_missing_tasks(self, seen: set[str]) -> None:
         stmt = (

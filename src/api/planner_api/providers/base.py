@@ -53,6 +53,23 @@ class SourceProblem:
     message: str
 
 
+# The categories a source may sort its states into; the mapping falls back on them for a state
+# whose name it does not know (a tracker in another language, a workflow of its own).
+STATUS_CATEGORIES = ("todo", "in_progress", "done")
+
+# Planning information a source may know about a task besides its effort. They are shown with the
+# task and never edited in the planner.
+TASK_ATTRIBUTES = (
+    "due_date",
+    "start_date",
+    "original_estimate_hours",
+    "story_points",
+    "priority",
+    "assignee",
+    "reporter",
+)
+
+
 @dataclass(frozen=True, slots=True)
 class ExternalTask:
     external_id: str
@@ -67,6 +84,17 @@ class ExternalTask:
     estimate_unit: str | None = None
     custom_fields: Mapping[str, Any] = field(default_factory=dict)
     team_hint: str | None = None
+    status_category: str | None = None  # one of STATUS_CATEGORIES
+    due_date: date | None = None
+    start_date: date | None = None
+    original_estimate_hours: Decimal | None = None
+    story_points: Decimal | None = None
+    priority: str | None = None
+    assignee: str | None = None  # a display name
+    reporter: str | None = None
+    # Attributes of TASK_ATTRIBUTES the source could not read this time: they are left as they are,
+    # instead of being emptied.
+    unknown_attributes: frozenset[str] = frozenset()
 
 
 @dataclass(frozen=True, slots=True)
@@ -96,6 +124,30 @@ class ExternalAbsence:
     start_part: str = "FULL"
     end_part: str | None = None
     note: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class FieldOption:
+    """One choice of a setting whose choices come from the source (``x-remoteOptions``)."""
+
+    value: str
+    label: str
+
+
+# Markers a settings model may put on a field with ``json_schema_extra``:
+# - REMOTE_OPTIONS: a list of strings whose choices the provider loads with ``field_options``.
+# - SHOW_WHEN: {"field": "<alias>", "equals": "<value>"}: the form shows the field only then.
+# - CONNECTION: the field decides where a secret is sent; a stored secret is not used for loading
+#   choices while such a field differs from what is stored.
+REMOTE_OPTIONS = "x-remoteOptions"
+SHOW_WHEN = "x-showWhen"
+CONNECTION = "x-connection"
+# Validation context of a draft: checks that only matter for saving may be skipped.
+DRAFT = "draft"
+
+
+def is_draft(context: Any) -> bool:
+    return isinstance(context, Mapping) and bool(context.get(DRAFT))
 
 
 @runtime_checkable
@@ -134,6 +186,13 @@ class AbsenceSourceProvider(Provider, Protocol):
     def fetch_absences(
         self, config: BaseModel, start: date, end: date
     ) -> AsyncIterator[ExternalAbsence | SourceProblem]: ...
+
+
+@runtime_checkable
+class OptionSource(Protocol):
+    """A provider that can list the choices of a setting marked ``x-remoteOptions``."""
+
+    async def field_options(self, config: BaseModel, field: str) -> list[FieldOption]: ...
 
 
 class ProviderBase:

@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Resource Planner \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-29 09:24+0100\n"
+"POT-Creation-Date: 2026-11-15 08:28+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -132,7 +132,7 @@ msgstr ""
 msgid "New API token"
 msgstr ""
 
-#: admin_resources.py
+#: admin_resources.py provider_texts.py
 msgid "API token"
 msgstr ""
 
@@ -220,8 +220,8 @@ msgstr ""
 msgid "Deleted."
 msgstr ""
 
-#: crud.py routes/integrations.py templates/planning/_edit.html templates/roles/_mappings.html
-#: templates/settings/_form.html
+#: crud.py routes/integrations.py templates/account/_pool_fields.html templates/planning/_edit.html
+#: templates/roles/_mappings.html templates/settings/_form.html
 msgid "Save"
 msgstr ""
 
@@ -233,7 +233,7 @@ msgstr ""
 msgid "Somebody else changed this entry in the meantime. Load the current values to continue."
 msgstr ""
 
-#: crud.py routes/admin.py routes/integrations.py routes/planning.py
+#: crud.py routes/admin.py routes/integrations.py routes/pages.py routes/planning.py
 msgid "Saved."
 msgstr ""
 
@@ -304,6 +304,50 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
+#: pool_fields.py templates/tasks/_details.html
+msgid "Due date"
+msgstr ""
+
+#: pool_fields.py templates/tasks/_details.html
+msgid "Start date"
+msgstr ""
+
+#: pool_fields.py templates/tasks/_details.html
+msgid "Original estimate"
+msgstr ""
+
+#: pool_fields.py templates/tasks/_details.html templates/tasks/_list.html
+msgid "Story points"
+msgstr ""
+
+#: pool_fields.py templates/tasks/_details.html templates/tasks/_list.html
+msgid "Priority"
+msgstr ""
+
+#: pool_fields.py templates/tasks/_details.html templates/tasks/_list.html
+msgid "Assignee"
+msgstr ""
+
+#: pool_fields.py templates/tasks/_details.html
+msgid "Reporter"
+msgstr ""
+
+#: pool_fields.py resources.py templates/absences/calendar.html templates/members/_list.html
+#: templates/members/index.html templates/overview.html templates/planning/_board.html
+#: templates/tasks/_list.html templates/tasks/index.html work_resources.py
+msgid "Team"
+msgstr ""
+
+#: pool_fields.py templates/absences/_list.html templates/members/_list.html
+#: templates/skills/_list.html templates/tasks/_list.html templates/teams/_list.html
+#: templates/users/_list.html templates/users/index.html
+msgid "Source"
+msgstr ""
+
+#: pool_fields.py
+msgid "Open effort"
+msgstr ""
+
 #: provider_texts.py
 msgid "CSV file (absences)"
 msgstr ""
@@ -372,6 +416,116 @@ msgstr ""
 
 #: provider_texts.py
 msgid "Page size"
+msgstr ""
+
+#: provider_texts.py
+msgid "Jira"
+msgstr ""
+
+#: provider_texts.py
+msgid "Jira edition"
+msgstr ""
+
+#: provider_texts.py
+msgid "CLOUD: Jira Cloud (atlassian.net). DATA_CENTER: Jira Data Center or Server."
+msgstr ""
+
+#: provider_texts.py
+msgid "Jira URL"
+msgstr ""
+
+#: provider_texts.py
+msgid "Address of Jira, for example https://example.atlassian.net. Links to the issues point there."
+msgstr ""
+
+#: provider_texts.py
+msgid "API URL"
+msgstr ""
+
+#: provider_texts.py
+msgid ""
+"Only for a scoped API token of Jira Cloud: https://api.atlassian.com/ex/jira/<cloud id>. Empty: "
+"the Jira URL."
+msgstr ""
+
+#: provider_texts.py
+msgid "E-mail address"
+msgstr ""
+
+#: provider_texts.py
+msgid "Jira Cloud: the account the API token belongs to. Empty for Data Center."
+msgstr ""
+
+#: provider_texts.py
+msgid "Jira Cloud: an API token of the account. Data Center: a personal access token."
+msgstr ""
+
+#: provider_texts.py
+msgid "Projects"
+msgstr ""
+
+#: provider_texts.py
+msgid "SELECTED: only the projects chosen below. ALL: every project the account can see."
+msgstr ""
+
+#: provider_texts.py
+msgid "Selected projects"
+msgstr ""
+
+#: provider_texts.py
+msgid "Load the projects from Jira and tick the ones to import."
+msgstr ""
+
+#: provider_texts.py
+msgid "Issue types"
+msgstr ""
+
+#: provider_texts.py
+msgid ""
+"Only issues of the ticked types. None ticked: every standard type, without epics and sub-tasks, "
+"so that no work is counted twice."
+msgstr ""
+
+#: provider_texts.py
+msgid "Leave out issues done longer ago (days)"
+msgstr ""
+
+#: provider_texts.py
+msgid "A complete read skips issues finished more than this many days ago. 0: read them all."
+msgstr ""
+
+#: provider_texts.py
+msgid "Additional JQL"
+msgstr ""
+
+#: provider_texts.py
+msgid "Added to the query with AND, for example labels = planning."
+msgstr ""
+
+#: provider_texts.py
+msgid "Story points field"
+msgstr ""
+
+#: provider_texts.py
+msgid "Id or name of the field, for example customfield_10016. Empty: found by its name."
+msgstr ""
+
+#: provider_texts.py
+msgid "Start date field"
+msgstr ""
+
+#: provider_texts.py
+msgid "Id or name of the field. Empty: found by its name or type."
+msgstr ""
+
+#: provider_texts.py
+msgid "Effort fields"
+msgstr ""
+
+#: provider_texts.py
+msgid ""
+"Only for the effort strategy CUSTOM_FIELDS: ids or names of the fields that hold an effort, for "
+"example Effort Backend. The mapping assigns them to skills."
 msgstr ""
 
 #: provider_texts.py
@@ -596,12 +750,6 @@ msgstr ""
 
 #: resources.py
 msgid "Delete member"
-msgstr ""
-
-#: resources.py templates/absences/calendar.html templates/members/_list.html
-#: templates/members/index.html templates/overview.html templates/planning/_board.html
-#: templates/tasks/_list.html templates/tasks/index.html work_resources.py
-msgid "Team"
 msgstr ""
 
 #: resources.py
@@ -833,7 +981,7 @@ msgstr ""
 msgid "Wrong."
 msgstr ""
 
-#: templates/macros.html texts.py
+#: templates/macros.html templates/tasks/_list.html texts.py
 msgid "Maintained by the connected system."
 msgstr ""
 
@@ -1007,6 +1155,16 @@ msgstr ""
 msgid "Language of accounts without a preference"
 msgstr ""
 
+#: routes/admin.py
+msgid "Shown with the tasks to plan"
+msgstr ""
+
+#: routes/admin.py
+msgid ""
+"What the planning board shows below the title of each task to plan. Each account can choose its "
+"own on its account page."
+msgstr ""
+
 #: routes/auth.py
 msgid "The two passwords are not the same."
 msgstr ""
@@ -1036,6 +1194,34 @@ msgid "Running"
 msgstr ""
 
 #: routes/integrations.py
+msgid "Only when started by hand"
+msgstr ""
+
+#: routes/integrations.py
+msgid "Every 15 minutes"
+msgstr ""
+
+#: routes/integrations.py
+msgid "Every 30 minutes"
+msgstr ""
+
+#: routes/integrations.py
+msgid "Every hour"
+msgstr ""
+
+#: routes/integrations.py
+msgid "Every 4 hours"
+msgstr ""
+
+#: routes/integrations.py
+msgid "Every day at 05:00 UTC"
+msgstr ""
+
+#: routes/integrations.py
+msgid "Workdays at 05:00 UTC"
+msgstr ""
+
+#: routes/integrations.py
 msgid "teams"
 msgstr ""
 
@@ -1045,6 +1231,10 @@ msgstr ""
 
 #: routes/integrations.py templates/integrations/_choose.html templates/integrations/index.html
 msgid "New integration"
+msgstr ""
+
+#: routes/integrations.py
+msgid "The choices cannot be loaded for this setting."
 msgstr ""
 
 #: routes/planning.py
@@ -1399,12 +1589,6 @@ msgstr ""
 msgid "Working days"
 msgstr ""
 
-#: templates/absences/_list.html templates/members/_list.html templates/skills/_list.html
-#: templates/tasks/_list.html templates/teams/_list.html templates/users/_list.html
-#: templates/users/index.html
-msgid "Source"
-msgstr ""
-
 #: templates/absences/_list.html
 msgid "Everybody"
 msgstr ""
@@ -1474,6 +1658,31 @@ msgstr ""
 
 #: templates/absences/index.html
 msgid "Starts on or before"
+msgstr ""
+
+#: templates/account/_pool_fields.html
+msgid "Tasks to plan on the board"
+msgstr ""
+
+#: templates/account/_pool_fields.html
+msgid "What the planning board shows below the title of each task to plan."
+msgstr ""
+
+#: templates/account/_pool_fields.html
+#, python-format
+msgid "Use the default of the settings: %(fields)s"
+msgstr ""
+
+#: templates/account/_pool_fields.html
+msgid "nothing"
+msgstr ""
+
+#: templates/account/_pool_fields.html
+msgid "Choose my own"
+msgstr ""
+
+#: templates/account/_pool_fields.html
+msgid "My own choice"
 msgstr ""
 
 #: templates/api_tokens/_list.html
@@ -1660,6 +1869,26 @@ msgstr ""
 msgid "Copy"
 msgstr ""
 
+#: templates/integrations/_choices.html
+msgid "Filter"
+msgstr ""
+
+#: templates/integrations/_choices.html
+msgid "Filter the choices"
+msgstr ""
+
+#: templates/integrations/_choices.html
+msgid "not found in the source"
+msgstr ""
+
+#: templates/integrations/_choices.html
+msgid "The source has no choices for this setting."
+msgstr ""
+
+#: templates/integrations/_choices.html
+msgid "Nothing selected yet. Load the choices from the source."
+msgstr ""
+
 #: templates/integrations/_choose.html
 msgid "What do you want to bring in, and from where?"
 msgstr ""
@@ -1691,6 +1920,10 @@ msgid "The tasks, people and absences stay and can be edited by hand from then o
 msgstr ""
 
 #: templates/integrations/_fields.html
+msgid "Load the choices from the source"
+msgstr ""
+
+#: templates/integrations/_fields.html
 msgid "Set. Leave empty to keep it."
 msgstr ""
 
@@ -1700,6 +1933,14 @@ msgstr ""
 
 #: templates/integrations/_form.html templates/integrations/_list.html
 msgid "Schedule"
+msgstr ""
+
+#: templates/integrations/_form.html
+msgid "Custom cron line"
+msgstr ""
+
+#: templates/integrations/_form.html
+msgid "Cron line"
 msgstr ""
 
 #: templates/integrations/_form.html
@@ -1928,6 +2169,21 @@ msgstr ""
 msgid "Assign"
 msgstr ""
 
+#: templates/planning/_board.html templates/tasks/_details.html
+#, python-format
+msgid "%(hours)s h"
+msgstr ""
+
+#: templates/planning/_board.html
+#, python-format
+msgid "%(points)s SP"
+msgstr ""
+
+#: templates/planning/_board.html
+#, python-format
+msgid "%(days)s PD open"
+msgstr ""
+
 #: templates/planning/_board.html
 msgid "Board settings"
 msgstr ""
@@ -1946,6 +2202,16 @@ msgstr ""
 
 #: templates/planning/_board.html
 msgid "Drag a skill onto a member's week, or use its Assign… button."
+msgstr ""
+
+#: templates/planning/_board.html templates/tasks/_details.html templates/tasks/_list.html
+#, python-format
+msgid "Open %(key)s in the source"
+msgstr ""
+
+#: templates/planning/_board.html
+#, python-format
+msgid "Details of %(key)s"
 msgstr ""
 
 #: templates/planning/_board.html
@@ -2113,12 +2379,38 @@ msgstr ""
 msgid "A skill's key is matched against the labels of imported tasks."
 msgstr ""
 
+#: templates/tasks/_details.html
+msgid "Values from the source"
+msgstr ""
+
+#: templates/tasks/_details.html
+#, python-format
+msgid "From %(source)s, read only."
+msgstr ""
+
+#: templates/tasks/_details.html
+msgid "Changed in the source"
+msgstr ""
+
+#: templates/tasks/_list.html
+msgid "Due"
+msgstr ""
+
+#: templates/tasks/_list.html
+msgid "SP"
+msgstr ""
+
 #: templates/tasks/_list.html
 msgid "Effort"
 msgstr ""
 
 #: templates/tasks/_list.html
 msgid "Planned"
+msgstr ""
+
+#: templates/tasks/_list.html
+#, python-format
+msgid "Show the values of %(key)s from the source"
 msgstr ""
 
 #: templates/tasks/_list.html

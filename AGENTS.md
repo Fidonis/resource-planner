@@ -17,6 +17,7 @@ who works on which task in which week, and where are the over-bookings and skill
 | [`ressource-planner.md`](ressource-planner.md) | The specification, with requirement IDs (`FR-PLAN-04`, `NFR-API-09`, …) |
 | [`docs/implementation-notes.md`](docs/implementation-notes.md) | Decisions, deviations from the specification, what is not done |
 | [`docs/architecture.md`](docs/architecture.md) | Components, layers, data flow, security |
+| [`docs/keycloak.md`](docs/keycloak.md) | Single sign-on with Keycloak |
 | [`docs/providers.md`](docs/providers.md) | Integrations and writing a provider |
 | [`docs/mcp-preparation.md`](docs/mcp-preparation.md) | How the API is prepared for a later MCP server |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Workflow, checks, what a change needs |

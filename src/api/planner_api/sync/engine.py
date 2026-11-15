@@ -208,6 +208,36 @@ class SyncEngine:
                 continue  # somebody is really running it
         return aborted
 
+    async def full_due(self, integration_id: uuid.UUID) -> bool:
+        """Whether a scheduled run should read the whole source this time.
+
+        Only for providers that can read what changed: their runs see the whole source only when
+        asked to, and only such a run closes what has disappeared. A run with errors counts as a
+        complete read here, or one unreadable record would make every run a full one.
+        """
+        async with self.factory() as session:
+            integration = await session.get(IntegrationConfig, integration_id)
+            if integration is None:
+                return False
+            cls = self.registry.get(integration.type, integration.provider_key)
+            if cls is None or not getattr(cls, "supports_since", False):
+                return False
+            since = utcnow() - timedelta(hours=self.settings.sync_full_interval_hours)
+            recent = (
+                await session.execute(
+                    select(SyncRun.id)
+                    .where(
+                        SyncRun.integration_id == integration_id,
+                        SyncRun.full.is_(True),
+                        SyncRun.dry_run.is_(False),
+                        SyncRun.status.in_((SUCCESS, PARTIAL)),
+                        SyncRun.started_at >= since,
+                    )
+                    .limit(1)
+                )
+            ).first()
+        return recent is None
+
     # --- running ---------------------------------------------------------------------------
 
     async def run(
@@ -224,6 +254,8 @@ class SyncEngine:
             if integration is None:
                 raise not_found("Integration", integration_id)
             prepared = self._prepare(integration)
+        # Without an earlier run there is nothing to read changes since: this run is complete.
+        full = full or (prepared.provider.supports_since and prepared.last_sync_at is None)
         async with self._locked(integration_id):
             run_id = await self._open_run(prepared, dry_run, full, triggered_by)
             started = utcnow()

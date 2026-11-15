@@ -40,6 +40,9 @@ DEFAULT_STATUSES = {
     "won't do": "cancelled",
 }
 
+# A state the mapping does not know by name is placed by its category, if the source gives one.
+CATEGORY_STATUSES = {"todo": "open", "in_progress": "open", "done": "done"}
+
 Missing = Literal["CLOSE", "KEEP"]
 
 
@@ -193,6 +196,15 @@ class TaskRecord:
     owned: tuple[str, ...] = ("title", "status", "efforts")
     create_skills: tuple[str, ...] = ()
     notes: tuple[str, ...] = ()
+    # The planning attributes of the source (TASK_ATTRIBUTES); the unknown ones stay as they are.
+    due_date: date | None = None
+    start_date: date | None = None
+    original_estimate_hours: Decimal | None = None
+    story_points: Decimal | None = None
+    priority: str | None = None
+    assignee: str | None = None
+    reporter: str | None = None
+    unknown_attributes: frozenset[str] = frozenset()
 
 
 @dataclass(frozen=True, slots=True)
@@ -230,10 +242,16 @@ class EffortResult:
     notes: list[str] = field(default_factory=list)
 
 
-def map_status(raw: str, mapping: TaskMapping) -> str:
+def map_status(raw: str, mapping: TaskMapping, category: str | None = None) -> str:
+    """The mapping by name first, then the usual names, then the category of the source."""
     wanted = raw.strip().lower()
     custom = {k.strip().lower(): v for k, v in mapping.status_map.items()}
-    return custom.get(wanted) or DEFAULT_STATUSES.get(wanted, "open")
+    return (
+        custom.get(wanted)
+        or DEFAULT_STATUSES.get(wanted)
+        or CATEGORY_STATUSES.get((category or "").strip().lower())
+        or "open"
+    )
 
 
 def _skill_for_label(label: str, mapping: TaskMapping) -> str:
@@ -328,7 +346,7 @@ def map_task(
         external_id=task.external_id,
         key=task.key,
         title=task.title,
-        status=map_status(task.status, mapping),
+        status=map_status(task.status, mapping, task.status_category),
         description=task.description,
         url=task.url,
         updated_at=task.updated_at,
@@ -337,6 +355,14 @@ def map_task(
         owned=owned,
         create_skills=tuple(effort.create_skills),
         notes=tuple(effort.notes),
+        due_date=task.due_date,
+        start_date=task.start_date,
+        original_estimate_hours=task.original_estimate_hours,
+        story_points=task.story_points,
+        priority=task.priority,
+        assignee=task.assignee,
+        reporter=task.reporter,
+        unknown_attributes=task.unknown_attributes,
     )
 
 

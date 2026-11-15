@@ -13,6 +13,8 @@ from planner_api.routers.params import DeleteDep, PageDep, etag
 from planner_api.schemas.common import ErrorResponses, Page
 from planner_api.schemas.integrations import (
     ConnectionResult,
+    FieldOptionsIn,
+    FieldOptionsOut,
     IntegrationIn,
     IntegrationOut,
     IntegrationType,
@@ -52,6 +54,22 @@ async def reschedule(request: Request) -> None:
 )
 async def list_providers(ctx: CtxDep, engine: EngineDep) -> ProviderList:
     return service.providers(ctx, engine)
+
+
+@router.post(
+    "/field-options",
+    operation_id="integrations_field_options",
+    summary="Load the choices of a setting from the source",
+    description="For a setting whose schema carries `x-remoteOptions` (for example the projects "
+    "of a tracker): the provider reads the choices with the settings given, which may be a draft "
+    "that is not saved yet. Errors of the source come back as `PROVIDER_ERROR`; when the "
+    "connection settings of an existing integration were changed, its stored secret is not used "
+    "(`secret_needed`).",
+    response_model=FieldOptionsOut,
+    **guard(INTEGRATION_ADMIN),
+)
+async def field_options(body: FieldOptionsIn, ctx: CtxDep, engine: EngineDep) -> FieldOptionsOut:
+    return await service.field_options(ctx, engine, body)
 
 
 @router.get(

@@ -41,6 +41,7 @@ PERMISSIONS: dict[str, str] = {
     "auth_me": "authenticated",
     "auth_oidc_callback": "public",
     "auth_oidc_login": "public",
+    "auth_update_pool_task_fields": "authenticated",
     "auth_update_preferences": "authenticated",
     "availability_get": "assignment:read",
     "demo_seed": "settings:admin",
@@ -51,6 +52,7 @@ PERMISSIONS: dict[str, str] = {
     "ingest_tasks": "ingest:write",
     "integrations_create": "integration:admin",
     "integrations_delete": "integration:admin",
+    "integrations_field_options": "integration:admin",
     "integrations_get": "integration:admin",
     "integrations_list": "integration:admin",
     "integrations_providers": "integration:admin",
@@ -576,6 +578,18 @@ class PlannerApi(ClientBase):
             query={"next": next},
         )
 
+    async def auth_update_pool_task_fields(
+        self, creds: Credentials, *, body: models.PoolTaskFieldsRequest
+    ) -> models.Me:
+        """Choose what the board shows with each task to plan"""
+        return await self._fetch(
+            "PUT",
+            "/api/v1/auth/me/pool-task-fields",
+            creds,
+            body=body,
+            response=models.Me,
+        )
+
     async def auth_update_preferences(
         self, creds: Credentials, *, body: models.PreferencesRequest
     ) -> models.Me:
@@ -700,6 +714,18 @@ class PlannerApi(ClientBase):
             creds,
             query={"detach": detach, "version": version},
             if_match=if_match,
+        )
+
+    async def integrations_field_options(
+        self, creds: Credentials, *, body: models.FieldOptionsIn
+    ) -> models.FieldOptionsOut:
+        """Load the choices of a setting from the source"""
+        return await self._fetch(
+            "POST",
+            "/api/v1/integrations/field-options",
+            creds,
+            body=body,
+            response=models.FieldOptionsOut,
         )
 
     async def integrations_get(

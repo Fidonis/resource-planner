@@ -1,6 +1,6 @@
 [project]
 name = "resource-planner"
-version = "0.1.0"
+version = "0.2.0"
 description = "Resource planning for agile teams"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -96,4 +96,5 @@ forbidden_modules = [
     "planner_api.providers.csv_tasks",
     "planner_api.providers.csv_absences",
     "planner_api.providers.csv_members",
+    "planner_api.providers.jira",
 ]

@@ -3,20 +3,26 @@
 from __future__ import annotations
 
 from collections.abc import AsyncIterator
-from datetime import datetime
+from datetime import date, datetime
 from decimal import Decimal
 from pathlib import Path
-from typing import Any, ClassVar
+from typing import Any, ClassVar, Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, ValidationInfo, model_validator
 from tests.api.support import Caller
 
 from planner_api.providers.base import (
+    CONNECTION,
     KIND_TASK_SOURCE,
+    REMOTE_OPTIONS,
+    SHOW_WHEN,
     ExternalTask,
+    FieldOption,
     ProviderBase,
+    ProviderError,
     SourceProblem,
     TestResult,
+    is_draft,
 )
 
 INTEGRATIONS = "/api/v1/integrations"
@@ -24,6 +30,20 @@ INTEGRATIONS = "/api/v1/integrations"
 
 class FakeConfig(BaseModel):
     count: int = 2
+    attributes: bool = False  # hand over planning attributes, some of them awkward
+    address: str = Field(default="fake://tracker", json_schema_extra={CONNECTION: True})
+    token: str | None = Field(default=None, json_schema_extra={"writeOnly": True})
+    scope: Literal["ALL", "SOME"] = "ALL"
+    choices: list[str] = Field(
+        default_factory=list,
+        json_schema_extra={REMOTE_OPTIONS: True, SHOW_WHEN: {"field": "scope", "equals": "SOME"}},
+    )
+
+    @model_validator(mode="after")
+    def _some_needs_a_choice(self, info: ValidationInfo) -> FakeConfig:
+        if self.scope == "SOME" and not self.choices and not is_draft(info.context):
+            raise ValueError("SOME needs at least one choice")
+        return self
 
 
 class FakeTaskSource(ProviderBase):
@@ -40,17 +60,36 @@ class FakeTaskSource(ProviderBase):
     async def test_connection(self, config: BaseModel) -> TestResult:
         return TestResult(True, "The fake tracker is always there.")
 
+    async def field_options(self, config: BaseModel, field: str) -> list[FieldOption]:
+        assert isinstance(config, FakeConfig) and field == "choices"
+        if config.address == "fake://down":
+            raise ProviderError("The fake tracker is down.")
+        signed = " (signed in)" if config.token else ""
+        return [FieldOption(f"C{n}", f"Choice {n}{signed}") for n in range(config.count)]
+
     async def fetch_tasks(
         self, config: BaseModel, since: datetime | None
     ) -> AsyncIterator[ExternalTask | SourceProblem]:
         assert isinstance(config, FakeConfig)
         for number in range(config.count):
+            extra: dict[str, Any] = {}
+            if config.attributes:
+                extra = {
+                    "due_date": date(2026, 12, 18),
+                    "original_estimate_hours": Decimal(1) / Decimal(3),  # stored as 0.33
+                    "story_points": Decimal(10_000_000),  # does not fit the column
+                    "assignee": "A" * 200,  # longer than the column
+                    "description": "x" * 25_000,
+                    "unknown_attributes": frozenset({"priority"}) if number else frozenset(),
+                    "priority": "High",
+                }
             yield ExternalTask(
                 external_id=f"F-{number}",
                 key=f"FAKE-{number}",
                 title=f"Fake task {number}",
                 estimate=Decimal(4),
                 labels=("Backend",),
+                **extra,
             )
 
 

@@ -8,7 +8,7 @@ from typing import Annotated, Any, Literal
 
 from pydantic import Field, StringConstraints
 
-from planner_api.schemas.common import ApiModel, PersonDays, Stamped
+from planner_api.schemas.common import Amount, ApiModel, PersonDays, Stamped
 from planner_api.schemas.org import Email, SkillKey, Versioned
 
 IntegrationType = Literal["task_source", "directory", "absence_source"]
@@ -36,6 +36,33 @@ class ProviderInfo(ApiModel):
 
 class ProviderList(ApiModel):
     items: list[ProviderInfo]
+
+
+class FieldOptionsIn(ApiModel):
+    type: IntegrationType
+    provider_key: str = Field(max_length=64, examples=["jira"])
+    integration_id: uuid.UUID | None = Field(
+        default=None,
+        description="The integration being edited. Its stored secrets are used for secrets left "
+        "empty in `config`, as long as the connection settings are unchanged.",
+    )
+    config: dict[str, Any] = Field(
+        description="The settings as the form has them now; they need not be complete."
+    )
+    field: str = Field(
+        max_length=120,
+        description="The setting whose choices are wanted; its schema carries `x-remoteOptions`.",
+        examples=["projects"],
+    )
+
+
+class FieldOptionOut(ApiModel):
+    value: str = Field(description="What is stored when the choice is selected.")
+    label: str = Field(description="What is shown.")
+
+
+class FieldOptionsOut(ApiModel):
+    items: list[FieldOptionOut]
 
 
 class IntegrationIn(ApiModel):
@@ -134,6 +161,29 @@ class IngestTask(ApiModel):
     efforts: list[IngestEffort] | None = Field(
         default=None,
         description="Effort per skill. Left out, the efforts of the task stay as they are.",
+    )
+    due_date: date | None = Field(
+        default=None,
+        description="Due date. This and the other planning attributes below are shown with the "
+        "task and cannot be edited in the planner; one that is left out stays as it is, null "
+        "empties it.",
+        examples=["2026-12-18"],
+    )
+    start_date: date | None = Field(default=None, examples=["2026-12-01"])
+    original_estimate_hours: Amount | None = Field(
+        default=None, ge=0, le=999999.99, description="Time estimate in hours.", examples=[16]
+    )
+    story_points: Amount | None = Field(default=None, ge=0, le=999999.99, examples=[5])
+    priority: Annotated[str, StringConstraints(max_length=64)] | None = Field(
+        default=None, examples=["High"]
+    )
+    assignee: Annotated[str, StringConstraints(max_length=160)] | None = Field(
+        default=None, description="Name of the assigned person.", examples=["Alex Example"]
+    )
+    reporter: Annotated[str, StringConstraints(max_length=160)] | None = Field(
+        default=None,
+        description="Name of the person who created the task.",
+        examples=["Sam Example"],
     )
 
 

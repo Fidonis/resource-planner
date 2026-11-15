@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import uuid
 from typing import Any
 
@@ -11,10 +12,20 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from planner_api.auth.permissions import INTEGRATION_ADMIN
 from planner_api.errors import ErrorCode, ProblemError, blocked, validation
 from planner_api.models import IntegrationConfig, SyncRun
+from planner_api.providers.base import (
+    CONNECTION,
+    DRAFT,
+    REMOTE_OPTIONS,
+    OptionSource,
+    ProviderError,
+)
 from planner_api.repositories import integrations as repo
 from planner_api.schemas.common import Page
 from planner_api.schemas.integrations import (
     ConnectionResult,
+    FieldOptionOut,
+    FieldOptionsIn,
+    FieldOptionsOut,
     IntegrationIn,
     IntegrationOut,
     IntegrationUpdate,
@@ -29,6 +40,9 @@ from planner_api.sync.engine import SyncEngine, problem_errors, split_config
 from planner_api.sync.mapping import MAPPING_MODELS
 from planner_api.sync.scheduler import validate_schedule
 from planner_api.sync.secrets import SecretError, public, reveal, seal, secret_fields
+
+# How long loading the choices of a setting may take before the form is told so.
+OPTIONS_TIMEOUT = 30.0
 
 
 def providers(ctx: Ctx, engine: SyncEngine) -> ProviderList:
@@ -158,6 +172,96 @@ def _validated(
     return stored, cleaned
 
 
+def _settings_changed(
+    engine: SyncEngine, row: IntegrationConfig, stored: dict[str, Any], given: dict[str, Any]
+) -> bool:
+    model = engine.provider_for(row.type, row.provider_key).config_model
+    old_provider, old_mapping = split_config(row.config)
+    new_provider, new_mapping = split_config(stored)
+    if public(model, old_provider)[0] != public(model, new_provider)[0]:
+        return True
+    if old_mapping != new_mapping:
+        return True
+    return any(given.get(name) for name in secret_fields(model))
+
+
+def _property(schema: dict[str, Any], field: str) -> dict[str, Any] | None:
+    found = schema.get("properties", {}).get(field)
+    return found if isinstance(found, dict) else None
+
+
+async def field_options(ctx: Ctx, engine: SyncEngine, body: FieldOptionsIn) -> FieldOptionsOut:
+    """The choices of a setting, read from the source with the settings of a form (a draft)."""
+    ctx.principal.require(INTEGRATION_ADMIN)
+    provider = engine.provider_for(body.type, body.provider_key)
+    model = provider.config_model
+    schema = model.model_json_schema()
+    spec = _property(schema, body.field)
+    if spec is None or not spec.get(REMOTE_OPTIONS) or not isinstance(provider, OptionSource):
+        raise validation("This setting has no choices to load.", field="field", code="no_options")
+    given = dict(body.config)
+    if body.integration_id is not None:
+        row = await repo.get_integration(ctx.session, body.integration_id)
+        if (row.type, row.provider_key) != (body.type, body.provider_key):
+            raise validation(
+                "The integration has another provider.", field="integrationId", code="mismatch"
+            )
+        previous, _ = split_config(row.config)
+        _reuse_secrets(engine, model, schema, given, previous)
+    try:
+        config = model.model_validate(given, context={DRAFT: True})
+    except ValidationError as exc:
+        raise ProblemError(
+            422,
+            ErrorCode.VALIDATION_ERROR,
+            "The settings are not complete enough to load the choices.",
+            errors=problem_errors("config", exc),
+        ) from exc
+    try:
+        found = await asyncio.wait_for(
+            provider.field_options(config, body.field), timeout=OPTIONS_TIMEOUT
+        )
+    except ProviderError as exc:
+        raise ProblemError(422, ErrorCode.PROVIDER_ERROR, str(exc)) from exc
+    except TimeoutError as exc:
+        raise ProblemError(
+            422, ErrorCode.PROVIDER_ERROR, "The source did not answer in time."
+        ) from exc
+    return FieldOptionsOut(
+        items=[FieldOptionOut(value=item.value, label=item.label) for item in found]
+    )
+
+
+def _reuse_secrets(
+    engine: SyncEngine,
+    model: Any,
+    schema: dict[str, Any],
+    given: dict[str, Any],
+    previous: dict[str, Any],
+) -> None:
+    """Fill empty secrets from the stored settings, unless the secret would go somewhere else."""
+    missing = [name for name in secret_fields(model) if not given.get(name) and previous.get(name)]
+    if not missing:
+        return
+    properties = schema.get("properties", {})
+    marked = [name for name, spec in properties.items() if spec.get(CONNECTION)]
+    secrets = set(secret_fields(model))
+    compared = marked or [name for name in properties if name not in secrets]
+    defaults = {name: spec.get("default") for name, spec in properties.items()}
+    for name in compared:
+        if given.get(name, defaults.get(name)) != previous.get(name, defaults.get(name)):
+            raise validation(
+                "The connection settings differ from the stored ones: enter the secret again.",
+                field=f"config.{missing[0]}",
+                code="secret_needed",
+            )
+    for name in missing:
+        try:
+            given[name] = reveal(model, {name: previous[name]}, engine.box)[name]
+        except SecretError as exc:
+            raise ProblemError(422, ErrorCode.PROVIDER_ERROR, str(exc)) from exc
+
+
 async def list_integrations(
     ctx: Ctx, engine: SyncEngine, *, type_: str | None, page: int, page_size: int, sort: str | None
 ) -> Page[IntegrationOut]:
@@ -211,6 +315,10 @@ async def update_integration(
     stored, schedule = _validated(
         engine, row.type, row.provider_key, body.config, body.mapping, body.schedule, previous
     )
+    if _settings_changed(engine, row, stored, body.config):
+        # Changed settings may reach other data (another project, another filter): the next run
+        # reads the whole source again instead of only what changed since the last one.
+        row.last_sync_at = None
     row.name = body.name
     row.enabled = body.enabled
     row.schedule = schedule

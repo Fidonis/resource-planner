@@ -7,6 +7,7 @@ from decimal import Decimal
 
 from planner_api.auth.permissions import INGEST_WRITE
 from planner_api.errors import validation
+from planner_api.providers.base import TASK_ATTRIBUTES
 from planner_api.schemas.integrations import (
     IngestAbsencesIn,
     IngestMembersIn,
@@ -69,6 +70,15 @@ async def ingest_tasks(ctx: Ctx, body: IngestTasksIn) -> IngestResult:
                 efforts=efforts,
                 owned=owned,
                 create_skills=tuple(sorted(efforts)) if body.create_skills and efforts else (),
+                due_date=task.due_date,
+                start_date=task.start_date,
+                original_estimate_hours=task.original_estimate_hours,
+                story_points=task.story_points,
+                priority=task.priority,
+                assignee=task.assignee,
+                reporter=task.reporter,
+                # What the sender left out stays as it is; an explicit null empties it.
+                unknown_attributes=frozenset(TASK_ATTRIBUTES) - task.model_fields_set,
             )
         )
     await applier.tasks(records)

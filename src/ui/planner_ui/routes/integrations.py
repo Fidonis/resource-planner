@@ -45,6 +45,19 @@ STATUS_NAMES = {
     "aborted": N_("Aborted"),
     "running": N_("Running"),
 }
+# The schedules offered as a choice; any other cron line is a custom one. Times are UTC, as the
+# scheduler of the API evaluates them.
+SCHEDULE_PRESETS: tuple[tuple[str, str], ...] = (
+    ("", N_("Only when started by hand")),
+    ("*/15 * * * *", N_("Every 15 minutes")),
+    ("*/30 * * * *", N_("Every 30 minutes")),
+    ("0 * * * *", N_("Every hour")),
+    ("0 */4 * * *", N_("Every 4 hours")),
+    ("0 5 * * *", N_("Every day at 05:00 UTC")),
+    ("0 5 * * 1-5", N_("Workdays at 05:00 UTC")),
+)
+SCHEDULE_NAMES = {value: label for value, label in SCHEDULE_PRESETS if value}
+CUSTOM = "custom"
 # Blockers of a deletion that name what the integration has written.
 OWNED_KINDS = {"teams": N_("teams"), **BLOCKER_KINDS}
 
@@ -115,6 +128,7 @@ async def _list_response(
         view=view,
         type_names=TYPE_NAMES,
         status_names=STATUS_NAMES,
+        schedule_names=SCHEDULE_NAMES,
     )
 
 
@@ -155,6 +169,12 @@ async def _form_response(
     mapping_fields = schema_form.build_fields(
         info.mapping_schema, mapping_shown, "mapping", errors=errors
     )
+    url = f"/integrations/options/{kind}/{info.key}"
+    for found in config_fields:
+        if found.kind == "options":
+            found.options_url = f"{url}/{found.key}" + (f"?integration={row.id}" if row else "")
+            found.load_on_open = row is not None
+    preset = schedule if schedule in {value for value, _ in SCHEDULE_PRESETS} else CUSTOM
     return render(
         ctx.request,
         "integrations/_form.html",
@@ -172,13 +192,75 @@ async def _form_response(
         edit_url=f"/integrations/{row.id}/edit" if row is not None else None,
         given_name=given_name,
         enabled=enabled,
-        schedule=schedule,
+        schedule_presets=SCHEDULE_PRESETS,
+        schedule_preset=preset,
+        schedule_custom=schedule if preset == CUSTOM else "",
         config_fields=config_fields,
         mapping_fields=mapping_fields,
         name_error=errors.get("name"),
         schedule_error=errors.get("schedule"),
         banner=banner,
         submit_label=gettext_("Save") if row is not None else gettext_("Create"),
+    )
+
+
+@router.post(
+    "/integrations/options/{kind}/{key}/{field}",
+    response_class=HTMLResponse,
+    dependencies=[NEED],
+)
+async def load_choices(
+    kind: str,
+    key: str,
+    field: str,
+    request: Request,
+    ctx: CtxDep,
+    integration: str | None = None,
+) -> HTMLResponse:
+    """The check boxes of a setting, with the choices the source has now."""
+    form = await request.form()
+    info = await _provider(ctx, kind, key)
+    shown = schema_form.shown_from_form(info.config_schema, form, "config")
+    selected = [str(value) for value in shown.get(field) or []]
+    # A setting the form cannot read yet is left out; the API says what is missing.
+    config, _ = schema_form.parse(info.config_schema, shown, "config")
+    items: list[tuple[str, str]] = []
+    error: str | None = None
+    try:
+        found = await ctx.api.integrations_field_options(
+            ctx.creds,
+            body=models.FieldOptionsIn(
+                type=kind,
+                provider_key=key,
+                integration_id=integration or None,
+                config=config,
+                field=field,
+            ),
+        )
+        items = [(item.value, item.label) for item in found.items]
+    except ValidationError:
+        error = gettext_("The choices cannot be loaded for this setting.")
+    except ApiError as exc:
+        if exc.status not in (409, 422):
+            raise
+        details = _field_errors(exc)
+        if details:
+            error = next(iter(details.values()))
+        elif exc.code == "PROVIDER_ERROR":
+            # What the provider says about its source, as a connection test shows it.
+            error = exc.detail
+        else:
+            error = problem_text(exc.code, exc.detail)
+    return render(
+        ctx.request,
+        "integrations/_options.html",
+        ctx,
+        input_name=f"config.{field}",
+        fid=f"f-config-{field}",
+        items=items,
+        selected=selected,
+        loaded=error is None,
+        error=error,
     )
 
 
@@ -241,6 +323,9 @@ async def _submit(request: Request, ctx: UiContext, ident: str | None) -> HTMLRe
         )
     name = str(form.get("name") or "").strip()
     schedule = str(form.get("schedule") or "").strip()
+    preset = form.get("schedule_preset")
+    if preset is not None and str(preset) != CUSTOM:
+        schedule = str(preset).strip()
     enabled = "enabled" in form
     config_shown = schema_form.shown_from_form(info.config_schema, form, "config")
     mapping_shown = schema_form.shown_from_form(info.mapping_schema, form, "mapping")

@@ -1,4 +1,5 @@
 {% from "macros.html" import pager, row_actions, source_badge, status_badge, empty %}
+{% from "tasks/_details.html" import details %}
 <div id="list">
   {% if rows %}
   <div class="overflow-x-auto rounded-box border border-base-300 bg-base-100">
@@ -9,6 +10,10 @@
           <th>{{ _("Title") }}</th>
           <th>{{ _("Team") }}</th>
           <th>{{ _("Status") }}</th>
+          <th class="hidden lg:table-cell">{{ _("Due") }}</th>
+          <th class="hidden xl:table-cell">{{ _("Priority") }}</th>
+          <th class="hidden xl:table-cell">{{ _("Assignee") }}</th>
+          <th class="hidden xl:table-cell"><abbr title="{{ _('Story points') }}">{{ _("SP") }}</abbr></th>
           <th>{{ _("Effort") }}</th>
           <th class="min-w-32">{{ _("Planned") }}</th>
           <th>{{ _("Source") }}</th>
@@ -18,10 +23,28 @@
       <tbody>
         {% for task in rows %}
         <tr>
-          <td class="whitespace-nowrap font-mono text-sm">{{ task.key }}</td>
-          <td class="max-w-xs"><div class="truncate font-medium" title="{{ task.title }}">{{ task.title }}</div></td>
+          <td class="whitespace-nowrap font-mono text-sm">
+            <div class="flex items-center gap-1">
+              {% if task.external_source %}
+              <button type="button" class="group btn btn-ghost btn-xs btn-square" data-action="toggle-details" aria-expanded="false" aria-controls="task-details-{{ task.id }}" aria-label="{{ _('Show the values of %(key)s from the source', key=task.key) }}">{{ icon("chevron-down", "h-4 w-4 shrink-0 transition-transform group-aria-expanded:rotate-180") }}</button>
+              {% endif %}
+              {% if task.external_url %}
+              <a class="link link-hover inline-flex items-center gap-1" href="{{ task.external_url }}" target="_blank" rel="noopener noreferrer" title="{{ _('Open %(key)s in the source', key=task.key) }}">{{ task.key }} {{ icon("external-link", "h-3.5 w-3.5 shrink-0 opacity-60") }}</a>
+              {% else %}{{ task.key }}{% endif %}
+            </div>
+          </td>
+          <td class="max-w-xs">
+            <div class="flex items-center gap-1">
+              {% if "title" in task.managed_fields %}{{ icon("lock", "h-3.5 w-3.5 shrink-0 opacity-60") }}<span class="sr-only">{{ _("Maintained by the connected system.") }}</span>{% endif %}
+              <div class="truncate font-medium" title="{{ task.title }}">{{ task.title }}</div>
+            </div>
+          </td>
           <td>{{ task.owner_team_name or "—" }}</td>
           <td>{{ status_badge(task.status.value) }}</td>
+          <td class="hidden whitespace-nowrap lg:table-cell">{{ task.due_date|date or "—" }}</td>
+          <td class="hidden xl:table-cell">{{ task.priority or "—" }}</td>
+          <td class="hidden max-w-40 xl:table-cell"><div class="truncate" title="{{ task.assignee or '' }}">{{ task.assignee or "—" }}</div></td>
+          <td class="hidden tabular-nums xl:table-cell">{{ task.story_points|days or "—" }}</td>
           <td>
             <div class="flex max-w-sm flex-wrap gap-1">
               {% for e in task.efforts %}
@@ -38,6 +61,11 @@
           <td>{{ source_badge(task) }}</td>
           <td>{{ row_actions("tasks", task, task.key) }}</td>
         </tr>
+        {% if task.external_source %}
+        <tr id="task-details-{{ task.id }}" hidden>
+          <td colspan="12">{{ details(task) }}</td>
+        </tr>
+        {% endif %}
         {% endfor %}
       </tbody>
     </table>

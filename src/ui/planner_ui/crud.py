@@ -185,6 +185,8 @@ class Resource:
     specs: ClassVar[tuple[Spec, ...]]
     filter_names: ClassVar[tuple[str, ...]] = ()
     editable: ClassVar[bool] = True
+    # A template with a macro ``details(row)``, drawn read-only above the fields of the edit form.
+    details_template: ClassVar[str | None] = None
     delete_label: ClassVar[str] = N_("Delete")
     deleted_message: ClassVar[str] = N_("Deleted.")
 
@@ -410,6 +412,8 @@ def install(router: APIRouter, resource: Resource) -> None:
             version=getattr(row, "version", "") if row is not None else "",
             edit_url=f"{base}/{ident}/edit" if ident else None,
             banner=banner,
+            row=row,
+            details_template=resource.details_template if row is not None else None,
             submit_label=gettext_("Save") if ident else gettext_("Create"),
         )
 

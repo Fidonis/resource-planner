@@ -105,7 +105,7 @@ names a concrete provider.
 ## Integrations
 
 ```
- source (file, Keycloak, …) ──► provider ──► sync engine ──► service layer ──► database
+ source (Jira, file, Keycloak, …) ──► provider ──► sync engine ──► service layer ──► database
                                     ▲              │
                          settings + mapping        └──► run log (counts, per-record notes)
                          of the integration
@@ -114,13 +114,22 @@ names a concrete provider.
 - A **provider** implements one of three protocols (task source, directory, absence source), is
   found through the entry-point group `resource_planner.providers`, and describes its settings with
   a Pydantic model. The settings form of the interface is drawn from that schema, so a new provider
-  needs no interface code. See [providers.md](providers.md).
+  needs no interface code. Two schema markers add behaviour: `x-showWhen` shows a setting only while
+  another one has a value, and `x-remoteOptions` gives a list setting check boxes whose choices the
+  provider loads from the source (`POST /integrations/field-options`), also for a form that is not
+  saved yet. See [providers.md](providers.md).
 - The **sync engine** reads a source, hands records to the applier, and writes a run with counts and
   a log. It takes an advisory lock so that one integration runs once at a time, can run as a dry
   run (everything is done, then rolled back), closes what has disappeared only after a complete
   read, and acts as the system principal `sync:<name>` in the audit log.
 - The **scheduler** (APScheduler, in the API process) starts runs by each integration's cron
-  expression.
+  expression; the form offers presets for the usual intervals. For a provider that can read only
+  what changed, a scheduled run reads the whole source when the last complete read is older than
+  `SYNC_FULL_INTERVAL_HOURS` (24 by default), and the next run after a change of the settings is
+  complete as well.
+- **Planning attributes** of a task (due date, start date, original estimate, story points,
+  priority, assignee, reporter) are written by sources only and shown read-only; the effort per
+  skill stays with the planner unless a mapping strategy imports it.
 - The **ingest API** (`POST /ingest/tasks|members|absences`) is the push alternative: a program
   with an API token that has `ingest:write` sends records, and they go through the same applier.
 

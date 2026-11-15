@@ -440,13 +440,22 @@ async def test_the_settings_are_changed_and_checked(api: Api, browser: Browser) 
     assert page.status_code == 200 and 'hx-put="/settings"' in page.text
     assert "Set by the installation" in page.text
 
+    assert 'name="pool_task_fields" value="due_date"' in page.text
+
     saved = await browser.send(
         "PUT",
         "/settings",
-        {"default_allocation_percent": "80", "planning_horizon_weeks": "6", "locale": "de"},
+        {
+            "default_allocation_percent": "80",
+            "planning_horizon_weeks": "6",
+            "locale": "de",
+            "pool_task_fields": ["story_points", "due_date"],
+        },
     )
     assert saved.status_code == 200 and events(saved)["toast"]["kind"] == "success"
     assert 'value="80"' in saved.text and 'value="6"' in saved.text
+    assert 'value="due_date" class="checkbox checkbox-sm" checked' in saved.text
+    assert 'value="priority" class="checkbox checkbox-sm">' in saved.text
 
     bad = await browser.send(
         "PUT",
@@ -458,6 +467,7 @@ async def test_the_settings_are_changed_and_checked(api: Api, browser: Browser) 
 
     settings = (await (await api.sign_in("zoe")).get("/api/v1/settings")).json()
     assert settings["defaultAllocationPercent"] == 80 and settings["planningHorizonWeeks"] == 6
+    assert settings["poolTaskFields"] == ["due_date", "story_points"]
 
 
 # --- sign-in page --------------------------------------------------------------------------

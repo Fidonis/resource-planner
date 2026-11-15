@@ -8,14 +8,14 @@ from typing import Annotated, Literal
 
 from pydantic import Field, StringConstraints
 
-from planner_api.schemas.common import ApiModel, PersonDays, Stamped
+from planner_api.schemas.common import Amount, ApiModel, PersonDays, Stamped
 from planner_api.schemas.org import Managed, Versioned
 
 TaskStatus = Literal["open", "done", "cancelled"]
 AbsencePart = Literal["FULL", "AM", "PM"]
 SkillStatus = Literal["OK", "TIGHT", "BOTTLENECK"]
 
-TaskKey = Annotated[str, StringConstraints(pattern=r"^[A-Za-z0-9][A-Za-z0-9._:/#-]{0,63}$")]
+TaskKey = Annotated[str, StringConstraints(pattern=r"^[A-Za-z0-9][A-Za-z0-9._:/#_-]{0,63}$")]
 Title = Annotated[str, StringConstraints(min_length=1, max_length=300)]
 PositiveDays = Annotated[
     PersonDays,
@@ -79,8 +79,36 @@ class TaskOut(Stamped, Managed):
     owner_team_id: uuid.UUID | None
     owner_team_name: str | None
     status: TaskStatus
-    external_url: str | None
-    external_updated_at: datetime | None
+    external_url: str | None = Field(description="Where the task is in its source system.")
+    external_updated_at: datetime | None = Field(
+        description="When the source system last changed the task."
+    )
+    source_name: str | None = Field(
+        description="Name of the integration that imported the task, or the source that sent it "
+        "through the ingest API.",
+        examples=["Jira"],
+    )
+    due_date: date | None = Field(
+        description="Due date in the source system. Like the other planning attributes below it "
+        "is written by the source only and empty for manual tasks.",
+        examples=["2026-12-18"],
+    )
+    start_date: date | None = Field(
+        description="Planned start in the source system.", examples=["2026-12-01"]
+    )
+    original_estimate_hours: Amount | None = Field(
+        description="Original time estimate of the source system, in hours.", examples=[16]
+    )
+    story_points: Amount | None = Field(description="Story points of the source.", examples=[5])
+    priority: str | None = Field(description="Priority as the source names it.", examples=["High"])
+    assignee: str | None = Field(
+        description="Name of the person the source has assigned the task to.",
+        examples=["Alex Example"],
+    )
+    reporter: str | None = Field(
+        description="Name of the person who created the task in the source.",
+        examples=["Sam Example"],
+    )
     locked_fields: list[str]
     efforts: list[EffortOut]
     total_effort: PersonDays
@@ -324,6 +352,24 @@ class PoolTask(ApiModel):
     title: str
     status: TaskStatus
     owner_team_id: uuid.UUID | None
+    owner_team_name: str | None
+    source_name: str | None = Field(
+        description="Name of the integration or ingest source the task comes from; empty for "
+        "manual tasks.",
+        examples=["Jira"],
+    )
+    external_url: str | None = Field(description="Where the task is in its source system.")
+    due_date: date | None = Field(
+        description="Planning attributes of the source, as in the task list; empty for manual "
+        "tasks. Which of them a client shows is up to `poolTaskFields`.",
+        examples=["2026-12-18"],
+    )
+    start_date: date | None
+    original_estimate_hours: Amount | None
+    story_points: Amount | None
+    priority: str | None
+    assignee: str | None
+    reporter: str | None
     efforts: list[PoolEffort]
     total_effort: PersonDays
     total_open: PersonDays

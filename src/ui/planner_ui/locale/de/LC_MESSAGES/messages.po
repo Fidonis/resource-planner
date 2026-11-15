@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Resource Planner \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-29 09:24+0100\n"
+"POT-Creation-Date: 2026-11-15 08:29+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Resource Planner contributors\n"
 "Language: de\n"
@@ -141,7 +141,7 @@ msgstr "API-Token"
 msgid "New API token"
 msgstr "Neues API-Token"
 
-#: admin_resources.py
+#: admin_resources.py provider_texts.py
 msgid "API token"
 msgstr "API-Token"
 
@@ -229,8 +229,8 @@ msgstr "Löschen"
 msgid "Deleted."
 msgstr "Gelöscht."
 
-#: crud.py routes/integrations.py templates/planning/_edit.html templates/roles/_mappings.html
-#: templates/settings/_form.html
+#: crud.py routes/integrations.py templates/account/_pool_fields.html templates/planning/_edit.html
+#: templates/roles/_mappings.html templates/settings/_form.html
 msgid "Save"
 msgstr "Speichern"
 
@@ -244,7 +244,7 @@ msgstr ""
 "Jemand anderes hat diesen Eintrag inzwischen geändert. Laden Sie die aktuellen Werte, um "
 "fortzufahren."
 
-#: crud.py routes/admin.py routes/integrations.py routes/planning.py
+#: crud.py routes/admin.py routes/integrations.py routes/pages.py routes/planning.py
 msgid "Saved."
 msgstr "Gespeichert."
 
@@ -316,6 +316,50 @@ msgstr "Änderungsprotokoll"
 #: nav.py templates/settings/index.html
 msgid "Settings"
 msgstr "Einstellungen"
+
+#: pool_fields.py templates/tasks/_details.html
+msgid "Due date"
+msgstr "Fälligkeitsdatum"
+
+#: pool_fields.py templates/tasks/_details.html
+msgid "Start date"
+msgstr "Startdatum"
+
+#: pool_fields.py templates/tasks/_details.html
+msgid "Original estimate"
+msgstr "Ursprüngliche Schätzung"
+
+#: pool_fields.py templates/tasks/_details.html templates/tasks/_list.html
+msgid "Story points"
+msgstr "Story Points"
+
+#: pool_fields.py templates/tasks/_details.html templates/tasks/_list.html
+msgid "Priority"
+msgstr "Priorität"
+
+#: pool_fields.py templates/tasks/_details.html templates/tasks/_list.html
+msgid "Assignee"
+msgstr "Bearbeiter"
+
+#: pool_fields.py templates/tasks/_details.html
+msgid "Reporter"
+msgstr "Autor"
+
+#: pool_fields.py resources.py templates/absences/calendar.html templates/members/_list.html
+#: templates/members/index.html templates/overview.html templates/planning/_board.html
+#: templates/tasks/_list.html templates/tasks/index.html work_resources.py
+msgid "Team"
+msgstr "Team"
+
+#: pool_fields.py templates/absences/_list.html templates/members/_list.html
+#: templates/skills/_list.html templates/tasks/_list.html templates/teams/_list.html
+#: templates/users/_list.html templates/users/index.html
+msgid "Source"
+msgstr "Quelle"
+
+#: pool_fields.py
+msgid "Open effort"
+msgstr "Offener Aufwand"
 
 #: provider_texts.py
 msgid "CSV file (absences)"
@@ -390,6 +434,126 @@ msgstr ""
 #: provider_texts.py
 msgid "Page size"
 msgstr "Seitengröße"
+
+#: provider_texts.py
+msgid "Jira"
+msgstr "Jira"
+
+#: provider_texts.py
+msgid "Jira edition"
+msgstr "Jira-Variante"
+
+#: provider_texts.py
+msgid "CLOUD: Jira Cloud (atlassian.net). DATA_CENTER: Jira Data Center or Server."
+msgstr "CLOUD: Jira Cloud (atlassian.net). DATA_CENTER: Jira Data Center oder Server."
+
+#: provider_texts.py
+msgid "Jira URL"
+msgstr "Jira-URL"
+
+#: provider_texts.py
+msgid "Address of Jira, for example https://example.atlassian.net. Links to the issues point there."
+msgstr ""
+"Adresse von Jira, zum Beispiel https://example.atlassian.net. Links zu den Vorgängen zeigen "
+"dorthin."
+
+#: provider_texts.py
+msgid "API URL"
+msgstr "API-URL"
+
+#: provider_texts.py
+msgid ""
+"Only for a scoped API token of Jira Cloud: https://api.atlassian.com/ex/jira/<cloud id>. Empty: "
+"the Jira URL."
+msgstr ""
+"Nur für ein API-Token von Jira Cloud mit Bereichen (scoped): "
+"https://api.atlassian.com/ex/jira/<cloud id>. Leer: die Jira-URL."
+
+#: provider_texts.py
+msgid "E-mail address"
+msgstr "E-Mail-Adresse"
+
+#: provider_texts.py
+msgid "Jira Cloud: the account the API token belongs to. Empty for Data Center."
+msgstr "Jira Cloud: das Konto, zu dem das API-Token gehört. Leer bei Data Center."
+
+#: provider_texts.py
+msgid "Jira Cloud: an API token of the account. Data Center: a personal access token."
+msgstr "Jira Cloud: ein API-Token des Kontos. Data Center: ein persönliches Zugriffstoken."
+
+#: provider_texts.py
+msgid "Projects"
+msgstr "Projekte"
+
+#: provider_texts.py
+msgid "SELECTED: only the projects chosen below. ALL: every project the account can see."
+msgstr "SELECTED: nur die unten gewählten Projekte. ALL: alle Projekte, die das Konto sehen darf."
+
+#: provider_texts.py
+msgid "Selected projects"
+msgstr "Ausgewählte Projekte"
+
+#: provider_texts.py
+msgid "Load the projects from Jira and tick the ones to import."
+msgstr "Laden Sie die Projekte aus Jira und haken Sie die an, die importiert werden sollen."
+
+#: provider_texts.py
+msgid "Issue types"
+msgstr "Vorgangstypen"
+
+#: provider_texts.py
+msgid ""
+"Only issues of the ticked types. None ticked: every standard type, without epics and sub-tasks, "
+"so that no work is counted twice."
+msgstr ""
+"Nur Vorgänge der angehakten Typen. Keiner angehakt: alle Standardtypen ohne Epics und "
+"Unteraufgaben, damit keine Arbeit doppelt zählt."
+
+#: provider_texts.py
+msgid "Leave out issues done longer ago (days)"
+msgstr "Länger erledigte Vorgänge auslassen (Tage)"
+
+#: provider_texts.py
+msgid "A complete read skips issues finished more than this many days ago. 0: read them all."
+msgstr ""
+"Ein vollständiges Lesen überspringt Vorgänge, die vor mehr als so vielen Tagen erledigt wurden. "
+"0: alle lesen."
+
+#: provider_texts.py
+msgid "Additional JQL"
+msgstr "Zusätzliches JQL"
+
+#: provider_texts.py
+msgid "Added to the query with AND, for example labels = planning."
+msgstr "Wird mit AND an die Abfrage angehängt, zum Beispiel labels = planning."
+
+#: provider_texts.py
+msgid "Story points field"
+msgstr "Feld für Story Points"
+
+#: provider_texts.py
+msgid "Id or name of the field, for example customfield_10016. Empty: found by its name."
+msgstr "ID oder Name des Felds, zum Beispiel customfield_10016. Leer: wird über den Namen gefunden."
+
+#: provider_texts.py
+msgid "Start date field"
+msgstr "Feld für das Startdatum"
+
+#: provider_texts.py
+msgid "Id or name of the field. Empty: found by its name or type."
+msgstr "ID oder Name des Felds. Leer: wird über Namen oder Typ gefunden."
+
+#: provider_texts.py
+msgid "Effort fields"
+msgstr "Aufwandsfelder"
+
+#: provider_texts.py
+msgid ""
+"Only for the effort strategy CUSTOM_FIELDS: ids or names of the fields that hold an effort, for "
+"example Effort Backend. The mapping assigns them to skills."
+msgstr ""
+"Nur für die Aufwandsstrategie CUSTOM_FIELDS: IDs oder Namen der Felder, die einen Aufwand "
+"enthalten, zum Beispiel Effort Backend. Das Mapping ordnet sie den Fähigkeiten zu."
 
 #: provider_texts.py
 msgid "CSV file (tasks)"
@@ -628,12 +792,6 @@ msgstr "Mitglied bearbeiten"
 msgid "Delete member"
 msgstr "Mitglied löschen"
 
-#: resources.py templates/absences/calendar.html templates/members/_list.html
-#: templates/members/index.html templates/overview.html templates/planning/_board.html
-#: templates/tasks/_list.html templates/tasks/index.html work_resources.py
-msgid "Team"
-msgstr "Team"
-
 #: resources.py
 msgid "Availability for planned work (%)"
 msgstr "Verfügbarkeit für geplante Arbeit (%)"
@@ -871,7 +1029,7 @@ msgstr "Pflichtfeld."
 msgid "Wrong."
 msgstr "Falsch."
 
-#: templates/macros.html texts.py
+#: templates/macros.html templates/tasks/_list.html texts.py
 msgid "Maintained by the connected system."
 msgstr "Wird vom angebundenen System gepflegt."
 
@@ -1047,6 +1205,18 @@ msgstr "Auf der Planungstafel gezeigte Wochen"
 msgid "Language of accounts without a preference"
 msgstr "Sprache für Konten ohne eigene Einstellung"
 
+#: routes/admin.py
+msgid "Shown with the tasks to plan"
+msgstr "Angezeigt bei den Aufgaben zum Planen"
+
+#: routes/admin.py
+msgid ""
+"What the planning board shows below the title of each task to plan. Each account can choose its "
+"own on its account page."
+msgstr ""
+"Was die Planungstafel unter dem Titel jeder Aufgabe zum Planen zeigt. Jedes Konto kann auf seiner"
+" Kontoseite eine eigene Auswahl treffen."
+
 #: routes/auth.py
 msgid "The two passwords are not the same."
 msgstr "Die beiden Passwörter stimmen nicht überein."
@@ -1076,6 +1246,34 @@ msgid "Running"
 msgstr "Läuft"
 
 #: routes/integrations.py
+msgid "Only when started by hand"
+msgstr "Nur beim Start von Hand"
+
+#: routes/integrations.py
+msgid "Every 15 minutes"
+msgstr "Alle 15 Minuten"
+
+#: routes/integrations.py
+msgid "Every 30 minutes"
+msgstr "Alle 30 Minuten"
+
+#: routes/integrations.py
+msgid "Every hour"
+msgstr "Stündlich"
+
+#: routes/integrations.py
+msgid "Every 4 hours"
+msgstr "Alle 4 Stunden"
+
+#: routes/integrations.py
+msgid "Every day at 05:00 UTC"
+msgstr "Täglich um 05:00 UTC"
+
+#: routes/integrations.py
+msgid "Workdays at 05:00 UTC"
+msgstr "Werktags um 05:00 UTC"
+
+#: routes/integrations.py
 msgid "teams"
 msgstr "Teams"
 
@@ -1086,6 +1284,10 @@ msgstr "Anbindung bearbeiten"
 #: routes/integrations.py templates/integrations/_choose.html templates/integrations/index.html
 msgid "New integration"
 msgstr "Neue Anbindung"
+
+#: routes/integrations.py
+msgid "The choices cannot be loaded for this setting."
+msgstr "Für diese Einstellung lassen sich keine Auswahlmöglichkeiten laden."
 
 #: routes/planning.py
 #, python-format
@@ -1441,12 +1643,6 @@ msgstr "Zeitraum"
 msgid "Working days"
 msgstr "Arbeitstage"
 
-#: templates/absences/_list.html templates/members/_list.html templates/skills/_list.html
-#: templates/tasks/_list.html templates/teams/_list.html templates/users/_list.html
-#: templates/users/index.html
-msgid "Source"
-msgstr "Quelle"
-
 #: templates/absences/_list.html
 msgid "Everybody"
 msgstr "Alle"
@@ -1519,6 +1715,31 @@ msgstr "Endet am oder nach dem"
 #: templates/absences/index.html
 msgid "Starts on or before"
 msgstr "Beginnt am oder vor dem"
+
+#: templates/account/_pool_fields.html
+msgid "Tasks to plan on the board"
+msgstr "Aufgaben zum Planen auf der Planungstafel"
+
+#: templates/account/_pool_fields.html
+msgid "What the planning board shows below the title of each task to plan."
+msgstr "Was die Planungstafel unter dem Titel jeder Aufgabe zum Planen zeigt."
+
+#: templates/account/_pool_fields.html
+#, python-format
+msgid "Use the default of the settings: %(fields)s"
+msgstr "Standard der Einstellungen verwenden: %(fields)s"
+
+#: templates/account/_pool_fields.html
+msgid "nothing"
+msgstr "nichts"
+
+#: templates/account/_pool_fields.html
+msgid "Choose my own"
+msgstr "Eigene Auswahl treffen"
+
+#: templates/account/_pool_fields.html
+msgid "My own choice"
+msgstr "Eigene Auswahl"
 
 #: templates/api_tokens/_list.html
 msgid "Last used"
@@ -1704,6 +1925,26 @@ msgstr "Problem"
 msgid "Copy"
 msgstr "Kopieren"
 
+#: templates/integrations/_choices.html
+msgid "Filter"
+msgstr "Filtern"
+
+#: templates/integrations/_choices.html
+msgid "Filter the choices"
+msgstr "Auswahl filtern"
+
+#: templates/integrations/_choices.html
+msgid "not found in the source"
+msgstr "in der Quelle nicht gefunden"
+
+#: templates/integrations/_choices.html
+msgid "The source has no choices for this setting."
+msgstr "Die Quelle bietet für diese Einstellung nichts zur Auswahl."
+
+#: templates/integrations/_choices.html
+msgid "Nothing selected yet. Load the choices from the source."
+msgstr "Noch nichts ausgewählt. Laden Sie die Auswahl aus der Quelle."
+
 #: templates/integrations/_choose.html
 msgid "What do you want to bring in, and from where?"
 msgstr "Was möchten Sie übernehmen, und woher?"
@@ -1739,6 +1980,10 @@ msgstr ""
 "bearbeiten."
 
 #: templates/integrations/_fields.html
+msgid "Load the choices from the source"
+msgstr "Auswahl aus der Quelle laden"
+
+#: templates/integrations/_fields.html
 msgid "Set. Leave empty to keep it."
 msgstr "Gesetzt. Leer lassen, um den Wert zu behalten."
 
@@ -1749,6 +1994,14 @@ msgstr "Ein Eintrag pro Zeile."
 #: templates/integrations/_form.html templates/integrations/_list.html
 msgid "Schedule"
 msgstr "Zeitplan"
+
+#: templates/integrations/_form.html
+msgid "Custom cron line"
+msgstr "Eigene Cron-Zeile"
+
+#: templates/integrations/_form.html
+msgid "Cron line"
+msgstr "Cron-Zeile"
 
 #: templates/integrations/_form.html
 msgid ""
@@ -1984,6 +2237,21 @@ msgstr "Niemand hat diese Fähigkeit bisher. Ordnen Sie sie zuerst einem Mitglie
 msgid "Assign"
 msgstr "Zuweisen"
 
+#: templates/planning/_board.html templates/tasks/_details.html
+#, python-format
+msgid "%(hours)s h"
+msgstr "%(hours)s Std."
+
+#: templates/planning/_board.html
+#, python-format
+msgid "%(points)s SP"
+msgstr "%(points)s SP"
+
+#: templates/planning/_board.html
+#, python-format
+msgid "%(days)s PD open"
+msgstr "%(days)s PT offen"
+
 #: templates/planning/_board.html
 msgid "Board settings"
 msgstr "Einstellungen der Tafel"
@@ -2002,7 +2270,19 @@ msgstr "Aufgaben zum Planen"
 
 #: templates/planning/_board.html
 msgid "Drag a skill onto a member's week, or use its Assign… button."
-msgstr "Ziehen Sie eine Fähigkeit auf die Woche einer Person oder nutzen Sie die Schaltfläche „Zuweisen …“."
+msgstr ""
+"Ziehen Sie eine Fähigkeit auf die Woche einer Person oder nutzen Sie die Schaltfläche „Zuweisen "
+"…“."
+
+#: templates/planning/_board.html templates/tasks/_details.html templates/tasks/_list.html
+#, python-format
+msgid "Open %(key)s in the source"
+msgstr "%(key)s in der Quelle öffnen"
+
+#: templates/planning/_board.html
+#, python-format
+msgid "Details of %(key)s"
+msgstr "Angaben zu %(key)s"
 
 #: templates/planning/_board.html
 msgid "Planned of needed person-days"
@@ -2171,6 +2451,27 @@ msgstr "Noch keine Fähigkeiten."
 msgid "A skill's key is matched against the labels of imported tasks."
 msgstr "Der Schlüssel einer Fähigkeit wird mit den Labels importierter Aufgaben verglichen."
 
+#: templates/tasks/_details.html
+msgid "Values from the source"
+msgstr "Werte aus der Quelle"
+
+#: templates/tasks/_details.html
+#, python-format
+msgid "From %(source)s, read only."
+msgstr "Aus %(source)s, schreibgeschützt."
+
+#: templates/tasks/_details.html
+msgid "Changed in the source"
+msgstr "Geändert in der Quelle"
+
+#: templates/tasks/_list.html
+msgid "Due"
+msgstr "Fällig"
+
+#: templates/tasks/_list.html
+msgid "SP"
+msgstr "SP"
+
 #: templates/tasks/_list.html
 msgid "Effort"
 msgstr "Aufwand"
@@ -2178,6 +2479,11 @@ msgstr "Aufwand"
 #: templates/tasks/_list.html
 msgid "Planned"
 msgstr "Geplant"
+
+#: templates/tasks/_list.html
+#, python-format
+msgid "Show the values of %(key)s from the source"
+msgstr "Werte von %(key)s aus der Quelle zeigen"
 
 #: templates/tasks/_list.html
 #, python-format
@@ -2256,5 +2562,4 @@ msgstr "Alle Quellen"
 #: templates/users/index.html
 msgid "Local accounts"
 msgstr "Lokale Konten"
-
 

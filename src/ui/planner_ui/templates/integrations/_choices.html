@@ -1,0 +1,29 @@
+{# The check boxes of a setting whose choices come from the source (``x-remoteOptions``).
+   items: (value, label) pairs; selected: the values that are ticked. A ticked value that the
+   source did not return any more stays, marked, so that nothing is dropped without notice. #}
+{% macro choices(name, fid, items, selected, loaded=false, error=none) %}
+{% if error %}<p class="mb-2 text-xs text-error" role="alert">{{ error }}</p>{% endif %}
+{% set known = items|map("first")|list %}
+{% set extra = [] %}
+{% for value in selected %}{% if value not in known %}{% if extra.append(value) %}{% endif %}{% endif %}{% endfor %}
+{% if loaded and (items|length) > 8 %}
+<input type="search" class="input input-bordered input-sm mb-2 w-full" placeholder="{{ _('Filter') }}" aria-label="{{ _('Filter the choices') }}" data-filter-choices aria-controls="{{ fid }}-list" autocomplete="off">
+{% endif %}
+<div id="{{ fid }}-list" class="max-h-56 space-y-1 overflow-y-auto rounded-box border border-base-300 p-2">
+  {% for value, label in items %}
+  <label class="label cursor-pointer justify-start gap-3 py-1" data-choice>
+    <input type="checkbox" name="{{ name }}" value="{{ value }}" class="checkbox checkbox-sm"{% if value in selected %} checked{% endif %}>
+    <span class="label-text">{{ label }}</span>
+  </label>
+  {% endfor %}
+  {% for value in extra %}
+  <label class="label cursor-pointer justify-start gap-3 py-1" data-choice>
+    <input type="checkbox" name="{{ name }}" value="{{ value }}" class="checkbox checkbox-sm" checked>
+    <span class="label-text">{{ value }}{% if loaded %} <span class="badge badge-warning badge-outline badge-sm">{{ _("not found in the source") }}</span>{% endif %}</span>
+  </label>
+  {% endfor %}
+  {% if not items and not extra %}
+  <p class="px-1 py-1 text-sm opacity-60">{% if loaded %}{{ _("The source has no choices for this setting.") }}{% else %}{{ _("Nothing selected yet. Load the choices from the source.") }}{% endif %}</p>
+  {% endif %}
+</div>
+{% endmacro %}
