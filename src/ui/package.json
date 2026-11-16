@@ -12,7 +12,7 @@
   "dependencies": {},
   "devDependencies": {
     "@alpinejs/csp": "3.17.5",
-    "@fontsource/ibm-plex-sans": "5.2.5",
+    "@fontsource/ibm-plex-sans": "5.3.0",
     "@fontsource/manrope": "5.3.0",
     "@tabler/icons": "3.51.0",
     "daisyui": "4.12.23",
